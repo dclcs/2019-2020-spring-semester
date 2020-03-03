@@ -5,7 +5,9 @@
 
 | `☐ => ☑`? | [due]       | [course] | [desc]           |
 | ------- | ----------- | -------- | ---------------- |
-| `☐`   | Template | Template   | Template |
+| `☐`   | 03/12 23:59 | HCI | Assignment #1 |
+| `☐`   | 03/10 12:55 | GP | Assignment #1 |
+| `☐`   | 03/10 12:55 | GP | Assignment #0 |
 
 ## Course Code Reference
 
