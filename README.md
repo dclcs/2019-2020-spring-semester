@@ -7,8 +7,8 @@
 | ------- | ----------- | -------- | ---------------- |
 | `☐`   | 03/25 23:59 | OS | Lab #1 |
 | `☐`   | 03/12 23:59 | HCI | Assignment #1 |
-| `☐`   | 03/10 12:55 | GP | Assignment #1 |
-| `☐`   | 03/10 12:55 | GP | Assignment #0 |
+| `☑`   | 03/10 12:55 | GP | Assignment #1 |
+| `☑`   | 03/10 12:55 | GP | Assignment #0 |
 
 ## Course Code Reference
 
