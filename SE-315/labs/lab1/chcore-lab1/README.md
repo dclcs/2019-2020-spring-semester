@@ -2,11 +2,13 @@
 
 This is the repository of ChCore labs in SE315, 2020 Spring.
 
-## build 
+## Build 
+
   - `make` or `make build`
   - The project will be built in `build` directory.
 
 ## Emulate
+
   - `make qemu`
 
   Emulate ChCore in QEMU with GUI
@@ -15,7 +17,7 @@ This is the repository of ChCore labs in SE315, 2020 Spring.
   
   Emulate ChCore in QEMU without GUI
 
-## Debug with GBD
+## Debug with GDB
 
   - `make qemu-gdb`
 
@@ -30,6 +32,7 @@ This is the repository of ChCore labs in SE315, 2020 Spring.
   Start a GDB (gdb-multiarch) client
 
 ## Grade
+
   - `make grade`
   
   Show your grade of labs in the current branch
