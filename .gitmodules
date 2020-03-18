@@ -1,0 +1,3 @@
+[submodule "SE-315/gitlab/chcore"]
+	path = SE-315/gitlab/chcore
+	url = https://ipads.se.sjtu.edu.cn:2020/517030910168/chcore.git
