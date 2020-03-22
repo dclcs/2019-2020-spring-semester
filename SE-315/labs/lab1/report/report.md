@@ -143,3 +143,4 @@ So in a word, if a core's `U` and `MT` are all `0`, we should stall this core be
 > In `./boot/start.S` it uses `0xc1000000`, which includes the bit `MPIDR_EL1[31]`, which is a reserved bit. Can't figure out why.
 
 If it goes through the mask (by `bic x8, x8, x9`) and turns out to be zero, that means the current core shouldn't be stall. So, we jump to a normal branch `primary` to continue the initialization.
+
