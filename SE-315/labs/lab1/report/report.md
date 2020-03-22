@@ -10,11 +10,11 @@ Files were tracked under `git` version control system.
 
 > Script Issues:
 >
-> `./scripts/docker_build.sh` didn't handle the situation when `$(pwd)` contains space or other special characters.
+> `./scripts/docker_build.sh` didn't handle the situation that `$(pwd)` may contain space or other special characters.
 >
-> I used `VMware Tools` to mount virtual volumes to `os-labs-vm`, and happened to notice that minor issue.
+> I used `VMware Tools` to mount virtual volumes to `os-labs-vm`, and happened to stuck in that minor issue.
 >
-> The solution is simple: using quotation marks to wrap the `$(pwd)` fixes that.
+> The solution is simple: using quotation marks to wrap the `$(pwd)` should fix that.
 >
 > `docker run -it <...> -v "$(pwd)":/chos <...>`
 
