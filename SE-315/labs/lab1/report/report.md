@@ -8,6 +8,16 @@ Provided VMware virtual machine was used, based on VMware Fusion Pro (`v11`).
 
 Files were tracked under `git` version control system.
 
+> Script Issues:
+>
+> `./scripts/docker_build.sh` didn't handle the situation when `$(pwd)` contains space or other special characters.
+>
+> I used `VMware Tools` to mount virtual volumes to `os-labs-vm`, and happened to notice that minor issue.
+>
+> The solution is simple: using quotation marks to wrap the `$(pwd)` fixes that.
+>
+> `docker run -it <...> -v "$(pwd)":/chos <...>`
+
 ### Exercises
 
 #### Exercise 1
@@ -56,18 +66,16 @@ Differences between x86-64...
 
 #### Exercise 2
 
-After executing `make gdb`, the first label i can see is `arm64_elX_to_el1`, which helps switching the exception level from higher `ELx` to OS kernel's `EL1`.
-
-After that function exits, the CPU runs in `EL1` privilege level and the very first function called in the kernel is `_start`.
+The very first function running in the kernel is `_start`, which was defined in `./boot/start.S`, in line 12...
 
 ```
 (gdb) where
 #0  0x0000000000080000 in _start ()
 ```
 
-Its address appears to be `0x0000000000080000`.
+...and its address appears to be `0x0000000000080000`.
 
-By analyzing the kernel image `./build/kernel.img`, here's what i got:
+By analyzing the kernel image `./build/kernel.img`, here's what i've got:
 
 ```
 Symbol table '.symtab' contains 119 entries:
@@ -91,3 +99,47 @@ Symbol #91 is the first function mentioned above.
 >
 > Option `-s` (non-capital) or `--symbols` should print the symbol table well.
 
+#### Exercise 3
+
+Critical codes here:
+
+```assembly
+BEGIN_FUNC(_start)
+  /* get the processor id, and store it in register x8 */
+	mrs	x8, mpidr_el1
+	mov	x9, #0xc1000000
+	bic	x8, x8, x9
+	cbz	x8, primary
+
+  /* hang all secondary processors before we introduce multi-processors */
+secondary_hang:
+	bl secondary_hang
+```
+
+##### Dead-loop
+
+Obviously, the `secondary_hang` branch is a dead-loop. Any control-flow goes there will stall forever.
+
+So, in order to block all secondary processors, we just need to guide their control flow into label `secondary_hang`.
+
+##### Distinguish Processors
+
+How can we distinguish the main processor from other secondary processors?
+
+A special register called `mpidr_el1` differs among Raspberry Pi 3's processors.
+
+According to ARM's [documentation](http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.101111_0101_04_en/lau1443447573920.html), the register `mpidr_el1` contains many useful informations, as shown below:
+
+![image-20200322190002598](report.assets/image-20200322190002598.png)
+
+`MPIDR_EL1[30]`, also named `U`, indicates if current core is part of a multiprocessor system. If so, `U` should be `0`. Or else, it should be `1`.
+
+`MPIDR_EL1[24]`, also named `MT`, indicates whether the lowest level of affinity consists of logical cores that are implemented using a multithreading type approach. If so, `MT` should be `1`. Or else, it should be `0`.
+
+Let's think. If our system has only one processor core, we should never stall the current (only!) processor. Or, if our system is a multiprocessor one, we should stall all those secondary cores and only keep the first core running.
+
+So in a word, if a core's `U` and `MT` are all `0`, we should stall this core because **a)** it is not the only core in the system and **b)** it's not the primary core. So the mask code should be `0100 0001 0000 0000 0000 0000 0000 0000`, or `0x41000000` in hex.
+
+> In `./boot/start.S` it uses `0xc1000000`, which includes the bit `MPIDR_EL1[31]`, which is a reserved bit. Can't figure out why.
+
+If it goes through the mask (by `bic x8, x8, x9`) and turns out to be zero, that means the current core shouldn't be stall. So, we jump to a normal branch `primary` to continue the initialization.
