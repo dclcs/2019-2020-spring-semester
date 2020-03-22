@@ -54,3 +54,40 @@ Differences between x86-64...
 	* However in `ARMv8`, those normal arithmetic instructions won't update those bits.
 		* Only those with `S` prefix will set the condition bits.
 
+#### Exercise 2
+
+After executing `make gdb`, the first label i can see is `arm64_elX_to_el1`, which helps switching the exception level from higher `ELx` to OS kernel's `EL1`.
+
+After that function exits, the CPU runs in `EL1` privilege level and the very first function called in the kernel is `_start`.
+
+```
+(gdb) where
+#0  0x0000000000080000 in _start ()
+```
+
+Its address appears to be `0x0000000000080000`.
+
+By analyzing the kernel image `./build/kernel.img`, here's what i got:
+
+```
+Symbol table '.symtab' contains 119 entries:
+   Num:    Value          Size Type    Bind   Vis      Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 0000000000080000     0 SECTION LOCAL  DEFAULT    1 
+     2: ffffff00000cc000     0 SECTION LOCAL  DEFAULT    2 
+	... ...
+    91: 0000000000080000    48 FUNC    GLOBAL DEFAULT    1 _start
+	... ...
+   117: 0000000000086000  4096 OBJECT  GLOBAL DEFAULT    1 _boot_pgd_down
+   118: 0000000000087210   160 FUNC    GLOBAL DEFAULT    1 el1_mmu_activate
+
+```
+
+Symbol #91 is the first function mentioned above.
+
+> Document Typo:
+>
+> Option `-S` (capital) or `--sections` actually prints the section headers rather than the symbol table.
+>
+> Option `-s` (non-capital) or `--symbols` should print the symbol table well.
+
