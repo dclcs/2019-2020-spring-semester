@@ -321,3 +321,17 @@ However, we get the least significant digit first and the most significant digit
 
 In order to verify its correctness, I wrote `./report/src/test.py` to execute random tests.
 
+#### Exercise 7
+
+OS kernel stack allocation code lies in `./kernel/main.c`. It is merely a size-fixed memory buffer, one for each kernel.
+
+```c
+char kernel_stack[PLAT_CPU_NUM][KERNEL_STACK_SIZE];
+```
+
+However, that memory buffer won't be a stack till the code in `./kernel/head.S` is executed.
+
+Function `start_kernel` in `./kernel/head.S` puts the pointer to the **tail** of `kernel_stack` buffer to register `sp` (aka. `x29`, or stack pointer). Since then, `kernel_stack` buffer begins to play its kernel stack role.
+
+`kernel_stack` is declared as a global array in `./kernel/main.c`, which is allocated in kernel's heap, which lies in kernel's high privilege address space. This address space is inaccessible for user-modal codes.
+
