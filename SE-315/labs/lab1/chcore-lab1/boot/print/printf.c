@@ -1,7 +1,7 @@
 #include "printf.h"
 #include "uart.h"
 
-#define MAX_INT_BUFF_SIZE  80
+#define MAX_INT_BUFF_SIZE 80
 
 static void write_string(const char *str)
 {
@@ -15,14 +15,56 @@ static void write_string(const char *str)
 // you may need to call `write_string`
 // you do not need to print prefix like "0x", "0"...
 // Remember the most significant digit is printed first.
-static void write_num(int base, unsigned long n, int neg)
+static void write_num(int base_i, unsigned long n, int neg)
 {
-  static const char hex[] = "0123456789abcdef";
-  char buff[MAX_INT_BUFF_SIZE];
-  // TODO: fill this function.
-  (void) buff;  // delete it 
-  (void) hex;  // delete it
+	unsigned long base = base_i;
+	// neg == 0 => positive number
+	// neg == 1 => negative number
 
+	// doesn't support any base greater than hex
+	if (base > 16)
+	{
+		return;
+	}
+
+	static const char hex[] = "0123456789abcdef";
+
+	char buff[MAX_INT_BUFF_SIZE];
+	char reverse_buff[MAX_INT_BUFF_SIZE];
+
+	char *header = buff;
+
+	if (n == 0)
+	{
+		// handle zero exclusively
+		buff[0] = '0';
+		buff[1] = '\0';
+		write_string(buff);
+		return;
+	}
+
+	if (neg)
+	{
+		*header = '-';
+		++header;
+	}
+
+	int ptr = 0;
+	while (n > 0)
+	{
+		reverse_buff[ptr++] = hex[n % base];
+		n /= base;
+	}
+
+	for (int i = 0; i < ptr; ++i)
+	{
+		*header = reverse_buff[ptr - i - 1];
+		++header;
+	}
+
+	*header = '\0';
+	write_string(buff);
+	return;
 }
 
 void tfp_format(char *format, va_list args)
@@ -33,19 +75,25 @@ void tfp_format(char *format, va_list args)
 	int escape_mode = 0;
 
 	/* Iterate over the format list. */
-	for (i = 0; format[i] != 0; i++) {
+	for (i = 0; format[i] != 0; i++)
+	{
 		/* Handle simple characters. */
-		if (!escape_mode && format[i] != '%') {
+		if (!escape_mode && format[i] != '%')
+		{
 			uart_putc(format[i]);
 			continue;
 		}
 
 		/* Handle the percent escape character. */
-		if (format[i] == '%') {
-			if (!escape_mode) {
+		if (format[i] == '%')
+		{
+			if (!escape_mode)
+			{
 				/* Entering escape mode. */
 				escape_mode = 1;
-			} else {
+			}
+			else
+			{
 				/* Already in escape mode; print a percent. */
 				uart_putc(format[i]);
 				escape_mode = 0;
@@ -54,7 +102,8 @@ void tfp_format(char *format, va_list args)
 		}
 
 		/* Handle the modifier. */
-		switch (format[i]) {
+		switch (format[i])
+		{
 			/* Ignore printf modifiers we don't support. */
 		case '0':
 		case '1':
@@ -108,7 +157,8 @@ void tfp_format(char *format, va_list args)
 
 			/* Long number. */
 		case 'l':
-			switch (format[++i]) {
+			switch (format[++i])
+			{
 			case 'u':
 				ul = va_arg(args, unsigned long);
 				write_num(10, ul, 0);

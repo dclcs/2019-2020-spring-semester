@@ -310,3 +310,14 @@ Easy to tell that Bootloader codes has the same `VMA` as `LMA`, but OS kernel co
 Bootloader codes are usually solidified in flash chips, not in ROM. So there's no need and no way to map them into memory, because those codes can be directly referenced by CPU data bus. Obviously its `VMA` and `LMA` should be the same.
 
 However, OS kernel's code was stored in disk or ROM. Those codes must be mapped into a memory space before being executed. In normal computer architectures, OS kernel takes the higher end of the virtual memory space, that's why its address begins with `0xffffff`.
+
+#### Exercise 6
+
+The main function of `write_num` or `printk_write_num` is basically convert an `unsigned long n` into any given base.
+
+We can always get the least significant digit by `n % base`, and disregard that digit by `n /= base`. Repeat till `n` is 0.
+
+However, we get the least significant digit first and the most significant digit last in such way. So reversing the string before calling `write_string` is necessary.
+
+In order to verify its correctness, I wrote `./report/src/test.py` to execute random tests.
+

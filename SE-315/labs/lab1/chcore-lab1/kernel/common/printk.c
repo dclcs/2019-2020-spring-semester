@@ -13,13 +13,13 @@
 #include <common/uart.h>
 #include <common/types.h>
 
-#define MAX_INT_BUFF_SIZE  64
+#define MAX_INT_BUFF_SIZE 64
 
 typedef __builtin_va_list va_list;
-#define va_start(v,l)   __builtin_va_start(v,l)
-#define va_end(v)       __builtin_va_end(v)
-#define va_arg(v,l)     __builtin_va_arg(v,l)
-#define va_copy(d,s)    __builtin_va_copy(d,s)
+#define va_start(v, l) __builtin_va_start(v, l)
+#define va_end(v) __builtin_va_end(v)
+#define va_arg(v, l) __builtin_va_arg(v, l)
+#define va_copy(d, s) __builtin_va_copy(d, s)
 
 static void printk_write_string(const char *str)
 {
@@ -33,14 +33,56 @@ static void printk_write_string(const char *str)
 // you may need to call `printk_write_string`
 // you do not need to print prefix like "0x", "0"...
 // Remember the most significant digit is printed first.
-static void printk_write_num(int base, unsigned long long n, int neg)
+static void printk_write_num(int base_i, unsigned long long n, int neg)
 {
-  static const char hex[] = "0123456789abcdef";
-  char buff[MAX_INT_BUFF_SIZE];
-  // TODO: fill this function.
-  (void) buff;  // delete it
-  (void) hex;   // delete it
+	unsigned long base = base_i;
+	// neg == 0 => positive number
+	// neg == 1 => negative number
 
+	// doesn't support any base greater than hex
+	if (base > 16)
+	{
+		return;
+	}
+
+	static const char hex[] = "0123456789abcdef";
+
+	char buff[MAX_INT_BUFF_SIZE];
+	char reverse_buff[MAX_INT_BUFF_SIZE];
+
+	char *header = buff;
+
+	if (n == 0)
+	{
+		// handle zero exclusively
+		buff[0] = '0';
+		buff[1] = '\0';
+		printk_write_string(buff);
+		return;
+	}
+
+	if (neg)
+	{
+		*header = '-';
+		++header;
+	}
+
+	int ptr = 0;
+	while (n > 0)
+	{
+		reverse_buff[ptr++] = hex[n % base];
+		n /= base;
+	}
+
+	for (int i = 0; i < ptr; ++i)
+	{
+		*header = reverse_buff[ptr - i - 1];
+		++header;
+	}
+
+	*header = '\0';
+	printk_write_string(buff);
+	return;
 }
 
 void printk_format(char *format, va_list args)
@@ -52,24 +94,33 @@ void printk_format(char *format, va_list args)
 	int escape_mode = 0;
 
 	/* Iterate over the format list. */
-	for (i = 0; format[i] != 0; i++) {
+	for (i = 0; format[i] != 0; i++)
+	{
 		/* Handle simple characters. */
-		if (!escape_mode && format[i] != '%') {
-			if ( format[i] == '\n' ){
+		if (!escape_mode && format[i] != '%')
+		{
+			if (format[i] == '\n')
+			{
 				uart_send('\n');
 				uart_send('\r');
-			} else {
+			}
+			else
+			{
 				uart_send(format[i]);
 			}
 			continue;
 		}
 
 		/* Handle the percent escape character. */
-		if (format[i] == '%') {
-			if (!escape_mode) {
+		if (format[i] == '%')
+		{
+			if (!escape_mode)
+			{
 				/* Entering escape mode. */
 				escape_mode = 1;
-			} else {
+			}
+			else
+			{
 				/* Already in escape mode; print a percent. */
 				uart_send(format[i]);
 				escape_mode = 0;
@@ -78,7 +129,8 @@ void printk_format(char *format, va_list args)
 		}
 
 		/* Handle the modifier. */
-		switch (format[i]) {
+		switch (format[i])
+		{
 			/* Ignore printf modifiers we don't support. */
 		case '0':
 		case '1':
@@ -145,15 +197,18 @@ void printk_format(char *format, va_list args)
 			break;
 
 			/* Long number. */
-		case 'l': {
+		case 'l':
+		{
 			int neg = 0;
 
 			l = va_arg(args, long);
 
-			switch (format[++i]) {
+			switch (format[++i])
+			{
 			case 'd':
 				base = 10;
-				if (l < 0) {
+				if (l < 0)
+				{
 					neg = 1;
 					l = -l;
 				}

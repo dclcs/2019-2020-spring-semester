@@ -174,7 +174,7 @@ Take particular note of the "VMA" (or *link address*) and the "LMA" (or *load ad
 
 Most people take functions like `printf()` for granted, sometimes even thinking of them as "primitives" of the C language. But in an OS kernel, we have to implement all I/O ourselves. In ChCore, there are two kinds of `printf` for the boot loader and kernel with the same function, defined in `boot/print/printf.c` and `kernel/common/printk.c`, respectively. Make sure you understand the relationship of functions defined in these two files.
 
-> **Exercise 6**. `tfp_printf` and `printk` are the interface function, and they support format print similar to standard `printf`. While we omit the code to print numbers in different bases (e.g., 2, 4, 8, 16), please fill the functions `write_num` in`boot/print/printf.c` and `printk_write_num` in `kernel/common/printk.c` to implement this function. They have the same logic.
+> **Exercise 6**. `tfp_printf` and `printk` are the interface function, and they support format print similar to standard `printf`. While we omit the code to print numbers in different bases (e.g., 2, 4, 8, 16), please fill the functions `write_num` in `boot/print/printf.c` and `printk_write_num` in `kernel/common/printk.c` to implement this function. They have the same logic.
 
 After doing this exercise correctly, you can type `make grade`, and you can pass the `boot print` test and the `kernel print` test.
 
