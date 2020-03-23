@@ -8,7 +8,7 @@ Provided VMware virtual machine was used, based on VMware Fusion Pro (`v11`).
 
 Files were tracked under `git` version control system.
 
-> Script Issues:
+> Glitch:
 >
 > `./scripts/docker_build.sh` didn't handle the situation that `$(pwd)` may contain space or other special characters.
 >
@@ -144,3 +144,169 @@ So in a word, if a core's `U` and `MT` are all `0`, we should stall this core be
 
 If it goes through the mask (by `bic x8, x8, x9`) and turns out to be zero, that means the current core shouldn't be stall. So, we jump to a normal branch `primary` to continue the initialization.
 
+#### Exercise 4
+
+##### Part 0
+
+```c
+long a[4];
+long *b = malloc(16);
+long *c;
+```
+
+`a` is an array containing 4 `long` integers. Since it's a fixed-length array, it would be allocated on current stack frame.
+
+`b` is a pointer to `long` integer, which points to a $16$ Bytes-long memory space, whereas `sizeof(long)` is $8$ Bytes in my testing environment. It's allocated dynamically at runtime, so it would points to a heap memory address.
+
+`c` is a pointer to `long` integer, which wasn't initialized yet.
+
+##### Part 1
+
+```c
+  printf("1: a = %p, b = %p, c = %p\n", a, b, c);
+  c = a;
+```
+
+The output is shown as following:
+
+```
+1: a = 0x7fff56b2ca00, b = 0x7f9824c026a0, c = 0x3000000008
+```
+
+As described above, `0x7fff56b2ca00` is a stack memory address, while `0x7f9824c026a0` is a heap memory address. As for `0x3000000008`, it's totally a meaningless garbage value, and memory address `0x3000000008` is inaccessible.
+
+Trying to dereference memory address ``0x3000000008`` will cause a segmentation fault.
+
+##### Part 2
+
+```c
+	// 2. What's the mean of `c = a`?
+	for (int i = 0; i < 4; i++)
+		a[i] = 100 + i;
+	c[0] = 200;
+	printf("2: a[0] = %ld, a[1] = %ld, a[2] = %ld, a[3] = %ld\n",
+		   a[0], a[1], a[2], a[3]);
+```
+
+`c = a` means now pointer `long *c` will now points to the first element in `long` array `a[4]`.
+
+So, in the `for` loop, we put array `[100, 101, 102, 103]` into `long a[4]`. After that, we use `c` (which is an alias of `a` now) to modify the first element in array `a[4]` as `200`.
+
+So, now the array holds values `[200, 101, 102, 103]`.
+
+##### Part 3
+
+```c
+	// 3. the usage of []
+	c[1] = 300;
+	*(c + 2) = 301;
+	3 [c] = 302;
+	printf("3: a[0] = %ld, a[1] = %ld, a[2] = %ld, a[3] = %ld\n",
+		   a[0], a[1], a[2], a[3]);
+```
+
+As mentioned above, `c` points to the first element in array `a`. So those codes still manipulates array `a` via pointer `c`.
+
+Notice that `a[b]` is somehow a syntactic sugar, which is an alias of `*(a + b)`. And in C/C++ if we perform addition operation between a pointer `p` and an integer `i`, the result would be always `p + i * sizeof(*p)`.
+
+Due to that reason, `3[c]` is no different from `c[3]` at all.
+
+##### Part 4
+
+```c
+	// 4. the meaning pointer add
+	c = c + 1;
+	*c = 400;
+	printf("4: a[0] = %ld, a[1] = %ld, a[2] = %ld, a[3] = %ld\n",
+		   a[0], a[1], a[2], a[3]);
+```
+
+Already mentioned above, addition between a pointer and an integer will be interpreted as `p + i * sizeof(*p)`. So `c = c + 1` or `++c` will make pointer `c` to `a[1]` now.
+
+After the statement `*c = 400`, `a[1]` will be `400` now.
+
+##### Part 5
+
+```c
+	// 5. the meaning pointer add
+	c = (long *)((char *)c + 1);
+	*c = 500;
+	printf("5: a[0] = %ld, a[1] = %ld, a[2] = %ld, a[3] = %ld\n",
+		   a[0], a[1], a[2], a[3]);
+```
+
+Now, before `c` was incremented by 1, it was `reinterpreter_cast`ed to `char *`. Since `sizeof(char)` is 1, doing the increment will only add 1 Byte offset in memory.
+
+$500$ in binary is `.... (leading 0s) 0000 0001 1111 0100`. Before Part 5, the array `a` should look like this:
+
+```
+a[0]: 200
+a[1]: 400
+a[2]: 300
+a[3]: 302
+```
+
+However, in a little-endian machine, `a[1:2]` memory layout is:
+
+```
+1001 0000 0000 0001 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+----
+0010 1100 0000 0001 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+```
+
+And our literal number 500 with 1-Byte offset is:
+
+```
+.... .... 1111 0100 0000 0001 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+----
+0000 0000 .... .... .... .... .... .... .... .... .... .... .... .... .... ....
+```
+
+After that manipulation, `a[1:2]` memory layout would be:
+
+```
+1001 0000 1111 0100 0000 0001 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+----
+0000 0000 0000 0001 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+```
+
+Converted into decimal, they would be `128144` and `256`.
+
+##### Part 6
+
+```c
+	// 6. the meaning pointer add
+	b = (long *)a + 1;
+	c = (long *)((char *)a + 1);
+	printf("6: a = %p, b = %p, c = %p\n", a, b, c);
+```
+
+Same story as Part 5. Notice that in line `b = (long *)a + 1`, the cast operation has higher priority than `+`, so it would convert `a` into `long *` first, increase it by 1 unit (or 8 Bytes here) then.
+
+#### Exercise 5
+
+By  `objdump -h ./build/kernel.img`, we can get the following output:
+
+```
+./build/kernel.img:     file format elf64-little
+
+Sections:
+Idx Name          Size      VMA               LMA               File off  Algn
+  0 init          00049680  0000000000080000  0000000000080000  00010000  2**12
+                  CONTENTS, ALLOC, LOAD, CODE
+  1 .text         00000760  ffffff00000cc000  00000000000cc000  0005c000  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .data         00000000  ffffff00000d0000  00000000000d0000  00060000  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .rodata       000000d0  ffffff00000d0000  00000000000d0000  00060000  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .bss          00008000  ffffff00000d00d0  00000000000d00d0  000600d0  2**4
+                  ALLOC
+< ... other sections ... >
+```
+
+Easy to tell that Bootloader codes has the same `VMA` as `LMA`, but OS kernel codes' `VMA = ffffff0000000000 | LMA`, whose 24 higher bits are set to 1 exclusively.
+
+Bootloader codes are usually solidified in flash chips, not in ROM. So there's no need and no way to map them into memory, because those codes can be directly referenced by CPU data bus. Obviously its `VMA` and `LMA` should be the same.
+
+However, OS kernel's code was stored in disk or ROM. Those codes must be mapped into a memory space before being executed. In normal computer architectures, OS kernel takes the higher end of the virtual memory space, that's why its address begins with `0xffffff`.

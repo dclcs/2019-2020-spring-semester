@@ -3,6 +3,7 @@
 
 void foo()
 {
+	printf("sizeof long: %lu\n", sizeof(long));
 	long a[4];
 	long *b = malloc(16);
 	long *c;
