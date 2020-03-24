@@ -17,3 +17,4 @@ Approaching the cold source will slow you down.
 Crashing into stones will smash you into pieces.
 
 [inst7]
+Enjoy.
