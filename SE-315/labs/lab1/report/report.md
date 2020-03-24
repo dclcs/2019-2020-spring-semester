@@ -334,4 +334,3 @@ However, that memory buffer won't be a stack till the code in `./kernel/head.S` 
 Function `start_kernel` in `./kernel/head.S` puts the pointer to the **tail** of `kernel_stack` buffer to register `sp` (aka. `x29`, or stack pointer). Since then, `kernel_stack` buffer begins to play its kernel stack role.
 
 `kernel_stack` is declared as a global array in `./kernel/main.c`, which is allocated in kernel's heap, which lies in kernel's high privilege address space. This address space is inaccessible for user-modal codes.
-
