@@ -430,3 +430,13 @@ Every time when `test_backtrace` is called, it will expand the stack by 16 Bytes
 
 They must be well-saved because `x29` (aka. `fp`) stores frame pointer, while `x30` (aka. `lr`) stores function return address.
 
+#### Exercise 9
+
+As mentioned above in Exercise 8, it is proved that every time when a function gets called, it will firstly saves its `x29` and `x30` before making any further function call. And when it's about to return from its lifetime, it will recover `x29` and `x30` from its stack.
+
+> Actually, in order to accelerate such paradigm-like operations, ARMv8 provides `stp` and `ldp` to allow you load / store 2 registers from/to stack at the same time.
+
+Why that should works? Well, because the only time a function requires `x29` and `x30` is its returning time. It needs `x29` to recover the stack frame correctly and needs `x30` to know where to return to. During the whole executing process, they are all not necessary. Notice that we can use frame pointer rather than stack pointer to access the stack.
+
+#### Exercise 10
+
