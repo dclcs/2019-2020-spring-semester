@@ -334,3 +334,99 @@ However, that memory buffer won't be a stack till the code in `./kernel/head.S` 
 Function `start_kernel` in `./kernel/head.S` puts the pointer to the **tail** of `kernel_stack` buffer to register `sp` (aka. `x29`, or stack pointer). Since then, `kernel_stack` buffer begins to play its kernel stack role.
 
 `kernel_stack` is declared as a global array in `./kernel/main.c`, which is allocated in kernel's heap, which lies in kernel's high privilege address space. This address space is inaccessible for user-modal codes.
+
+#### Exercise 8
+
+After `make qemu-nox-gdb` and `make gdb`, we can enter the gdb debugging mode.
+
+By executing `b test_backtrace` to set a breakpoint at that function, GDB points out that
+
+```
+Breakpoint 1 at 0xffffff00000cc020: file ../kernel/main.c, line 26.
+```
+
+So we can know that the address of function `test_backtrace` lies in memory address `0xffffff00000cc020`.
+
+After the program hits that breakpoint, it's about to execute the following instructions:
+
+```assembly
+; B+> │ 0xffffff00000cc020 <test_backtrace>
+
+<test_backtrace>		stp    x29, x30, [sp, #-32]!
+						; saves x29 and x30 into stack
+						
+						mov    x29, sp
+						; x29 <= stack pointer
+						
+						str    x19, [sp, #16]
+						; expands the stack
+						
+						mov    x19, x0
+						; x19 <= x0
+						
+						mov    x1, x0
+						; x1 <= x0
+						
+						adrp   x0, 0xffffff00000d0000
+						; x0 <= 0xffffff00000d0000's page table id
+						
+						add    x0, x0, #0x0
+						; test x0
+						
+						bl     0xffffff00000cc8a4 <printk>
+						; call printk
+						
+						cmp    x19, #0x0
+						; compare x19 and 0
+						
+						b.gt   0xffffff00000cc068 <test_backtrace+72>
+						; if x19 > 0, go to test_backtrace+72
+						
+						bl     0xffffff00000cc0b0 <mon_backtrace>
+						; else, call mon_backtrace
+						
+<test_backtrace+44>		mov    x1, x19
+						; x1 <= x19
+						
+						adrp   x0, 0xffffff00000d0000
+						; x0 <= 0xffffff00000d0000's page table id
+						
+						add    x0, x0, #0x28
+						; x0 <= x0 + 0x28
+						
+						bl     0xffffff00000cc8a4 <printk>
+						; call printk
+						
+						ldr    x19, [sp, #16]
+						; shrink the stack
+						
+						ldp    x29, x30, [sp], #32
+						; resume x29 and x30 from stack
+						
+						ret
+						; return from test_backtrace
+						
+<test_backtrace+72>		sub    x0, x19, #0x1
+						; x0 <= x19 - 1
+						
+						bl     0xffffff00000cc020 <test_backtrace>
+						; call test_backtrace
+						
+						b      0xffffff00000cc04c <test_backtrace+44> 
+						; jump to test_backtrace+44
+```
+
+By analyzing them, we can know that function `test_backtrace` is recursively defined.
+
+First program's control flow goes from`<test_backtrace>` to `<test_backtrace+40>`, saving registers, loading necessary values from stack.
+
+Then, by detecting `x0`'s value, which contains the first function argument `test_backtrace` was called, the function will flows to `<test_backtrace+72>` or `<test_backtrace+44>`.
+
+`<test_backtrace+44>` to `<test_backtrace+68>`  did some sweeping jobs, and returns from `test_backtrace` after then.
+
+`<test_backtrace+72>` recursively calls itself, but its first argument `x0` is reduced by 1.
+
+Every time when `test_backtrace` is called, it will expand the stack by 16 Bytes, saving registers `x29` and `x30` into stack to avoid it being corrupted.
+
+They must be well-saved because `x29` (aka. `fp`) stores frame pointer, while `x30` (aka. `lr`) stores function return address.
+
