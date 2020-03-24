@@ -1,0 +1,19 @@
+[inst1]
+Press <A> and <D> to move horizontally.
+
+[inst2]
+Press <W> to decelerate the falling speed.
+
+[inst3]
+Press <S> to accelerate the falling speed.
+
+[inst4]
+Approaching the heat source will gradually melt you.
+
+[inst5]
+Approaching the cold source will slow you down.
+
+[inst6]
+Crashing into stones will smash you into pieces.
+
+[inst7]
