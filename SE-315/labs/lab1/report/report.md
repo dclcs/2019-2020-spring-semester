@@ -62,7 +62,7 @@ Differences between x86-64...
 * Updating Condition Bits.
 	* In `x86-64`, all arithmetic instructions will automatically update the condition bits.
 	* However in `ARMv8`, those normal arithmetic instructions won't update those bits.
-		* Only those with `S` prefix will set the condition bits.
+		* Only those with `S` suffix will set the condition bits.
 
 #### Exercise 2
 
@@ -441,4 +441,3 @@ Why that should works? Well, because the only time a function requires `x29` and
 #### Exercise 10
 
 The return instruction pointer typically points to the instruction after the `bl` instruction, because if it points to `bl` again, it will trigger a subprocess call again, which isn't expected.
-
