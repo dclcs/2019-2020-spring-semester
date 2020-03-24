@@ -440,3 +440,5 @@ Why that should works? Well, because the only time a function requires `x29` and
 
 #### Exercise 10
 
+The return instruction pointer typically points to the instruction after the `bl` instruction, because if it points to `bl` again, it will trigger a subprocess call again, which isn't expected.
+

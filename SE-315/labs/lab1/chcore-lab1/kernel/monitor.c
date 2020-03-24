@@ -16,20 +16,47 @@
 #include <common/printk.h>
 #include <common/types.h>
 
-static inline __attribute__((always_inline)) u64 
-read_fp() {
-  u64 fp;
-  __asm __volatile("mov %0, x29" : "=r" (fp));
-  return fp;
+static inline __attribute__((always_inline)) u64
+read_fp()
+{
+    u64 fp;
+    __asm __volatile("mov %0, x29"
+                     : "=r"(fp));
+    return fp;
 }
 
-__attribute__((optimize("O1")))
-int
+__attribute__((optimize("O1"))) int
 mon_backtrace()
 {
-  printk("Stack backtrace:\n");
+    printk("Stack backtrace:\n");
 
-	// Your code here.
+    // get current frame pointer
+    u64 *fp = (u64 *)read_fp();
 
-	return 0;
+    // ignore mon_backtrace's call
+    fp = (u64 *)*fp;
+
+    const u64 mask = 0xffffff0000000000;
+
+    while ((u64)fp & mask)
+    {
+        printk("  LR %p  FP %p Args", *(fp + 1), fp);
+
+        // after FP and LR, there should be spaces for local vars and saved regs
+        u64 *arg_first = fp - 2;
+
+        unsigned int arg_cnt = 0;
+        while (arg_cnt < 5)
+        {
+            printk(" %p", *arg_first);
+            --arg_first;
+            ++arg_cnt;
+        }
+
+        printk("\n");
+
+        fp = (u64 *)*fp;
+    }
+
+    return 0;
 }
