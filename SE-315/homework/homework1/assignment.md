@@ -11,6 +11,7 @@ Assuming a 64-bit machine with 64-bit OS and the page tables have four levels. l
 4. Please give the advantages and the disadvantages of using block entry / huge page, and give one scenario for each case.
 
 5. Memory attribution bit AP and UXN in page entry can already isolate the kernel space and user space, so why ARM-smmu architecture still needs two ttbr registers (Translation Table Base Register), please give a scenario that two ttbr registers can protect the os but attribution-based isolation can not.
+
 6. TLB (Translation Lookaside Buffer) can cache the translation from a virtual address to a physical address. However, TLB will be flushed after a context switch between processes. Why? Is it necessary to flush TLB when switching between a user application and the OS kernel? Why?
 
 7. Before ARMv8 architecture, there is no DBM (Dirty Bit Modifier) bit in memory attribution. That’s means hardware does not support dirty page. So how can os simulate this procedure and record the dirty page? Please give a possible solution.

@@ -32,3 +32,68 @@ So, the `4-Level:Single` ratio equals to $\dfrac {4 \times 2 ^ {20}} {2^{36}}$, 
 
 So the maximum spaical overhead for 4-level page table is approximately $99.9938965 \%$.
 
+## Question 3
+
+### Q
+
+In ARM-smmu architecture, how can mmu distinguish whether it is a page entry or invalid entry?
+
+### A
+
+Each page has its own protection bits, mainly configures each user's r/w/x privileges. When MMU perform the address translation procedure, it will also check if current user has proper privilege to r/w/x this page. If not, it will reject further translation process and raise an exception. Physical address will be provided only if current application has proper privileges.
+
+## Question 4
+
+### Q
+
+Please give the advantages and the disadvantages of using block entry / huge page, and give one scenario for each case.
+
+### A
+
+Advantages: 
+
+* Reducing fragmentations. 
+    
+> Default memory page (4K) is way too small, compared with current large memory size. So if we use several *huge page* to reduce hundreds of normal page, we can easily reduce those abstract objects greatly.
+
+* Speeding up address translations.
+
+> In order to access a large chunk of physical memories, it's always better making it a consecutive large chunk than splattered memory smashes. It could reduce duplicate address translation processes, and ensure they will be literally consecutively spread in physical memory.
+
+Disadvantages:
+
+* Memory waste.
+
+For those application requests little amount of memories, allocating a whole huge page is actually a waste.
+
+## Question 5
+
+### Q
+
+Memory attribution bit AP and UXN in page entry can already isolate the kernel space and user space, so why ARM-smmu architecture still needs two ttbr registers (Translation Table Base Register), please give a scenario that two ttbr registers can protect the os but attribution-based isolation can not.
+
+### A
+
+For example, if theres a bug in OS kernel that affects normal control flow, it might accidentally access user-mode page table, ignoring AP and UXN bits as high privilege level. However, there's no way confusing user and kernel pages if we use two physically-isolated `TTBR` registers.
+
+## Question 6
+
+### Q
+
+TLB (Translation Lookaside Buffer) can cache the translation from a virtual address to a physical address. However, TLB will be flushed after a context switch between processes. Why? Is it necessary to flush TLB when switching between a user application and the OS kernel? Why?
+
+### A
+
+Because different processes might share identical virtual memory addresses. If we didn't flush TLB before switching context, you may accidentally access other process' memory space.
+
+However, OS kernel's address space exists in each process' context and will never overlap with user's address space. So there's no need to flush TLB during that process.
+
+## Question 7
+
+### Q
+
+Before ARMv8 architecture, there is no DBM (Dirty Bit Modifier) bit in memory attribution. That’s means hardware does not support dirty page. So how can os simulate this procedure and record the dirty page? Please give a possible solution.
+
+### A
+
+We can use existed `Read Only` to implement DBM feature. By setting this bit, any reading instructions' translation related to this page will be fine, but trying to write to this page will invoke an exception. In such exception handler, we can record the read/write history in kernel, and unset its `Read Only` bit to allow further clean writing.
