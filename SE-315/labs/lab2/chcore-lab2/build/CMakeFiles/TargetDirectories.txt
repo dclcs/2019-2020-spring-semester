@@ -1,0 +1,9 @@
+/chos/build/CMakeFiles/rebuild_cache.dir
+/chos/build/CMakeFiles/kernel.img.dir
+/chos/build/CMakeFiles/edit_cache.dir
+/chos/build/kernel/CMakeFiles/rebuild_cache.dir
+/chos/build/kernel/CMakeFiles/chos-arch.dir
+/chos/build/kernel/CMakeFiles/edit_cache.dir
+/chos/build/kernel/mm/CMakeFiles/rebuild_cache.dir
+/chos/build/kernel/mm/CMakeFiles/chos-mm.dir
+/chos/build/kernel/mm/CMakeFiles/edit_cache.dir
