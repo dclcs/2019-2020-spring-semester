@@ -14,9 +14,9 @@ public class ForegroundShakingController : MonoBehaviour
     Vector3 originalPos;
     Vector3 moveSpeed = new Vector3(0.0f, 0.0f, 0.0f);
 
-    public float maxOffset = 1f;
+    public float maxOffset = 0.5f;
 
-    private float minOffset = 0.5f;
+    private float minOffset = 0.3f;
 
     private float maxSpeed = 0.2f;
 
