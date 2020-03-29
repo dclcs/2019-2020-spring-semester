@@ -14,7 +14,11 @@ public class ForegroundShakingController : MonoBehaviour
     Vector3 originalPos;
     Vector3 moveSpeed = new Vector3(0.0f, 0.0f, 0.0f);
 
-    public float maxOffset = 2f;
+    public float maxOffset = 1f;
+
+    private float minOffset = 0.5f;
+
+    private float maxSpeed = 0.2f;
 
     private int counter = 0;
 
@@ -49,21 +53,28 @@ public class ForegroundShakingController : MonoBehaviour
 
             var offset = originalPos - camTransform.localPosition;
 
-            moveSpeed += offset / maxOffset;
+            if (System.Math.Abs(offset.x) > minOffset || System.Math.Abs(offset.y) > minOffset || System.Math.Abs(offset.z) > minOffset)
+            {
+                moveSpeed += offset / maxOffset;
+            }
+            else
+            {
+                var random = new System.Random();
 
+                var rand1 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
+                var rand2 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
+                var rand3 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
 
-            var random = new System.Random();
+                moveSpeed += new Vector3(rand1 / shakeScale, rand2 / shakeScale, rand3 / shakeScale);
 
-            var rand1 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
-            var rand2 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
-            var rand3 = System.Convert.ToSingle(random.Next(0, 10)) / 10f - 0.5f;
+                moveSpeed.x = System.Math.Min(maxSpeed, System.Math.Max(moveSpeed.x, -maxSpeed));
+                moveSpeed.y = System.Math.Min(maxSpeed, System.Math.Max(moveSpeed.y, -maxSpeed));
+                moveSpeed.z = System.Math.Min(maxSpeed, System.Math.Max(moveSpeed.z, -maxSpeed));
+                //Debug.Log(string.Format("Current Position: {0}", camTransform.localPosition));
+                //Debug.Log(string.Format("Offset Position: {0}", offset));
+                //Debug.Log(string.Format("Current Speed: {0}", moveSpeed));
 
-            moveSpeed += new Vector3(rand1 / shakeScale, rand2 / shakeScale, rand3 / shakeScale);
-
-            Debug.Log(string.Format("Current Position: {0}", camTransform.localPosition));
-            Debug.Log(string.Format("Offset Position: {0}", offset));
-            Debug.Log(string.Format("Current Speed: {0}", moveSpeed));
-
+            }
             counter = 0;
         } else
 		{
