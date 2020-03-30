@@ -2,14 +2,20 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - ForegroundShakingController
+    - GameSupervisor
+    - PromptTextController
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.AnimatorStateTransitionInspector
+    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
+    - UnityEditor.TestTools.TestRunner.TestListCacheData
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
@@ -73,6 +79,10 @@ ScriptsOnlyBuild:
       Script: {instanceID: 11014}
     - Class: 114
       Script: {instanceID: 11354}
+    - Class: 114
+      Script: {instanceID: 14412}
+    - Class: 114
+      Script: {instanceID: 18682}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -524,6 +534,18 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: 078e1b29df84128ea5341a38b7b8c007
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PromptTextController
+  - hash:
+      serializedVersion: 2
+      Hash: 9dcfc8917271c8fe45c0221555254139
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: GameSupervisor
   platform: 2
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
