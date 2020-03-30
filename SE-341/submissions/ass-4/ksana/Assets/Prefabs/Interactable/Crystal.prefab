@@ -11,6 +11,11 @@ GameObject:
   - component: {fileID: 7340837133937219896}
   - component: {fileID: 7340837133937219899}
   - component: {fileID: 7340837133937219898}
+  - component: {fileID: 5302919683946896286}
+  - component: {fileID: 4837993642858986889}
+  - component: {fileID: -6812776668926908497}
+  - component: {fileID: -8629068431122985668}
+  - component: {fileID: -8276186328203377007}
   m_Layer: 0
   m_Name: Crystal
   m_TagString: Crystal
@@ -100,3 +105,71 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &5302919683946896286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7340837133937219893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db8eed54288e4bc7bb249ce3b6d93d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!70 &4837993642858986889
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7340837133937219893}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.02716139, y: 0.027160347}
+  m_Size: {x: 2.7751079, y: 4.8393636}
+  m_Direction: 0
+--- !u!114 &-6812776668926908497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7340837133937219893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de045ae282eb445be873195ea8334c8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-8629068431122985668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7340837133937219893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db8eed54288e4bc7bb249ce3b6d93d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-8276186328203377007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7340837133937219893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79f8cd3d50c814c64bfdf62134d9e671, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 0.05
+  defaultSpeedX: -2
+  defaultSpeedY: 2
+  offset: 2

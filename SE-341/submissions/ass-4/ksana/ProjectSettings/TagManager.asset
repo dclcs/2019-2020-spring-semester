@@ -7,10 +7,6 @@ TagManager:
   - Crystal
   - Moon
   - Sun
-  - LeftBorder
-  - RightBorder
-  - UpBorder
-  - DownBorder
   layers:
   - Default
   - TransparentFX

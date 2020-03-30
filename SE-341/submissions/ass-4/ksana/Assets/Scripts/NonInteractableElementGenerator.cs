@@ -4,15 +4,107 @@ using UnityEngine;
 
 public class NonInteractableElementGenerator : MonoBehaviour
 {
+    public List<GameObject> elements;
+
+    public float spawnTime;
+    private float countTime;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (spawnTime == 0.0f)
+        {
+            spawnTime = 5.0f;
+        }
+
+        countTime = System.Convert.ToSingle(new System.Random().Next(System.Convert.ToInt32(spawnTime)));
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (!GameSupervisor.instance.isInGame)
+		{
+            return;
+		}
+        countTime += Time.deltaTime;
+
+        if (countTime >= spawnTime)
+        {
+            spawnElements();
+            countTime = 0.0f;
+        }
+    }
+
+    public void spawnStarDust()
+	{
+        if (elements.Count == 0)
+		{
+            return;
+		}
+        var random = new System.Random();
+
+        Vector3 spawnPosition = transform.position;
+
+        spawnPosition.x += System.Convert.ToSingle(random.Next() % 14) - 7f;
+        //spawnPosition.z += (System.Convert.ToSingle(random.Next() % 7) - 3.5f) / 4f;
+
+        int index = elements.Count - 1;
+
+        GameObject go = Instantiate(elements[index], spawnPosition, Quaternion.identity);
+
+        Vector3 rotation = new Vector3(0, 0, random.Next() % 360);
+
+        var alpha = System.Convert.ToSingle(random.Next(10)) / 20f + 0.4f;
+
+        go.transform.Rotate(rotation);
+        go.transform.SetParent(this.gameObject.transform);
+
+        Renderer r = go.GetComponent<Renderer>();
+        Color newColor = r.material.color;
+        newColor.a = alpha;
+        r.material.color = newColor;
+
+        var scaleFactor = System.Convert.ToSingle(random.Next(10)) / 10f + 0.5f;
+        go.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+    }
+
+    public void spawnElements()
+	{
+
+        spawnStarDust();
+
+        if (elements.Count == 0 || GameSupervisor.instance.elementCount >= GameSupervisor.maxElementCount)
+		{
+            return;
+		}
+        var random = new System.Random();
+
+        Vector3 spawnPosition = transform.position;
+
+        spawnPosition.x += System.Convert.ToSingle(random.Next() % 7) - 3.5f;
+        //spawnPosition.z += (System.Convert.ToSingle(random.Next() % 7) - 3.5f) / 4f;
+
+        int index = random.Next() % elements.Count;
+
+        GameObject go = Instantiate(elements[index], spawnPosition, Quaternion.identity);
+
+        Vector3 rotation = new Vector3(0, 0, random.Next() % 360);
+
+        go.transform.Rotate(rotation);
+        go.transform.SetParent(this.gameObject.transform);
+
+
+        var alpha = System.Convert.ToSingle(random.Next(10)) / 20f + 0.4f;
+
+        Renderer r = go.GetComponent<Renderer>();
+        Color newColor = r.material.color;
+        newColor.a = alpha;
+        r.material.color = newColor;
+
+        var scaleFactor = System.Convert.ToSingle(random.Next(10)) / 10f + 0.5f;
+        go.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+
+        GameSupervisor.instance.elementCount++;
     }
 }

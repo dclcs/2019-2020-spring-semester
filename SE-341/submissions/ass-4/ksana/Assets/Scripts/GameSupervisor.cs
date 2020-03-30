@@ -6,13 +6,18 @@ using UnityEngine.UI;
 public class GameSupervisor : MonoBehaviour
 {
 
-    static GameSupervisor instance;
+    public static GameSupervisor instance;
+
+    public Rigidbody2D player;
 
     public GameObject introCanvas;
     public GameObject inGameCanvas;
     public GameObject creditsCanvas;
 
     public Text creditButtonText;
+    public Text crystalCountText;
+
+    public GameObject promptIcon;
 
     /*
      * false - intro page
@@ -20,6 +25,11 @@ public class GameSupervisor : MonoBehaviour
      */
     public bool isInGame = false;
     public bool isCreditShown = false;
+
+    public int elementCount = 0;
+    public const int maxElementCount = 10;
+
+    public int crystalCount = 0;
 
     private void Awake()
 	{
@@ -44,7 +54,20 @@ public class GameSupervisor : MonoBehaviour
 		{
             introCanvas.SetActive(false);
             inGameCanvas.SetActive(true);
-		} else
+
+            if (crystalCount > 1)
+            {
+                crystalCountText.text = string.Format("You have picked up {0} crystals.", crystalCount);
+            }
+            else if (crystalCount == 1)
+            {
+                crystalCountText.text = "You have picked up 1 crystal.";
+            }
+            else
+            {
+                crystalCountText.text = "";
+            }
+        } else
 		{
             introCanvas.SetActive(true);
             inGameCanvas.SetActive(false);
@@ -73,6 +96,10 @@ public class GameSupervisor : MonoBehaviour
 
     public void startGame()
 	{
+        isCreditShown = false;
+        creditsCanvas.SetActive(false);
+        creditButtonText.text = "credits";
         isInGame = true;
-	}
+        promptIcon.SetActive(true);
+    }
 }

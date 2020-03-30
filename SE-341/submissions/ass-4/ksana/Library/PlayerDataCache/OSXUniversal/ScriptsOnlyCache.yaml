@@ -1,13 +1,24 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
+    - CrystalController
+    - CrystalMotionController
+    - FadePromptIconController
     - ForegroundShakingController
     - GameSupervisor
+    - GarbageCollectingController
+    - IntroMusic
+    - JustOnceAnimator
+    - MoonController
+    - NonInteractableElementGenerator
+    - PickupElementGenerator
+    - PlayerController
     - PromptTextController
+    - StarMotionController
+    - SunController
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.AnimatorStateTransitionInspector
     - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
@@ -45,11 +56,19 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
+    - Class: 50
+      Script: {instanceID: 0}
+    - Class: 61
+      Script: {instanceID: 0}
     - Class: 64
+      Script: {instanceID: 0}
+    - Class: 70
       Script: {instanceID: 0}
     - Class: 74
       Script: {instanceID: 0}
     - Class: 81
+      Script: {instanceID: 0}
+    - Class: 83
       Script: {instanceID: 0}
     - Class: 89
       Script: {instanceID: 0}
@@ -68,11 +87,15 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9862}
     - Class: 114
+      Script: {instanceID: 10068}
+    - Class: 114
       Script: {instanceID: 10170}
     - Class: 114
       Script: {instanceID: 10232}
     - Class: 114
       Script: {instanceID: 10570}
+    - Class: 114
+      Script: {instanceID: 10956}
     - Class: 114
       Script: {instanceID: 10966}
     - Class: 114
@@ -83,6 +106,26 @@ ScriptsOnlyBuild:
       Script: {instanceID: 14412}
     - Class: 114
       Script: {instanceID: 18682}
+    - Class: 114
+      Script: {instanceID: 29448}
+    - Class: 114
+      Script: {instanceID: 30668}
+    - Class: 114
+      Script: {instanceID: 30680}
+    - Class: 114
+      Script: {instanceID: 45538}
+    - Class: 114
+      Script: {instanceID: 48704}
+    - Class: 114
+      Script: {instanceID: 50656}
+    - Class: 114
+      Script: {instanceID: 51482}
+    - Class: 114
+      Script: {instanceID: 63676}
+    - Class: 114
+      Script: {instanceID: 64248}
+    - Class: 114
+      Script: {instanceID: 66758}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -236,7 +279,7 @@ ScriptsOnlyBuild:
     className: RectMask2D
   - hash:
       serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+      Hash: 6bd61b51ed8918722d29c0abc5d17feb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: NonInteractableElementGenerator
@@ -404,7 +447,7 @@ ScriptsOnlyBuild:
     className: TextMeshProUGUI
   - hash:
       serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+      Hash: 6bd61b51ed8918722d29c0abc5d17feb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PickupElementGenerator
@@ -542,10 +585,70 @@ ScriptsOnlyBuild:
     className: PromptTextController
   - hash:
       serializedVersion: 2
-      Hash: 9dcfc8917271c8fe45c0221555254139
+      Hash: c3044042f22b07ae0456088edb54278c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameSupervisor
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: JustOnceAnimator
+  - hash:
+      serializedVersion: 2
+      Hash: 5e93239459335a67203f9f16cc6c9985
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PlayerController
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: GarbageCollectingController
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CrystalController
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: MoonController
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: SunController
+  - hash:
+      serializedVersion: 2
+      Hash: 0e8375c6a1f97529f58931a749f32b21
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: StarMotionController
+  - hash:
+      serializedVersion: 2
+      Hash: 0e8375c6a1f97529f58931a749f32b21
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CrystalMotionController
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: FadePromptIconController
+  - hash:
+      serializedVersion: 2
+      Hash: 110954a1053320f0bf3d02b304b54912
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: IntroMusic
   platform: 2
   scenePathNames:
   - Assets/Scenes/SampleScene.unity

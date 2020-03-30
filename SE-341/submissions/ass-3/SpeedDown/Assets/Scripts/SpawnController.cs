@@ -17,7 +17,6 @@ public class SpawnController : MonoBehaviour
 		{
             spawnTime = 3.0f;
 		}
-
     }
 
     // Update is called once per frame

@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 796706119016339472}
   - component: {fileID: 796706119016339475}
+  - component: {fileID: 7688324010001216234}
+  - component: {fileID: 7167591502204510163}
   m_Layer: 0
   m_Name: smallStar
   m_TagString: Untagged
@@ -80,3 +82,31 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &7688324010001216234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796706119016339474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db8eed54288e4bc7bb249ce3b6d93d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7167591502204510163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796706119016339474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25c4e00f5c5e4567a8ef451eaa4cee9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 0.3
+  defaultSpeedX: -1
+  defaultSpeedY: 2
+  offset: 2
