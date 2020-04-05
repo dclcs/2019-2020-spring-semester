@@ -5,67 +5,52 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public float rSpeed = 3.0f;
-    public float mSpeed = 20.0f;
+
     public float X = 0.0f;
     public float Y = 0.0f;
 
-    private float ySpeed = 0.0f;
+    public Transform playerTransform;
+    private Vector3 deviation;
 
     //private Rigidbody rb;
 
     // Start is called before the first frame update
     void Start()
     {
-        //rb = GetComponent<Rigidbody>();
+        deviation = transform.position - playerTransform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        X += Input.GetAxis("Mouse X") * rSpeed * 2;
-        Y += Input.GetAxis("Mouse Y") * rSpeed;
-        transform.localRotation = Quaternion.AngleAxis(X, Vector3.up);
-        transform.localRotation *= Quaternion.AngleAxis(Y, Vector3.left);
-        transform.position += transform.forward * mSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
-        transform.position += transform.right * mSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+        //X += Input.GetAxis("Mouse X") * rSpeed * 2;
+        //Y += Input.GetAxis("Mouse Y") * rSpeed;
+        //transform.localRotation = Quaternion.AngleAxis(X, Vector3.up);
+        //transform.localRotation *= Quaternion.AngleAxis(Y, Vector3.left);
 
-        var pos = transform.position;
-
-        ySpeed += 0.048f;
-        pos.y -= ySpeed;
+        //transform.position = playerTransform.position + deviation;
 
 
-        if (pos.y <= 1)
+        float cam_h = Input.GetAxis("Mouse X") * rSpeed;
+        // inverse y axis
+        float cam_v = -Input.GetAxis("Mouse Y") * rSpeed;
+
+        transform.position = deviation + playerTransform.position;
+
+        transform.RotateAround(playerTransform.position, Vector3.up, cam_h * 0.5f);
+
+        float angleX = transform.rotation.eulerAngles.x;
+        float nextAngleX = cam_v * 0.5f + angleX;
+
+        if (nextAngleX >= 360f)
         {
-            pos.y = 1;
-            ySpeed = 0;
+            nextAngleX -= 360f;
         }
 
-
-        transform.position = pos;
-
-		if (Input.GetKeyDown(KeyCode.Space))
-		{
-            ySpeed = -0.5f;
-		}
-
-		//var locR = transform.localEulerAngles;
-
-		//Debug.Log(locR);
-
-		//float angle = locR.x - 180;
-
-		//if (angle > 0)
-		//{
-		//    locR.x = angle - 180;
-		//}
-		//else
-		//{
-		//    locR.x = angle + 180;
-		//}
-
-		//Debug.Log(string.Format("fixed {0}", locR));
-
-		//transform.localEulerAngles = new Vector3(locR.x, locR.y, locR.z);
-	}
+        if ((nextAngleX < 80f && nextAngleX > 0f) || (nextAngleX <= 360f && nextAngleX >= 280f))
+        {
+            transform.RotateAround(playerTransform.position, transform.right, cam_v * 0.5f);
+        }
+        deviation = transform.position - playerTransform.position;
+    }
 }
