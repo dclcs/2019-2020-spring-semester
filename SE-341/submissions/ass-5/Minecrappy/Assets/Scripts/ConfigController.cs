@@ -57,7 +57,7 @@ public class ConfigController : MonoBehaviour
         } else
 		{
             highlightColorDropdown.interactable = false;
-            renderStyleDropdown.interactable = true;
+            renderStyleDropdown.interactable = false;
             specReflectStrengthSlider.interactable = false;
         }
 	}
