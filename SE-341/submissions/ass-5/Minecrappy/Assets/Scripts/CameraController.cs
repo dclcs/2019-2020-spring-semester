@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         //X += Input.GetAxis("Mouse X") * rSpeed * 2;
         //Y += Input.GetAxis("Mouse Y") * rSpeed;
         //transform.localRotation = Quaternion.AngleAxis(X, Vector3.up);
@@ -31,9 +32,16 @@ public class CameraController : MonoBehaviour
         //transform.position = playerTransform.position + deviation;
 
 
+
         float cam_h = Input.GetAxis("Mouse X") * rSpeed;
         // inverse y axis
         float cam_v = -Input.GetAxis("Mouse Y") * rSpeed;
+
+        if (KeyboardController.isPaused())
+        {
+            cam_h = 0f;
+            cam_v = 0f;
+        }
 
         transform.position = deviation + playerTransform.position;
 
