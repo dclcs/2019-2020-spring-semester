@@ -20,11 +20,11 @@
 			fixed4 _Specular;
 			float _Gloss;
 
-			struct a2v{
+			struct a2v {
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
 			};
-			struct v2f{
+			struct v2f {
 				float4 pos : SV_POSITION;
 				float3 color : COLOR;
 			};

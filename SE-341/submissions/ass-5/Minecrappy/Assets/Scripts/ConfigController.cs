@@ -54,11 +54,24 @@ public class ConfigController : MonoBehaviour
             highlightColorDropdown.interactable = true;
             renderStyleDropdown.interactable = true;
             specReflectStrengthSlider.interactable = true;
-        } else
+        } else if (blockType == BlockType.Outline) {
+            highlightColorDropdown.interactable = true;
+            renderStyleDropdown.interactable = false;
+            specReflectStrengthSlider.interactable = true;
+        } else if (blockType == BlockType.Wave) {
+            highlightColorDropdown.interactable = false;
+            renderStyleDropdown.interactable = false;
+            specReflectStrengthSlider.interactable = true;
+        } else if (blockType == BlockType.Furry) {
+            highlightColorDropdown.interactable = false;
+            renderStyleDropdown.interactable = false;
+            specReflectStrengthSlider.interactable = true;
+        }
+        else if (blockType == BlockType.Grass)
 		{
             highlightColorDropdown.interactable = false;
             renderStyleDropdown.interactable = false;
-            specReflectStrengthSlider.interactable = false;
+            specReflectStrengthSlider.interactable = true;
         }
 	}
 

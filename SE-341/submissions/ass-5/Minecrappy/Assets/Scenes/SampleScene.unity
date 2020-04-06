@@ -211,6 +211,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ea5a9cd1e5f64dd8b156a5a7c5af4ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bumpTex: {fileID: 2800000, guid: e9429db4d797d4337b6a22b34993551f, type: 3}
+  waveTex: {fileID: 2800000, guid: 13cd0ac4a01a74d59bc8f3b0074c562e, type: 3}
+  noiseTex: {fileID: 2800000, guid: d39876babedc84b6ca8bca6f64408b8e, type: 3}
+  whiteTex: {fileID: 2800000, guid: e2fa1f65290154df98bd00cf6404f0fc, type: 3}
+  blackTex: {fileID: 2800000, guid: 3cd019fa84ae344eb8cba46c9a6885ec, type: 3}
+  furry: {fileID: 2800000, guid: d2909e71b4ea54fdcb76916e8acb9711, type: 3}
+  grass: {fileID: 2800000, guid: f9b4a7451f1734a4d98a6f7215ce11f0, type: 3}
 --- !u!54 &38607790
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1562,12 +1569,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 462013227}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalRotation: {x: 0.5679875, y: -0, z: -0, w: 0.82303715}
+  m_LocalPosition: {x: 0, y: 1.2177327, z: 4.618401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1598110616}
-  m_RootOrder: 1
+  m_Father: {fileID: 963194228}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!108 &462013229
 Light:
@@ -3683,7 +3690,8 @@ Transform:
   m_LocalRotation: {x: 0.18034741, y: 0, z: 0, w: 0.983603}
   m_LocalPosition: {x: 0, y: 3, z: -9.33}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 462013228}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 20.78, y: 0, z: 0}
@@ -5476,7 +5484,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 401511946}
-  - {fileID: 462013228}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5949,7 +5956,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Specular Reflection Effects
+  m_Text: Effect Strength
 --- !u!222 &1733461866
 CanvasRenderer:
   m_ObjectHideFlags: 0

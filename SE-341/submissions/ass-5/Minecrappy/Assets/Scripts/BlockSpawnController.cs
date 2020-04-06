@@ -34,6 +34,18 @@ public class BlockSpawnController : MonoBehaviour
                 case BlockType.Custom:
                     spawnHighlightedBlock(position);
                     break;
+                case BlockType.Outline:
+                    spawnOutlineBlock(position);
+                    break;
+                case BlockType.Wave:
+                    spawnWaveBlock(position);
+                    break;
+                case BlockType.Furry:
+                    spawnFurryBlock(position);
+                    break;
+                case BlockType.Grass:
+                    spawnGrassBlock(position);
+                    break;
 			}
         }
     }
@@ -41,14 +53,14 @@ public class BlockSpawnController : MonoBehaviour
     void spawnTrivialBlock(Vector3 position)
 	{
         GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
-        BlockShader shader = gameObj.AddComponent(typeof(BlockShader)) as BlockShader;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
         shader.generateTrivialBlock(ConfigController.instance.highlightColor);
     }
 
     void spawnHighlightedBlock(Vector3 position)
     {
         GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
-        BlockShader shader = gameObj.AddComponent(typeof(BlockShader)) as BlockShader;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
 
         if (ConfigController.instance.renderStyle == RenderStyle.Normal)
         {
@@ -57,5 +69,29 @@ public class BlockSpawnController : MonoBehaviour
 		{
             shader.generateBlinnPhongHighlightBlock(ConfigController.instance.highlightColor, ConfigController.instance.specReflect, ConfigController.instance.renderStyle);
         }
+    }
+
+    void spawnOutlineBlock(Vector3 position) {
+        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
+        shader.generateOutlineBlock(ConfigController.instance.highlightColor, ConfigController.instance.specReflect);
+    }
+
+    void spawnWaveBlock(Vector3 position) {
+        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
+        shader.generateWaveBlock(ConfigController.instance.highlightColor, ConfigController.instance.specReflect);
+    }
+
+    void spawnFurryBlock(Vector3 position) {
+        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
+        shader.generateFurryBlock(ConfigController.instance.specReflect);
+    }
+
+    void spawnGrassBlock(Vector3 position) {
+        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
+        shader.generateGrassBlock(ConfigController.instance.specReflect);
     }
 }

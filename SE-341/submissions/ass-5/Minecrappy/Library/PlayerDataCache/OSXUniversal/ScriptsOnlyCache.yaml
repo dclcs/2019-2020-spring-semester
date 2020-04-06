@@ -76,59 +76,59 @@ ScriptsOnlyBuild:
     - Class: 109
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9702}
+      Script: {instanceID: 9712}
     - Class: 114
-      Script: {instanceID: 9850}
+      Script: {instanceID: 9860}
     - Class: 114
-      Script: {instanceID: 9852}
+      Script: {instanceID: 9862}
     - Class: 114
-      Script: {instanceID: 9892}
+      Script: {instanceID: 9902}
     - Class: 114
-      Script: {instanceID: 10176}
+      Script: {instanceID: 10186}
     - Class: 114
-      Script: {instanceID: 10198}
+      Script: {instanceID: 10208}
     - Class: 114
-      Script: {instanceID: 10264}
+      Script: {instanceID: 10274}
     - Class: 114
-      Script: {instanceID: 10286}
+      Script: {instanceID: 10296}
     - Class: 114
-      Script: {instanceID: 10390}
+      Script: {instanceID: 10400}
     - Class: 114
-      Script: {instanceID: 10410}
+      Script: {instanceID: 10420}
     - Class: 114
-      Script: {instanceID: 10438}
+      Script: {instanceID: 10448}
     - Class: 114
-      Script: {instanceID: 10618}
+      Script: {instanceID: 10628}
     - Class: 114
-      Script: {instanceID: 10832}
+      Script: {instanceID: 10842}
     - Class: 114
-      Script: {instanceID: 10846}
+      Script: {instanceID: 10856}
     - Class: 114
-      Script: {instanceID: 10904}
+      Script: {instanceID: 10914}
     - Class: 114
-      Script: {instanceID: 10962}
+      Script: {instanceID: 10972}
     - Class: 114
-      Script: {instanceID: 11088}
+      Script: {instanceID: 11098}
     - Class: 114
-      Script: {instanceID: 11102}
+      Script: {instanceID: 11112}
     - Class: 114
-      Script: {instanceID: 11252}
+      Script: {instanceID: 11262}
     - Class: 114
-      Script: {instanceID: 11272}
+      Script: {instanceID: 11282}
     - Class: 114
-      Script: {instanceID: 11358}
+      Script: {instanceID: 11368}
     - Class: 114
-      Script: {instanceID: 11366}
+      Script: {instanceID: 11376}
     - Class: 114
-      Script: {instanceID: 11406}
-    - Class: 114
-      Script: {instanceID: 11448}
+      Script: {instanceID: 11416}
     - Class: 114
       Script: {instanceID: 11458}
     - Class: 114
-      Script: {instanceID: 11472}
+      Script: {instanceID: 11468}
     - Class: 114
-      Script: {instanceID: 11490}
+      Script: {instanceID: 11482}
+    - Class: 114
+      Script: {instanceID: 11500}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -672,7 +672,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+      Hash: f77a5c59a01431b55697e58994542cb4
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: BlockShader
