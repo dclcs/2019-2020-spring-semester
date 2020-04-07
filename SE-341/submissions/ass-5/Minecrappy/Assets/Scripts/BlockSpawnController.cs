@@ -21,7 +21,11 @@ public class BlockSpawnController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonUp(1) || Input.GetKeyUp("f"))
+        if (KeyboardController.isPaused())
+        {
+            return;
+        }
+        if (Input.GetMouseButtonUp(1) || Input.GetButtonUp("Place"))
 		{
             var forwarding = mainCamera.transform.forward;
             Vector3 position = player.transform.position + new Vector3(forwarding.x * distance, height, forwarding.z * distance);

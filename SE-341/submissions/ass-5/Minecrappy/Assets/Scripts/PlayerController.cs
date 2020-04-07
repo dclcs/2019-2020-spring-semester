@@ -9,15 +9,15 @@ public class PlayerController : MonoBehaviour
 
     public Vector3 speed;
 
-    public float mSpeed = 500f;
+    public float mSpeed = 0f;
 
-    public float jumpSpeed = 400f;
+    public float jumpSpeed = 0f;
 
-    public float flySpeed = 10f;
+    public float flySpeed = 0f;
 
     public Camera cam;
 
-    private static bool grounded = true;
+    private static bool grounded = false;
 
     // Start is called before the first frame update
     void Start()
@@ -39,12 +39,13 @@ public class PlayerController : MonoBehaviour
         var force = Quaternion.Euler(0, cam_y, 0) * new Vector3(Y, 0, X) * mSpeed * Time.deltaTime;
         rb.AddForce(force);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetButtonUp("Jump"))
 		{
             Jump();
 		}
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetButton("Fly"))
+        // if (Input.G(KeyCode.LeftShift))
 		{
             Fly();
         }
@@ -54,14 +55,14 @@ public class PlayerController : MonoBehaviour
 	{
         if (PlayerController.grounded)
         {
-            rb.AddForce(new Vector3(0f, jumpSpeed, 0f));
+            rb.AddForce(new Vector3(0f, jumpSpeed * Time.deltaTime, 0f));
 			PlayerController.grounded = false;
 		}
     }
 
     private void Fly()
 	{
-        rb.AddForce(new Vector3(0f, flySpeed, 0f));
+        rb.AddForce(new Vector3(0f, flySpeed * Time.deltaTime, 0f));
         PlayerController.grounded = false;
     }
 

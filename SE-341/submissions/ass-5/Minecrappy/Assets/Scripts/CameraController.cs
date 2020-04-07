@@ -33,9 +33,9 @@ public class CameraController : MonoBehaviour
 
 
 
-        float cam_h = Input.GetAxis("Mouse X") * rSpeed;
+        float cam_h = (Input.GetAxis("Joycon X") + Input.GetAxis("Mouse X")) * rSpeed;
         // inverse y axis
-        float cam_v = -Input.GetAxis("Mouse Y") * rSpeed;
+        float cam_v = (Input.GetAxis("Joycon Y") - Input.GetAxis("Mouse Y")) * rSpeed;
 
         if (KeyboardController.isPaused())
         {

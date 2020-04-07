@@ -43,7 +43,7 @@ public class KeyboardController : MonoBehaviour
             deltaTime = 0f;
         }
 
-        if (Input.GetKeyUp("f3") || Input.GetKeyUp("v"))
+        if (Input.GetKeyUp("f3") || Input.GetKeyUp("v") || Input.GetKeyUp(KeyCode.JoystickButton3))
         {
             KeyboardController.displayDebug = !KeyboardController.displayDebug;
         }
@@ -57,7 +57,7 @@ public class KeyboardController : MonoBehaviour
             debugText.text = "";
 		}
 
-        if (Input.GetKeyUp("e"))
+        if (Input.GetButtonUp("Options"))
 		{
             KeyboardController.displayMenu = !KeyboardController.displayMenu;
             configCanvas.SetActive(KeyboardController.displayMenu);
