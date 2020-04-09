@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
 	{
         if (PlayerController.grounded)
         {
-            rb.AddForce(new Vector3(0f, jumpSpeed * Time.deltaTime, 0f));
+            rb.AddForce(new Vector3(0f, jumpSpeed, 0f));
 			PlayerController.grounded = false;
 		}
     }
