@@ -1,0 +1,4 @@
+*.md linguist-detectable=true
+
+#SE-344/utilities/*.* linguist-generated=true
+#SE-344/submissions/ass1/bin/glm/*.* linguist-generated=true

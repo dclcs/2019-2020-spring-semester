@@ -7,6 +7,8 @@ ScriptsOnlyBuild:
     - ConfigController
     - KeyboardController
     - PlayerController
+    Unity.Rider.Editor.dll:
+    - Packages.Rider.Editor.UnitTesting.CallbackData
     Unity.TextMeshPro.dll:
     - TMPro.TMP_ColorGradient
     - TMPro.TMP_FontAsset
@@ -23,6 +25,7 @@ ScriptsOnlyBuild:
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
+    - UnityEditor.TestTools.TestRunner.TestRun.TestJobDataHolder
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
@@ -76,59 +79,59 @@ ScriptsOnlyBuild:
     - Class: 109
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9714}
+      Script: {instanceID: 11198}
     - Class: 114
-      Script: {instanceID: 9862}
+      Script: {instanceID: 11354}
     - Class: 114
-      Script: {instanceID: 9864}
+      Script: {instanceID: 11356}
     - Class: 114
-      Script: {instanceID: 9904}
+      Script: {instanceID: 11396}
     - Class: 114
-      Script: {instanceID: 10188}
+      Script: {instanceID: 11690}
     - Class: 114
-      Script: {instanceID: 10210}
+      Script: {instanceID: 11712}
     - Class: 114
-      Script: {instanceID: 10276}
+      Script: {instanceID: 11782}
     - Class: 114
-      Script: {instanceID: 10298}
+      Script: {instanceID: 11808}
     - Class: 114
-      Script: {instanceID: 10402}
+      Script: {instanceID: 11924}
     - Class: 114
-      Script: {instanceID: 10422}
+      Script: {instanceID: 11948}
     - Class: 114
-      Script: {instanceID: 10450}
+      Script: {instanceID: 11976}
     - Class: 114
-      Script: {instanceID: 10630}
+      Script: {instanceID: 12172}
     - Class: 114
-      Script: {instanceID: 10844}
+      Script: {instanceID: 12396}
     - Class: 114
-      Script: {instanceID: 10858}
+      Script: {instanceID: 12410}
     - Class: 114
-      Script: {instanceID: 10916}
+      Script: {instanceID: 12474}
     - Class: 114
-      Script: {instanceID: 10974}
+      Script: {instanceID: 12534}
     - Class: 114
-      Script: {instanceID: 11100}
+      Script: {instanceID: 12676}
     - Class: 114
-      Script: {instanceID: 11114}
+      Script: {instanceID: 12690}
     - Class: 114
-      Script: {instanceID: 11264}
+      Script: {instanceID: 12840}
     - Class: 114
-      Script: {instanceID: 11284}
+      Script: {instanceID: 12858}
     - Class: 114
-      Script: {instanceID: 11370}
+      Script: {instanceID: 12946}
     - Class: 114
-      Script: {instanceID: 11378}
+      Script: {instanceID: 12954}
     - Class: 114
-      Script: {instanceID: 11418}
+      Script: {instanceID: 12994}
     - Class: 114
-      Script: {instanceID: 11460}
+      Script: {instanceID: 13042}
     - Class: 114
-      Script: {instanceID: 11470}
+      Script: {instanceID: 13054}
     - Class: 114
-      Script: {instanceID: 11484}
+      Script: {instanceID: 13068}
     - Class: 114
-      Script: {instanceID: 11502}
+      Script: {instanceID: 13084}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -136,6 +139,8 @@ ScriptsOnlyBuild:
     - Class: 135
       Script: {instanceID: 0}
     - Class: 157
+      Script: {instanceID: 0}
+    - Class: 196
       Script: {instanceID: 0}
     - Class: 213
       Script: {instanceID: 0}
@@ -750,7 +755,13 @@ ScriptsOnlyBuild:
     className: TMP_SubMesh
   - hash:
       serializedVersion: 2
-      Hash: 20eeaeae829475b5e354d1f626c51a2b
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.TestRunner.dll
+    namespaceName: UnityEngine.TestRunner.Utils
+    className: TestRunCallbackListener
+  - hash:
+      serializedVersion: 2
+      Hash: 4ef0f7d42cdb13479386e1f049c315aa
     assemblyName: UnityEngine.TestRunner.dll
     namespaceName: UnityEngine.TestTools.TestRunner
     className: PlaymodeTestsController
