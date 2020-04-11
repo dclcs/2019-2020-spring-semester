@@ -93,9 +93,9 @@ Email: fengerhu1@sjtu.edu.cn
 
 ## Part 1: Physical Page Management
 
-The operating system must keep track of which parts of physical RAM are free and which are currently in use. Chcore manages the PC's physical memory with *page granularity* so that it can use the MMU to map and protect each piece of allocated memory.
+The operating system must keep track of which parts of physical RAM are free and which are currently in use. ChCore manages the PC's physical memory with *page granularity* so that it can use the MMU to map and protect each piece of allocated memory.
 
-The following figure shows physical memory layout for Chcore:
+The following figure shows physical memory layout for ChCore:
 
 ```
 +------------------+  <- page_end (metadata_end + (npages * PAGE_SIZE))
@@ -106,7 +106,7 @@ The following figure shows physical memory layout for Chcore:
 |                  |
 |                  |  
 |                  |
-+------------------+  <- metadata_end (img_end +(npages * sizeof(struct page))) 
++------------------+  <- metadata_end (img_end + (npages * sizeof(struct page))) 
 |     metadata     |
 |                  |
 +------------------+  <- metadata_start (img_end)
@@ -118,11 +118,11 @@ The following figure shows physical memory layout for Chcore:
 +------------------+  <- 0x00000000
 ```
 
-The physical address [0x00000000 : 0x00008000] is reserved. The value of `img_start` is hardcode at the compilation time. The first part in [img_start : img_end] is boot code and cpu boot stack, each cpu stack is 4K size. Kernel image is stored in the upper part in physical address [img_start : img_end] and contains the code and data/metadata for kernel. Upper to the kernel image, the free physical memory is organized by physical page allocator. Allocator will divide the memory zone into two ranges: metadata range and page range. In the metadata range, it records page metadata like `list_node` and `flags` etc.. In the page range, it stores the real data.	 
+The physical address [0x00000000 : 0x00008000] is reserved. The value of `img_start` is hardcoded at the compilation time. The first part in [img_start : img_end] is boot code and cpu boot stack, each cpu stack is 4K size. Kernel image is stored in the upper part in physical address [img_start : img_end] and contains the code and data/metadata for kernel. Upper to the kernel image, the free physical memory is organized by physical page allocator. Allocator will divide the memory zone into two ranges: metadata range and page range. In the metadata range, it records page metadata like `list_node` and `flags` etc.. In the page range, it stores the real data.	 
 
 > **Question** :
 >
-> Make a brief explanation: In which file or code segment specifies the CHcore physical memory layout. You can answer this question in two aspects: the compilation phase and runtime phase?
+> Make a brief explanation: In which file or code segment specifies the ChCore physical memory layout. You can answer this question in two aspects: the compilation phase and runtime phase?
 
 You'll now write the physical page allocator. It keeps track of which pages are free with a linked list of `struct Page` objects, each corresponding to a physical page. You need to write the physical page allocator before you can write the rest of the virtual memory implementation, because your page table management code will need to allocate physical memory in which to store page tables.
 
@@ -274,7 +274,7 @@ To summarize:
 
 > **Question**
 >
-> Assuming that the following CHcore kernel code is correct, which type should variable `x` have, `vaddr_t` or `paddr_t`?
+> Assuming that the following ChCore kernel code is correct, which type should variable `x` have, `vaddr_t` or `paddr_t`?
 >
 > ```
 >     mystery_t x;
@@ -336,7 +336,7 @@ The user environment will have no permission to any of the memory above `KBASE`,
 
 ### Map the Kernel Address Space
 
-In the boot time, Chcore already map the virtual address [KBASE : KBASE + 128M] to physical address [0 : 128M], in this lab we will map  additional 128M virtual address[KBASE + 128M: KBASE + 256M] to physical address[128M : 256M]. Upper to KBASE + 256M, the virtual memory is reserved for device.
+In the boot time, Chcore already map the virtual address [KBASE : KBASE + 128M] to physical address [0 : 128M], in this lab we will map additional 128M virtual address[KBASE + 128M: KBASE + 256M] to physical address[128M : 256M]. Upper to KBASE + 256M, the virtual memory is reserved for device.
 
 | virtual address                                              | physical address |
 | ------------------------------------------------------------ | ---------------- |
@@ -384,9 +384,9 @@ unsigned long get_ttbr1()
 
 **Challenge 1.** Map the kernel space in the page granularity. In default, only user process can map virtual address in the page  granularity, so you need to  modify the function `set_pte_flags()`.
 
-**Challenge 2** Support hugepage / block  for Chcore, you should modify the map_range_in_pgtbl() in page_table.c and set the page attribution bit carefully. 
+**Challenge 2** Support hugepage / block for Chcore, you should modify the map_range_in_pgtbl() in page_table.c and set the page attribution bit carefully. 
 
-If you complete any of the challenges, you need to explain your solution in the document, what's more we  recommend that you write your own test scripts to check whether you have implemented it correctly, you can get the extra **bonus** after finishing all challenges.
+If you complete any of the challenges, you need to explain your solution in the document, what's more we recommend that you write your own test scripts to check whether you have implemented it correctly, you can get the extra **bonus** after finishing all challenges.
 
 **This completes the lab.** Type `make grade` in the `lab` directory for test. If you pass all tests, you can see your grade report as follow:
 
