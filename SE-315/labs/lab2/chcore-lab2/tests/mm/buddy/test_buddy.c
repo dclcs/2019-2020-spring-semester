@@ -38,7 +38,6 @@ static unsigned long buddy_num_free_page(struct global_mem *zone)
 		ret += zone->free_lists[i].nr_free;
 	}
 
-	printk("called <buddy_num_free_page>. result is %lu\n", ret);
 	return ret;
 }
 

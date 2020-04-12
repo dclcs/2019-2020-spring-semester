@@ -49,6 +49,20 @@ static inline u64 get_page_idx(struct global_mem *zone, struct page *page)
 	return (page - zone->first_page);
 }
 
+// static void check_free_pages(struct global_mem *zone)
+// {
+// 	unsigned long i, ret;
+
+// 	ret = 0;
+// 	for (i = 0; i < BUDDY_MAX_ORDER; ++i)
+// 	{
+// 		// printk("buddy order %lu's nr_free: %llu\n", i, zone->free_lists[i].nr_free);
+// 		ret += zone->free_lists[i].nr_free;
+// 	}
+
+// 	// printk("called <buddy_num_free_pages>. result is %lu\n", ret);
+// }
+
 /*
  * return the start page (metadata) of the only one buddy.
  * e.g., page 0 and page 1 are buddies, page (0, 1) and page (2, 3) are buddies
@@ -85,9 +99,7 @@ static void split(struct global_mem *zone, struct page *page,
 				  u64 low_order, u64 high_order,
 				  struct free_list *list)
 {
-	u64 size;
-
-	size = (1U << high_order);
+	u64 size = (1U << high_order);
 	/* keep splitting */
 	while (high_order > low_order)
 	{
@@ -100,9 +112,13 @@ static void split(struct global_mem *zone, struct page *page,
 		// set page order
 		set_page_order_buddy(&page[size], high_order);
 	}
+
+	// printk("<split> over.\n");
+	// check_free_pages(zone);
 }
+
 /*
- * __aloc_page: get free page from buddy system(called by buddy_get_pages)
+ * __alloc_page: get free page from buddy system (called by buddy_get_pages)
  * 
  * clear_page_order_buddy(): clear page metadata
  * 
@@ -112,22 +128,45 @@ static void split(struct global_mem *zone, struct page *page,
  */
 static struct page *__alloc_page(struct global_mem *zone, u64 order)
 {
-	if (order > BUDDY_MAX_ORDER)
+	// printk("called <__alloc_page> with order = %llu.\n", order);
+	if (order >= BUDDY_MAX_ORDER)
 	{
 		return NULL;
 	}
 
 	struct page *page;
-	for (u64 current_order = order; current_order < BUDDY_MAX_ORDER; ++current_order)
+	struct free_list *list;
+	u64 current_order;
+	for (current_order = order; current_order < BUDDY_MAX_ORDER; ++current_order)
 	{
-		struct free_list *current_list = &zone->free_lists[current_order];
-		if (list_empty(&current_list->list_head))
-			continue;
+		// printk("traversing order %lu\n", current_order);
+		list = &(zone->free_lists[current_order]);
 
-		page = list_entry(current_list->list_head.next, struct page, list_node);
+		if (list_empty(&list->list_head))
+		{
+			continue;
+		}
+		// printk("found allocatable on order %lu\n", current_order);
+
+		// printk("going to get list entry\n");
+		page = list_entry(list->list_head.next, struct page, list_node);
+		// printk("list_entry found! %p\n", page);
+
+		// printk("going to delete &page->list_node, @%p\n", &page->list_node);
 		list_del(&page->list_node);
-		current_list->nr_free--;
-		split(zone, page, order, current_order, current_list);
+		list->nr_free--;
+		clear_page_order_buddy(page);
+		// printk("clear page order done\n");
+
+		// printk("going to call <split> (zone=%p, page=%p, lower=%lu, higher=%lu, free_list=%p)\n", zone, page, order, current_order, list);
+		split(zone, page, order, current_order, list);
+		// printk("split done\n");
+
+		// printk("list->nr_free-- done. nr_free = %lu\n", list->nr_free);
+
+		// printk("<__alloc_page> over.\n");
+		// check_free_pages(zone);
+
 		return page;
 	}
 
@@ -137,6 +176,7 @@ static struct page *__alloc_page(struct global_mem *zone, u64 order)
 /* check whether the buddy can be merged */
 static inline bool check_buddy(struct page *page, u64 order)
 {
+	// printk("doing a buddy check! page->flags = %llu, page->order = %llu, target order = %llu\n", page->flags, page->order, order);
 	return (page->flags & (1UL << PG_buddy)) && (page->order == order);
 }
 
@@ -147,7 +187,7 @@ static inline bool check_buddy(struct page *page, u64 order)
 void init_buddy(struct global_mem *zone, struct page *first_page,
 				vaddr_t first_page_vaddr, u64 page_num)
 {
-	printk("called <init_buddy>. first page: %p, its vaddr: %llu  page_num: %llu\n", first_page, first_page_vaddr, page_num);
+	// printk("called <init_buddy>. first page: %p, its vaddr: %llu  page_num: %llu\n", first_page, first_page_vaddr, page_num);
 	u64 i;
 	struct page *page;
 	struct free_list *list;
@@ -189,44 +229,28 @@ void init_buddy(struct global_mem *zone, struct page *first_page,
  */
 struct page *buddy_get_pages(struct global_mem *zone, u64 order)
 {
-	printk("called <buddy_get_pages>. required order: %llu\n", order);
-	bool found = false;
+	// printk("called <buddy_get_pages>. required order: %llu\n", order);
 
-	struct free_list *target_list;
-
-	u64 current_order;
-	for (current_order = order; current_order <= BUDDY_MAX_ORDER; ++current_order)
+	if (order >= BUDDY_MAX_ORDER)
 	{
-		target_list = &zone->free_lists[current_order];
+		return NULL;
+	}
 
-		if (!list_empty(&target_list->list_head))
+	struct page *page = NULL;
+
+	u64 ord;
+	for (ord = order; ord < BUDDY_MAX_ORDER; ++ord)
+	{
+		page = __alloc_page(zone, ord);
+		if (page)
 		{
-			found = true;
 			break;
 		}
 	}
 
-	if (found)
-	{
-		struct page *page = list_entry(target_list->list_head.next, struct page, list_node);
-		list_del(&page->list_node);
-		target_list->nr_free--;
-
-		u64 size = 1 << current_order;
-		while (current_order > order)
-		{
-			--target_list;
-			--current_order;
-			size >>= 1;
-			struct page *buddy = page + size;
-			list_add(&buddy->list_node, &target_list->list_head);
-		}
-		return page;
-	}
-	else
-	{
-		return NULL;
-	}
+	// printk("<buddy_get_pages> over.\n");
+	page->order = order;
+	return page;
 }
 
 /*
@@ -243,32 +267,33 @@ struct page *buddy_get_pages(struct global_mem *zone, u64 order)
 */
 void buddy_free_pages(struct global_mem *zone, struct page *page)
 {
-	// printk("called <buddy_free_pages>. struct page *: %p\n", page);
-	u64 page_idx = (u64)page_to_virt(zone, page) & ((1 << BUDDY_MAX_ORDER) - 1);
-	u64 order = page->order;
-	u64 order_size = 1 << order;
+	// printk("called <buddy_free_pages>. struct page *: %p, order = %lu\n", page, get_order(page));
+	u64 order = get_order(page);
+	struct page *buddy;
 
 	while (order < BUDDY_MAX_ORDER - 1)
 	{
-		struct free_list *list;
-		struct page *buddy;
-
 		buddy = get_buddy_page(zone, page, order);
+
 		if (!check_buddy(buddy, order))
 		{
 			break;
 		}
+		// printk("merge at order %lu\n", order);
+		// check_free_pages(zone);
+
 		list_del(&buddy->list_node);
 		zone->free_lists[order].nr_free--;
 		clear_page_order_buddy(buddy);
-		u64 combined_idx = (page_idx & ~(1 << order));
-		page += (combined_idx - page_idx);
-		page_idx = combined_idx;
+
+		page = get_merge_page(zone, page, order);
 		++order;
 	}
 	set_page_order_buddy(page, order);
 	list_add(&page->list_node, &zone->free_lists[order].list_head);
 	zone->free_lists[order].nr_free++;
+
+	// printk("trivial buddy freeing pages. order %llu has nr_free = %u\n", order, zone->free_lists[order].nr_free);
 }
 
 void *page_to_virt(struct global_mem *zone, struct page *page)
