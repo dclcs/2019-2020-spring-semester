@@ -126,7 +126,7 @@ The physical address [0x00000000 : 0x00008000] is reserved. The value of `img_st
 
 You'll now write the physical page allocator. It keeps track of which pages are free with a linked list of `struct Page` objects, each corresponding to a physical page. You need to write the physical page allocator before you can write the rest of the virtual memory implementation, because your page table management code will need to allocate physical memory in which to store page tables.
 
-In Chcore, it implements a simple buddy system to organize the physical pages. Review what you have learned in ics. Every memory block in this system has an *order*, where the order is an integer ranging from 0 to a specified upper limit`BUDDY_MAX_ORDER`. The size of a block of order n is proportional to 2**n, so that the blocks are exactly twice the size of blocks that are one order lower. Power-of-two block sizes make address computation simple, because all buddies are aligned on memory address boundaries that are powers of two. When a larger block is split, it is divided into two smaller blocks, and each smaller block becomes a unique buddy to the other. A split block can only be merged with its unique buddy block, which then reforms the larger block they were split from
+In Chcore, it implements a simple buddy system to organize the physical pages. Review what you have learned in ics. Every memory block in this system has an *order*, where the order is an integer ranging from 0 to a specified upper limit`BUDDY_MAX_ORDER`. The size of a block of order n is proportional to 2**n, so that the blocks are exactly twice the size of blocks that are one order lower. Power-of-two block sizes make address computation simple, because all buddies are aligned on memory address boundaries that are powers of two. When a larger block is split, it is divided into two smaller blocks, and each smaller block becomes a unique buddy to the other. A split block can only be merged with its unique buddy block, which then reforms the larger block they were split from.
 
  `struct global_mem` holds the metadata `struct free_list` for each free list in the buddy system and `struct list_head` links buddy blocks. There are some useful functions to manipulate the `struct list_head`: 
 
@@ -149,7 +149,7 @@ You can invoke the assisted functions: `get_buddy_page()`,`get_merge_page()`,`sp
 
 ```
 make docker
-cd ./test/mm/buddy
+cd ./tests/mm/buddy
 cmake ./
 make
 ./test_buddy

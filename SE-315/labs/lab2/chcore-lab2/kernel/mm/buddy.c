@@ -15,15 +15,14 @@
 #include <common/macro.h>
 #include <common/kprint.h>
 
-
 #include "buddy.h"
-
 
 /*
  * local functions or types
  */
 
-enum pageflags {
+enum pageflags
+{
 	PG_head,
 	PG_buddy,
 };
@@ -55,8 +54,8 @@ static inline u64 get_page_idx(struct global_mem *zone, struct page *page)
  * e.g., page 0 and page 1 are buddies, page (0, 1) and page (2, 3) are buddies
  */
 static inline struct page *get_buddy_page(struct global_mem *zone,
-					  struct page *page,
-					  u64 order)
+										  struct page *page,
+										  u64 order)
 {
 	u64 page_idx;
 	u64 buddy_idx;
@@ -70,27 +69,28 @@ static inline struct page *get_buddy_page(struct global_mem *zone,
 
 /* return the start page (metadata) after "merging" the page and its buddy */
 static inline struct page *get_merge_page(struct global_mem *zone,
-					  struct page *page,
-					  u64 order)
+										  struct page *page,
+										  u64 order)
 {
 	u64 page_idx;
 	u64 merge_idx;
 
-	page_idx  = get_page_idx(zone, page);
+	page_idx = get_page_idx(zone, page);
 	merge_idx = page_idx & ~(1 << order);
 
 	return zone->first_page + merge_idx;
 }
 
 static void split(struct global_mem *zone, struct page *page,
-		   u64 low_order, u64 high_order,
-		   struct free_list *list)
+				  u64 low_order, u64 high_order,
+				  struct free_list *list)
 {
 	u64 size;
 
 	size = (1U << high_order);
 	/* keep splitting */
-	while (high_order > low_order) {
+	while (high_order > low_order)
+	{
 		list--;
 		high_order--;
 		size >>= 1;
@@ -112,15 +112,32 @@ static void split(struct global_mem *zone, struct page *page,
  */
 static struct page *__alloc_page(struct global_mem *zone, u64 order)
 {
-	//lab2
+	if (order > BUDDY_MAX_ORDER)
+	{
+		return NULL;
+	}
+
+	struct page *page;
+	for (u64 current_order = order; current_order < BUDDY_MAX_ORDER; ++current_order)
+	{
+		struct free_list *current_list = &zone->free_lists[current_order];
+		if (list_empty(&current_list->list_head))
+			continue;
+
+		page = list_entry(current_list->list_head.next, struct page, list_node);
+		list_del(&page->list_node);
+		current_list->nr_free--;
+		split(zone, page, order, current_order, current_list);
+		return page;
+	}
+
 	return NULL;
 }
 
 /* check whether the buddy can be merged */
 static inline bool check_buddy(struct page *page, u64 order)
 {
-	return (page->flags & (1UL << PG_buddy))
-		&& (page->order == order);
+	return (page->flags & (1UL << PG_buddy)) && (page->order == order);
 }
 
 /*
@@ -128,12 +145,12 @@ static inline bool check_buddy(struct page *page, u64 order)
  */
 
 void init_buddy(struct global_mem *zone, struct page *first_page,
-		vaddr_t first_page_vaddr, u64 page_num)
+				vaddr_t first_page_vaddr, u64 page_num)
 {
+	printk("called <init_buddy>. first page: %p, its vaddr: %llu  page_num: %llu\n", first_page, first_page_vaddr, page_num);
 	u64 i;
 	struct page *page;
 	struct free_list *list;
-
 
 	/* init global memory metadata */
 	zone->page_num = page_num;
@@ -143,17 +160,19 @@ void init_buddy(struct global_mem *zone, struct page *first_page,
 	zone->end_addr = zone->start_addr + page_num * BUDDY_PAGE_SIZE;
 
 	/* init each free list (different orders) */
-	for (i = 0; i < BUDDY_MAX_ORDER; i++) {
-	        list = zone->free_lists + i;
+	for (i = 0; i < BUDDY_MAX_ORDER; i++)
+	{
+		list = zone->free_lists + i;
 		init_list_head(&list->list_head);
 		list->nr_free = 0;
 	}
 
 	/* zero the metadata area (struct page for each page) */
-	memset((char*)first_page, 0, page_num * sizeof(struct page));
+	memset((char *)first_page, 0, page_num * sizeof(struct page));
 
 	/* init the metadata for each page */
-	for (i = 0; i < page_num; i++) {
+	for (i = 0; i < page_num; i++)
+	{
 		/* Currently, 0~img_end is reserved, however, if we want to use them, we should reserve MP_BOOT_ADDR */
 		page = zone->first_page + i;
 		init_list_head(&page->list_node);
@@ -170,10 +189,44 @@ void init_buddy(struct global_mem *zone, struct page *first_page,
  */
 struct page *buddy_get_pages(struct global_mem *zone, u64 order)
 {
-	//lab2
-	struct page *page;
+	printk("called <buddy_get_pages>. required order: %llu\n", order);
+	bool found = false;
 
-	return page;
+	struct free_list *target_list;
+
+	u64 current_order;
+	for (current_order = order; current_order <= BUDDY_MAX_ORDER; ++current_order)
+	{
+		target_list = &zone->free_lists[current_order];
+
+		if (!list_empty(&target_list->list_head))
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (found)
+	{
+		struct page *page = list_entry(target_list->list_head.next, struct page, list_node);
+		list_del(&page->list_node);
+		target_list->nr_free--;
+
+		u64 size = 1 << current_order;
+		while (current_order > order)
+		{
+			--target_list;
+			--current_order;
+			size >>= 1;
+			struct page *buddy = page + size;
+			list_add(&buddy->list_node, &target_list->list_head);
+		}
+		return page;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 /*
@@ -190,8 +243,32 @@ struct page *buddy_get_pages(struct global_mem *zone, u64 order)
 */
 void buddy_free_pages(struct global_mem *zone, struct page *page)
 {
-	//lab2
+	// printk("called <buddy_free_pages>. struct page *: %p\n", page);
+	u64 page_idx = (u64)page_to_virt(zone, page) & ((1 << BUDDY_MAX_ORDER) - 1);
+	u64 order = page->order;
+	u64 order_size = 1 << order;
 
+	while (order < BUDDY_MAX_ORDER - 1)
+	{
+		struct free_list *list;
+		struct page *buddy;
+
+		buddy = get_buddy_page(zone, page, order);
+		if (!check_buddy(buddy, order))
+		{
+			break;
+		}
+		list_del(&buddy->list_node);
+		zone->free_lists[order].nr_free--;
+		clear_page_order_buddy(buddy);
+		u64 combined_idx = (page_idx & ~(1 << order));
+		page += (combined_idx - page_idx);
+		page_idx = combined_idx;
+		++order;
+	}
+	set_page_order_buddy(page, order);
+	list_add(&page->list_node, &zone->free_lists[order].list_head);
+	zone->free_lists[order].nr_free++;
 }
 
 void *page_to_virt(struct global_mem *zone, struct page *page)
@@ -216,9 +293,10 @@ struct page *virt_to_page(struct global_mem *zone, void *ptr)
 
 	address = (u64)ptr;
 
-	if ((address < zone->start_addr) || (address > zone->end_addr)) {
+	if ((address < zone->start_addr) || (address > zone->end_addr))
+	{
 		kinfo("[BUG] start_addr=0x%lx, end_addr=0x%lx, address=0x%lx\n",
-		       zone->start_addr, zone->end_addr, address);
+			  zone->start_addr, zone->end_addr, address);
 		BUG_ON(1);
 		return NULL;
 	}

@@ -13,7 +13,7 @@
 #define ROUND 1000
 #define NPAGES (128 * 1000)
 
-#define START_VADDR phys_to_virt(24*1024*1024)
+#define START_VADDR phys_to_virt(24 * 1024 * 1024)
 
 void printk(const char *fmt, ...)
 {
@@ -33,9 +33,12 @@ static unsigned long buddy_num_free_page(struct global_mem *zone)
 	unsigned long i, ret;
 
 	ret = 0;
-	for (i = 0; i < BUDDY_MAX_ORDER; ++i) {
+	for (i = 0; i < BUDDY_MAX_ORDER; ++i)
+	{
 		ret += zone->free_lists[i].nr_free;
 	}
+
+	printk("called <buddy_num_free_page>. result is %lu\n", ret);
 	return ret;
 }
 
@@ -59,7 +62,8 @@ static void test_alloc(struct global_mem *zone, long n, long order)
 	long i;
 	struct page *page;
 
-	for (i = 0; i < n; ++i) {
+	for (i = 0; i < n; ++i)
+	{
 		page = buddy_get_pages(zone, order);
 		mu_check(page != NULL);
 		get_page_idx(zone, page);
@@ -85,8 +89,8 @@ void test_buddy(void)
 
 	/* PAGE_SIZE + page metadata size */
 	size = npages * (0x1000 + sizeof(struct page));
-	start = mmap((void *)-1, size, PROT_READ|PROT_WRITE,
-		     MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	start = mmap((void *)-1, size, PROT_READ | PROT_WRITE,
+				 MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
 	/* skip the metadata area */
 	start_addr = (unsigned long)(start + npages * sizeof(struct page));
@@ -107,7 +111,8 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* free all pages */
-	for (i = 0; i < npages; ++i) {
+	for (i = 0; i < npages; ++i)
+	{
 		page = global_mem.first_page + i;
 		buddy_free_pages(&global_mem, page);
 	}
@@ -116,7 +121,7 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* alloc 2-pages for $npages/2 times */
-	test_alloc(&global_mem, npages/2, 1);
+	test_alloc(&global_mem, npages / 2, 1);
 
 	/* should have 0 free pages */
 	nget = buddy_num_free_page(&global_mem);
@@ -124,7 +129,8 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* free all pages */
-	for (i = 0; i < npages; i += 2) {
+	for (i = 0; i < npages; i += 2)
+	{
 		page = global_mem.first_page + i;
 		buddy_free_pages(&global_mem, page);
 	}
@@ -133,8 +139,8 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* alloc MAX_ORDER-pages for  */
-	test_alloc(&global_mem, npages/powl(2, BUDDY_MAX_ORDER - 1),
-		   BUDDY_MAX_ORDER - 1);
+	test_alloc(&global_mem, npages / powl(2, BUDDY_MAX_ORDER - 1),
+			   BUDDY_MAX_ORDER - 1);
 
 	/* should have 0 free pages */
 	nget = buddy_num_free_page(&global_mem);
@@ -142,14 +148,14 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* free all pages */
-	for (i = 0; i < npages; i += powl(2, BUDDY_MAX_ORDER - 1)) {
+	for (i = 0; i < npages; i += powl(2, BUDDY_MAX_ORDER - 1))
+	{
 		page = global_mem.first_page + i;
 		buddy_free_pages(&global_mem, page);
 	}
 	nget = buddy_num_free_page(&global_mem);
 	ncheck = npages / powl(2, BUDDY_MAX_ORDER - 1);
 	mu_check(nget == ncheck);
-
 
 	/* alloc single page for $npages times */
 	test_alloc(&global_mem, npages, 0);
@@ -160,7 +166,8 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* free a half pages */
-	for (i = 0; i < npages; i += 2) {
+	for (i = 0; i < npages; i += 2)
+	{
 		page = global_mem.first_page + i;
 		buddy_free_pages(&global_mem, page);
 	}
@@ -169,7 +176,8 @@ void test_buddy(void)
 	mu_check(nget == ncheck);
 
 	/* free another half pages */
-	for (i = 1; i < npages; i += 2) {
+	for (i = 1; i < npages; i += 2)
+	{
 		page = global_mem.first_page + i;
 		buddy_free_pages(&global_mem, page);
 	}
@@ -177,8 +185,6 @@ void test_buddy(void)
 	ncheck = npages / powl(2, BUDDY_MAX_ORDER - 1);
 	mu_check(nget == ncheck);
 }
-
-
 
 MU_TEST_SUITE(test_suite)
 {
