@@ -296,7 +296,7 @@ The Chcore kernel also sometimes needs to be able to find a physical address giv
 
 Now you'll write a set of routines to manage page tables: to insert and remove virtual-to-physical mappings(tranditonal 4-level page table), and to create page table pages when needed.
 
-> **Exercise 2.** In the file `kernel/arch/aarch64/mm/page_table.c`, you must implement code for the following functions.
+> **Exercise 2.** In the file `kernel/mm/page_table.c`, you must implement code for the following functions.
 >
 > ```
 > map_range_in_pgtbl()

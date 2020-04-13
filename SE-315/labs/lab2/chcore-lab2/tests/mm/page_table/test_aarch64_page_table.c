@@ -30,8 +30,10 @@ void free_page(void *page)
 
 #include "../../../kernel/mm/page_table.c"
 
-void set_ttbr0_el1(paddr_t p) { }
-void flush_tlb() { }
+void set_ttbr0_el1(paddr_t p)
+{
+}
+void flush_tlb() {}
 
 void printk(const char *fmt, ...)
 {
@@ -56,14 +58,15 @@ static inline u64 rand_page_addr(u64 max)
 {
 	u64 ret;
 
-	do {
+	do
+	{
 		ret = rand_addr(max) & (~PAGE_MASK);
 	} while (ret == 0);
 	return ret;
 }
 
 void test_page_mappings(vaddr_t *pgtbl, paddr_t *pas,
-			vaddr_t *vas, int nr_pages)
+						vaddr_t *vas, int nr_pages)
 {
 	paddr_t pa;
 	vaddr_t va;
@@ -73,26 +76,31 @@ void test_page_mappings(vaddr_t *pgtbl, paddr_t *pas,
 	int j;
 	pte_t *entry;
 	/* Query all pages  */
-	for (i = 0; i < nr_pages; i++) {
+	for (i = 0; i < nr_pages; i++)
+	{
 		if (!vas[i])
 			continue;
 		err = query_in_pgtbl(pgtbl, vas[i], &pa, &entry);
-		if (err != 0) {
+		if (err != 0)
+		{
 			printf("vas[i]=%llx\n", (u64)vas[i]);
 			exit(-1);
 		}
 		mu_assert_int_eq(0, err);
-		if (pa != pas[i]) {
+		if (pa != pas[i])
+		{
 			printf("pa=0x%llx pas[i]=0x%llx\n", pa, pas[i]);
 		}
 		mu_check(pa == pas[i]);
 	}
 
 	/* Generate some VAs and query them */
-	for (i = 0; i < nr_pages; i++) {
+	for (i = 0; i < nr_pages; i++)
+	{
 		va = rand_page_addr(RND_VA_MAX);
 		err = query_in_pgtbl(pgtbl, va, &pa, &entry);
-		for (j = 0; j < RND_MAPPING_PAGES; j++) {
+		for (j = 0; j < RND_MAPPING_PAGES; j++)
+		{
 			if (vas[j] != va)
 				continue;
 			mu_assert_int_eq(0, err);
@@ -134,6 +142,7 @@ MU_TEST(test_map_unmap_page)
 
 	err = query_in_pgtbl(root, va, &pa, &entry);
 	mu_assert_int_eq(0, err);
+	// printk("146: pa (%p) ?= 0x100000?\n", pa);
 	mu_check(pa == 0x100000);
 	// mu_check(flags == DEFAULT_FLAGS);
 
@@ -147,24 +156,27 @@ MU_TEST(test_map_unmap_page)
 	vas = malloc(sizeof(*vas) * RND_MAPPING_PAGES);
 	pas = malloc(sizeof(*pas) * RND_MAPPING_PAGES);
 	/* Generate and map all pages */
-	for (i = 0; i < RND_MAPPING_PAGES; i++) {
-rerand:
+	for (i = 0; i < RND_MAPPING_PAGES; i++)
+	{
+	rerand:
 		vas[i] = rand_page_addr(RND_VA_MAX);
 		pas[i] = rand_page_addr(RND_PA_MAX);
-		for (j = 0; j < i; j++) {
+		for (j = 0; j < i; j++)
+		{
 			if (vas[i] == vas[j])
 				goto rerand;
 		}
 		printf("map: 0x%llx -> 0x%llx\n", vas[i], pas[i]);
 		err = map_range_in_pgtbl(root, vas[i], pas[i], PAGE_SIZE,
-					 DEFAULT_FLAGS);
+								 DEFAULT_FLAGS);
 		mu_assert_int_eq(0, err);
 	}
 
 	test_page_mappings(root, pas, vas, RND_MAPPING_PAGES);
 
 	/* Unmap some pages */
-	for (i = 0; i < RND_MAPPING_PAGES; i++) {
+	for (i = 0; i < RND_MAPPING_PAGES; i++)
+	{
 		if (rand() & 1)
 			continue;
 		printf("unmap: 0x%llx -> 0x%llx\n", vas[i], pas[i]);
@@ -177,7 +189,8 @@ rerand:
 	test_page_mappings(root, pas, vas, RND_MAPPING_PAGES);
 
 	/* Unmap remaining pages */
-	for (i = 0; i < RND_MAPPING_PAGES; i++) {
+	for (i = 0; i < RND_MAPPING_PAGES; i++)
+	{
 		if (!vas[i])
 			continue;
 		printf("unmap: 0x%llx -> 0x%llx\n", vas[i], pas[i]);
@@ -199,7 +212,7 @@ MU_TEST_SUITE(test_suite)
 
 int main(int argc, char *argv[])
 {
-        MU_RUN_SUITE(test_suite);
-        MU_REPORT();
-        return minunit_status;
+	MU_RUN_SUITE(test_suite);
+	MU_REPORT();
+	return minunit_status;
 }
