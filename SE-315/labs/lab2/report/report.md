@@ -29,6 +29,18 @@ Those memory phases are determined in runtime. Related codes lies in `./kernel/m
 
 #### Exercise 1
 
+In this phase, we merely needs to modify three functions. They are `buddy_get_pages()`, `__alloc_page()`, and `buddy_free_pages()`.
+
+In my implementation (mainly based on Linux), `buddy_get_pages()` merely validates input `order`, calls internal `__alloc_page` function to obtain `page *`, and modifies its `order` entry.
+
+`__alloc_page()`, seemingly like an internal function, does the most dirty work.  It checks buddy system's free list from `target_order` till `BUDDY_MAX_ORDER`. Once it obtains one free block, check if its order is our target order. If so, great. Just `clear_page_order_buddy` and return that page. If not so, we should recursively call `split` the `higher_order` into `target_order`, and then return that page.
+
+`buddy_free_pages()`, mainly do the page release job. After a page is returned, we should add that page back into the free list. Moreover, we should check if this page has a free buddy. If so, coalesce them recursively.
+
+We can use predefined `get_buddy_page()` and `check_buddy()` to find and identify its buddy page.
+
+It should noticed that `clear_page_order_buddy` removes the page's order field. So we should manually set this field before returning it in ``buddy_get_pages()`.
+
 ### Part 2: VM
 
 #### Question 2
@@ -78,6 +90,12 @@ For x86 there are only one single bit for accessing privilege control: the `R/W`
 However, ARMv8 has a complete privilege control system, containing a complete R/W/X privilege managing strategy. And it could separatedly configure accessing privileges in different privilege levels.
 
 #### Exercise 2
+
+Basically, `query_in_pgtbl()`, `map_range_in_pgtbl()`, and `unmap_range_in_pgtbl()` do the same thing. They call `get_next_ptp()` 4 times to get its results.
+
+Notice that in each page table entry (`pte_t`), `pte_t.pte` contains not only next page table entry, but also some state bits. In order to split memory address out, we should use `(u64)pte_t.table.next_table_addr << PAGE_SHIFT` to obtain that.
+
+Notice that `next_table_addr` is merely `u32`. Before shifting it we should expand that to `u64` in case of overflow.
 
 ### Part 3: KAS
 

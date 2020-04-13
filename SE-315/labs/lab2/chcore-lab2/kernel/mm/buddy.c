@@ -111,6 +111,7 @@ static void split(struct global_mem *zone, struct page *page,
 		list->nr_free++;
 		// set page order
 		set_page_order_buddy(&page[size], high_order);
+		// page[size].order = high_order;
 	}
 
 	// printk("<split> over.\n");
@@ -159,7 +160,10 @@ static struct page *__alloc_page(struct global_mem *zone, u64 order)
 		// printk("clear page order done\n");
 
 		// printk("going to call <split> (zone=%p, page=%p, lower=%lu, higher=%lu, free_list=%p)\n", zone, page, order, current_order, list);
-		split(zone, page, order, current_order, list);
+		if (order < current_order)
+		{
+			split(zone, page, order, current_order, list);
+		}
 		// printk("split done\n");
 
 		// printk("list->nr_free-- done. nr_free = %lu\n", list->nr_free);

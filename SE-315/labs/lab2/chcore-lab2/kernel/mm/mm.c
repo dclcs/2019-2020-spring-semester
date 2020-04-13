@@ -20,13 +20,12 @@
 extern unsigned long *img_end;
 struct global_mem global_mem;
 
-
-#define PHYSICAL_MEM_START (24*1024*1024) //24M
+#define PHYSICAL_MEM_START (24 * 1024 * 1024) //24M
 
 #define START_VADDR phys_to_virt(PHYSICAL_MEM_START) //24M
-#define NPAGES (128*1000)
+#define NPAGES (128 * 1000)
 
-#define PHYSICAL_MEM_END (PHYSICAL_MEM_START+NPAGES*BUDDY_PAGE_SIZE)
+#define PHYSICAL_MEM_END (PHYSICAL_MEM_START + NPAGES * BUDDY_PAGE_SIZE)
 
 extern void parse_mem_map(void *);
 extern void arch_mm_init(void);
@@ -44,7 +43,8 @@ u64 physmem_map[8][2];
 unsigned long get_ttbr1()
 {
 	unsigned long pgd;
-	__asm__ ("mrs %0,ttbr1_el1" : "=r"(pgd));
+	__asm__("mrs %0,ttbr1_el1"
+			: "=r"(pgd));
 	return pgd;
 }
 /*
@@ -56,18 +56,28 @@ unsigned long get_ttbr1()
  */
 void map_kernel_space(vaddr_t va, paddr_t pa, size_t len)
 {
-	//lab2
+	kinfo("called <map_kernel_space>. va: %p pa: %p size: %lu\n", va, pa, len);
+	vmr_prop_t flags;
 
+	flags &= ~VMR_READ;
+	flags &= ~VMR_WRITE;
+	flags &= ~VMR_EXEC;
 
+	kinfo("get_ttbr1() = %p\n", get_ttbr1());
+	map_range_in_pgtbl((vaddr_t *)get_ttbr1(), va, pa, len, flags);
+
+	set_page_table(get_ttbr1());
+	kinfo("map_range done\n");
 }
-
 
 void kernel_space_check()
 {
 	unsigned long kernel_val;
-	for(unsigned long  i = 64; i < 128; i++)
+	for (unsigned long i = 64; i < 128; i++)
 	{
+
 		kernel_val = *(unsigned long *)(KBASE + (i << 21));
+
 		kinfo("kernel_val: %lx\n", kernel_val);
 	}
 	kinfo("kernel space check pass\n");
@@ -87,35 +97,41 @@ void mm_init(void *info)
 	/* XXX: only use the last entry (biggest free chunk) */
 	parse_mem_map(info);
 
-	if (physmem_map_num == 1) {
+	if (physmem_map_num == 1)
+	{
 		free_mem_start = phys_to_virt(physmem_map[0][0]);
-		free_mem_end   = phys_to_virt(physmem_map[0][1]);
+		free_mem_end = phys_to_virt(physmem_map[0][1]);
 
 		npages = (free_mem_end - free_mem_start) /
-			 (PAGE_SIZE + sizeof(struct page));
+				 (PAGE_SIZE + sizeof(struct page));
 		start_vaddr = (free_mem_start + npages * sizeof(struct page));
 		start_vaddr = ROUND_UP(start_vaddr, PAGE_SIZE);
 		kdebug("[CHCORE] mm: free_mem_start is 0x%lx, free_mem_end is 0x%lx\n",
-		       free_mem_start, free_mem_end);
-	} else if (physmem_map_num == 0) {
+			   free_mem_start, free_mem_end);
+	}
+	else if (physmem_map_num == 0)
+	{
 		free_mem_start = phys_to_virt(ROUND_UP((vaddr_t)(&img_end), PAGE_SIZE));
 		// free_mem_end = phys_to_virt(PHYSICAL_MEM_END);
 		npages = NPAGES;
 		start_vaddr = START_VADDR;
 		kdebug("[CHCORE] mm: free_mem_start is 0x%lx, free_mem_end is 0x%lx\n",
-			free_mem_start, phys_to_virt(PHYSICAL_MEM_END));
-	} else {
+			   free_mem_start, phys_to_virt(PHYSICAL_MEM_END));
+	}
+	else
+	{
 		BUG("Unsupport physmem_map_num\n");
 	}
 
-	if ((free_mem_start + npages * sizeof(struct page)) > start_vaddr) {
+	if ((free_mem_start + npages * sizeof(struct page)) > start_vaddr)
+	{
 		BUG("kernel panic: init_mm metadata is too large!\n");
 	}
 
 	page_meta_start = (struct page *)free_mem_start;
 	kdebug("page_meta_start: 0x%lx, real_start_vadd: 0x%lx,"
-	       "npages: 0x%lx, meta_page_size: 0x%lx\n",
-	       page_meta_start, start_vaddr, npages, sizeof(struct page));
+		   "npages: 0x%lx, meta_page_size: 0x%lx\n",
+		   page_meta_start, start_vaddr, npages, sizeof(struct page));
 
 	/* buddy alloctor for managing physical memory */
 	init_buddy(&global_mem, page_meta_start, start_vaddr, npages);
@@ -126,7 +142,7 @@ void mm_init(void *info)
 	/* init PCID */
 	arch_mm_init();
 
-	map_kernel_space(KBASE + (64UL<< 21), 64UL<< 21, 64UL<<21);
-	//check whether kernel space [KABSE + 128 : KBASE + 256] is mapped 
+	map_kernel_space(KBASE + (64UL << 21), 64UL << 21, 64UL << 21);
+	//check whether kernel space [KABSE + 128 : KBASE + 256] is mapped
 	kernel_space_check();
 }
