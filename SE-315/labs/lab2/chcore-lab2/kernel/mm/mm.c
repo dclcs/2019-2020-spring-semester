@@ -57,16 +57,16 @@ unsigned long get_ttbr1()
 void map_kernel_space(vaddr_t va, paddr_t pa, size_t len)
 {
 	kinfo("called <map_kernel_space>. va: %p pa: %p size: %lu\n", va, pa, len);
-	vmr_prop_t flags;
+	vmr_prop_t flags = (u64)0;
 
-	flags &= ~VMR_READ;
-	flags &= ~VMR_WRITE;
-	flags &= ~VMR_EXEC;
+	flags |= VMR_READ;
+	flags |= VMR_WRITE;
+	flags |= VMR_EXEC;
+	flags |= KERNEL_PT;
 
-	kinfo("get_ttbr1() = %p\n", get_ttbr1());
+	// kinfo("get_ttbr1() = %p. phys to virt: %p\n", get_ttbr1(), phys_to_virt(get_ttbr1()));
 	map_range_in_pgtbl((vaddr_t *)get_ttbr1(), va, pa, len, flags);
 
-	set_page_table(get_ttbr1());
 	kinfo("map_range done\n");
 }
 
@@ -75,7 +75,7 @@ void kernel_space_check()
 	unsigned long kernel_val;
 	for (unsigned long i = 64; i < 128; i++)
 	{
-
+		printk("going to check memory address %p\n", (unsigned long *)(KBASE + (i << 21)));
 		kernel_val = *(unsigned long *)(KBASE + (i << 21));
 
 		kinfo("kernel_val: %lx\n", kernel_val);

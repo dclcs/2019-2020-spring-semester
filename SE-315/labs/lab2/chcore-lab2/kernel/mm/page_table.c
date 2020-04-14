@@ -63,6 +63,9 @@ static int set_pte_flags(pte_t *entry, vmr_prop_t flags, int kind)
 	// memory type
 	entry->l3_page.attr_index = NORMAL_MEMORY;
 
+	entry->l3_page.is_valid = 1;
+	entry->l3_page.is_page = 1;
+
 	return 0;
 }
 
@@ -165,11 +168,14 @@ static int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va,
  * Hint: check the return value of get_next_ptp, if ret == BLOCK_PTP
  * return the pa and block entry immediately
  */
-int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t va, paddr_t *pa, pte_t **entry)
+int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t *pa, pte_t **entry)
 {
 	// printk("called <query_in_pgtbl>. pgtbl = %p, va = %p\n", pgtbl, va);
 
 	int ret;
+
+	vaddr_t va = base_va & ~(u64)PAGE_MASK;
+	vaddr_t tail = base_va & (u64)PAGE_MASK;
 
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
 	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
@@ -220,7 +226,7 @@ int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t va, paddr_t *pa, pte_t **entry)
 	{
 		return ret;
 	}
-	*pa = *(paddr_t *)l4_pte->pte;
+	*pa = (*(u64 *)l4_pte->pte << PAGE_SHIFT) | tail;
 	*entry = l4_pte;
 	return ret;
 }
@@ -248,10 +254,13 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
 	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
 
+	vaddr_t tail = base_va & (u64)PAGE_MASK;
+	len += (unsigned long)tail;
+
 	for (u64 i = 0; i < (u64)len; i += (u64)PAGE_SIZE)
 	{
-		vaddr_t va = (base_va & ~0xfff) + i;
-		paddr_t pa = (base_pa & ~0xfff) + i;
+		vaddr_t va = (base_va & ~(u64)PAGE_MASK) + i;
+		paddr_t pa = (base_pa & ~(u64)PAGE_MASK) + i;
 
 		// printk("called <map_range_in_pgtbl>. pgtbl: %p, va: %p, pa: %p, len: %lu, flags: %lu\r", pgtbl, va, pa, len, flags);
 
@@ -264,8 +273,6 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		set_pte_flags(l1_pte, flags, 42);
-
 		ret = get_next_ptp((ptp_t *)((u64)l1_pte->table.next_table_addr << PAGE_SHIFT), 1, va, &l2_ptp, &l2_pte, true);
 		// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
 		if (ret != NORMAL_PTP)
@@ -273,8 +280,6 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			flush_tlb();
 			return ret;
 		}
-
-		set_pte_flags(l2_pte, flags, 42);
 
 		ret = get_next_ptp((ptp_t *)((u64)l2_pte->table.next_table_addr << PAGE_SHIFT), 2, va, &l3_ptp, &l3_pte, true);
 		// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
@@ -285,7 +290,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		set_pte_flags(l3_pte, flags, 42);
+		set_pte_flags(l3_pte, flags, KERNEL_PTE);
 
 		ret = get_next_ptp((ptp_t *)((u64)l3_pte->table.next_table_addr << PAGE_SHIFT), 3, va, &l4_ptp, &l4_pte, true);
 		// printk("4th called get_next_ptp. l4_ptp = %p, l4_pte = %p, ret = %d\n", l4_ptp, l4_pte, ret);
@@ -296,10 +301,15 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		*(paddr_t *)l4_pte->pte = pa;
+		*(paddr_t *)l4_pte->pte = pa >> PAGE_SHIFT;
+		// printk("<map> finished. physical_page id = %p\n", pa >> PAGE_SHIFT);
+		// printk("Now tries to unwrap VMA %p...\n", va);
+
+		// printk("It is %llu!!! Horray!\n", *(u64 *)va);
 	}
 
 	flush_tlb();
+
 	return ret;
 }
 
@@ -322,10 +332,13 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
 	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
 
+	vaddr_t tail = base_va & (u64)PAGE_MASK;
+	len += (unsigned long)tail;
+
 	for (u64 i = 0; i < (u64)len; i += (u64)PAGE_SIZE)
 	{
 
-		vaddr_t va = (base_va & ~0xfff) + i;
+		vaddr_t va = (base_va & ~(u64)PAGE_MASK) + i;
 		// printk("called <unmap_range_in_pgtbl>. pgtbl: %p, va: %p, len: %lu\n", pgtbl, va, len);
 
 		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l1_pte, true);
