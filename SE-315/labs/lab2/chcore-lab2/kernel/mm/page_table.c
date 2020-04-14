@@ -178,13 +178,26 @@ int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t *pa, pte_t **entry)
 	vaddr_t tail = base_va & (u64)PAGE_MASK;
 
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
-	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
+	pte_t *l0_pte, *l1_pte, *l2_pte, *l3_pte;
 
-	ret = get_next_ptp((ptp_t *)pgtbl, 0, va, &l1_ptp, &l1_pte, false);
-	// // printk("1st called get_next_ptp. l1_ptp = %p, l1_pte = %p, ret = %d\n", l1_ptp, l1_pte, ret);
+	ret = get_next_ptp((ptp_t *)pgtbl, 0, va, &l1_ptp, &l0_pte, false);
+	// printk("1st called get_next_ptp. l1_ptp = %p, l1_pte = %p, ret = %d\n", l1_ptp, l1_pte, ret);
 	if (ret == BLOCK_PTP)
 	{
 		*pa = (paddr_t)l1_ptp;
+		*entry = l0_pte;
+		return ret;
+	}
+	else if (ret == -ENOMAPPING)
+	{
+		return ret;
+	}
+
+	ret = get_next_ptp(l1_ptp, 1, va, &l2_ptp, &l1_pte, false);
+	// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
+	if (ret == BLOCK_PTP)
+	{
+		*pa = (paddr_t)l2_ptp;
 		*entry = l1_pte;
 		return ret;
 	}
@@ -193,11 +206,11 @@ int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t *pa, pte_t **entry)
 		return ret;
 	}
 
-	ret = get_next_ptp((ptp_t *)((u64)l1_pte->table.next_table_addr << PAGE_SHIFT), 1, va, &l2_ptp, &l2_pte, false);
-	// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
+	ret = get_next_ptp(l2_ptp, 2, va, &l3_ptp, &l2_pte, false);
+	// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
 	if (ret == BLOCK_PTP)
 	{
-		*pa = (paddr_t)l2_ptp;
+		*pa = (paddr_t)l3_ptp;
 		*entry = l2_pte;
 		return ret;
 	}
@@ -206,28 +219,15 @@ int query_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t *pa, pte_t **entry)
 		return ret;
 	}
 
-	ret = get_next_ptp((ptp_t *)((u64)l2_pte->table.next_table_addr << PAGE_SHIFT), 2, va, &l3_ptp, &l3_pte, false);
-	// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
-	if (ret == BLOCK_PTP)
-	{
-		*pa = (paddr_t)l3_ptp;
-		*entry = l3_pte;
-		return ret;
-	}
-	else if (ret == -ENOMAPPING)
-	{
-		return ret;
-	}
-
-	ret = get_next_ptp((ptp_t *)((u64)l3_pte->table.next_table_addr << PAGE_SHIFT), 3, va, &l4_ptp, &l4_pte, false);
+	ret = get_next_ptp(l3_ptp, 3, va, &l4_ptp, &l3_pte, false);
 	// printk("4th called get_next_ptp. l4_ptp = %p, l4_pte = %p, ret = %d\n", l4_ptp, l4_pte, ret);
 
 	if (ret == -ENOMAPPING)
 	{
 		return ret;
 	}
-	*pa = (*(u64 *)l4_pte->pte << PAGE_SHIFT) | tail;
-	*entry = l4_pte;
+	*pa = (l3_pte->l3_page.pfn << PAGE_SHIFT) | tail;
+	*entry = l3_pte;
 	return ret;
 }
 
@@ -252,7 +252,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 
 	int ret;
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
-	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
+	pte_t *l0_pte, *l1_pte, *l2_pte, *l3_pte;
 
 	vaddr_t tail = base_va & (u64)PAGE_MASK;
 	len += (unsigned long)tail;
@@ -264,7 +264,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 
 		// printk("called <map_range_in_pgtbl>. pgtbl: %p, va: %p, pa: %p, len: %lu, flags: %lu\r", pgtbl, va, pa, len, flags);
 
-		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l1_pte, true);
+		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l0_pte, true);
 		// printk("1st called get_next_ptp. l1_ptp = %p, l1_pte = %p, ret = %d\n", l1_ptp, l1_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -273,7 +273,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		ret = get_next_ptp((ptp_t *)((u64)l1_pte->table.next_table_addr << PAGE_SHIFT), 1, va, &l2_ptp, &l2_pte, true);
+		ret = get_next_ptp(l1_ptp, 1, va, &l2_ptp, &l1_pte, true);
 		// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
 		if (ret != NORMAL_PTP)
 		{
@@ -281,7 +281,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		ret = get_next_ptp((ptp_t *)((u64)l2_pte->table.next_table_addr << PAGE_SHIFT), 2, va, &l3_ptp, &l3_pte, true);
+		ret = get_next_ptp(l2_ptp, 2, va, &l3_ptp, &l2_pte, true);
 		// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -290,9 +290,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		set_pte_flags(l3_pte, flags, KERNEL_PTE);
-
-		ret = get_next_ptp((ptp_t *)((u64)l3_pte->table.next_table_addr << PAGE_SHIFT), 3, va, &l4_ptp, &l4_pte, true);
+		ret = get_next_ptp(l3_ptp, 3, va, &l4_ptp, &l3_pte, true);
 		// printk("4th called get_next_ptp. l4_ptp = %p, l4_pte = %p, ret = %d\n", l4_ptp, l4_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -301,7 +299,8 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 			return ret;
 		}
 
-		*(paddr_t *)l4_pte->pte = pa >> PAGE_SHIFT;
+		set_pte_flags(l3_pte, flags, KERNEL_PTE);
+		l3_pte->l3_page.pfn = pa >> (u64)PAGE_SHIFT;
 		// printk("<map> finished. physical_page id = %p\n", pa >> PAGE_SHIFT);
 		// printk("Now tries to unwrap VMA %p...\n", va);
 
@@ -309,7 +308,6 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 	}
 
 	flush_tlb();
-
 	return ret;
 }
 
@@ -330,7 +328,7 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 
 	int ret;
 	ptp_t *l1_ptp, *l2_ptp, *l3_ptp, *l4_ptp;
-	pte_t *l1_pte, *l2_pte, *l3_pte, *l4_pte;
+	pte_t *l0_pte, *l1_pte, *l2_pte, *l3_pte;
 
 	vaddr_t tail = base_va & (u64)PAGE_MASK;
 	len += (unsigned long)tail;
@@ -341,7 +339,7 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 		vaddr_t va = (base_va & ~(u64)PAGE_MASK) + i;
 		// printk("called <unmap_range_in_pgtbl>. pgtbl: %p, va: %p, len: %lu\n", pgtbl, va, len);
 
-		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l1_pte, true);
+		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l0_pte, true);
 		// printk("1st called get_next_ptp. l1_ptp = %p, l1_pte = %p, ret = %d\n", l1_ptp, l1_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -350,16 +348,15 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 			return ret;
 		}
 
-		ret = get_next_ptp((ptp_t *)((u64)l1_pte->table.next_table_addr << PAGE_SHIFT), 1, va, &l2_ptp, &l2_pte, true);
+		ret = get_next_ptp(l1_ptp, 1, va, &l2_ptp, &l1_pte, true);
 		// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
-
 		if (ret != NORMAL_PTP)
 		{
 			flush_tlb();
 			return ret;
 		}
 
-		ret = get_next_ptp((ptp_t *)((u64)l2_pte->table.next_table_addr << PAGE_SHIFT), 2, va, &l3_ptp, &l3_pte, true);
+		ret = get_next_ptp(l2_ptp, 2, va, &l3_ptp, &l2_pte, true);
 		// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -368,7 +365,7 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 			return ret;
 		}
 
-		ret = get_next_ptp((ptp_t *)((u64)l3_pte->table.next_table_addr << PAGE_SHIFT), 3, va, &l4_ptp, &l4_pte, true);
+		ret = get_next_ptp(l3_ptp, 3, va, &l4_ptp, &l3_pte, true);
 		// printk("4th called get_next_ptp. l4_ptp = %p, l4_pte = %p, ret = %d\n", l4_ptp, l4_pte, ret);
 
 		if (ret != NORMAL_PTP)
@@ -377,7 +374,7 @@ int unmap_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, size_t len)
 			return ret;
 		}
 
-		l4_pte->pte = (u64)0;
+		l3_pte->pte = (u64)0;
 	}
 
 	flush_tlb();
