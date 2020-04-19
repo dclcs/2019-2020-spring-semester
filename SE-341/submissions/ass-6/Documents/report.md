@@ -1,6 +1,6 @@
 # Assignment 6
 
-## BRDF
+## Bidirectional Reflectance Distribution Function
 
 ### Implementations
 
@@ -61,4 +61,8 @@ $$
 将上面的天空盒和 BRDF 效果应用到 `Minecrappy` 游戏中，得到的效果如下：
 
 ![image-20200419124357670](report.assets/image-20200419124357670.png)
+
+## Unrealistic Rendering
+
+## Post Processing
 
