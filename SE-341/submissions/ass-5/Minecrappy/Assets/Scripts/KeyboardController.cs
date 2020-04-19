@@ -50,7 +50,7 @@ public class KeyboardController : MonoBehaviour
 
         if (displayDebug)
         {
-            debugText.text = string.Format("Position: {0}\nVelocity: {1}\nCam Direction: {2}\nOn Ground: {3}\nFrame per Second: {4}\nVerbose Mode ON\nMinecrappy 0.1", player.transform.position, player.GetComponent<Rigidbody>().velocity, cam.transform.rotation, PlayerController.IsOnGround(), fps);
+            debugText.text = string.Format("Position: {0}\nVelocity: {1}\nCam Direction: {2}\nOn Ground: {3}\n\nResolution: ({5}, {6})\nFrame per Second: {4}\nVerbose Mode ON\nMinecrappy 0.2", player.transform.position, player.GetComponent<Rigidbody>().velocity, cam.transform.rotation, PlayerController.IsOnGround(), fps, UnityEngine.Screen.width, UnityEngine.Screen.height);
         }
         else
 		{
