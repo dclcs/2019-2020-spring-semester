@@ -20,6 +20,10 @@ public class ConfigController : MonoBehaviour
 
     public static ConfigController instance;
 
+    public bool depthOfFieldEffect;
+    public bool foggyEffect;
+    public bool motionBlurEffect;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +36,10 @@ public class ConfigController : MonoBehaviour
         onRenderStyleChanged(0);
         onHighlightColorChanged(0);
         onSpecReflectChanged(0.5f);
+
+        depthOfFieldEffect = true;
+        foggyEffect = false;
+        motionBlurEffect = true;
     }
 
     // Update is called once per frame

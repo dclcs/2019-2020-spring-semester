@@ -11,6 +11,8 @@ public class KeyboardController : MonoBehaviour
     public GameObject configCanvas;
     public Dropdown blockTypeDropdown;
 
+    public GameObject DoFEffectManager;
+
     private static bool displayDebug;
     private static bool displayMenu;
 
@@ -50,7 +52,7 @@ public class KeyboardController : MonoBehaviour
 
         if (displayDebug)
         {
-            debugText.text = string.Format("Position: {0}\nVelocity: {1}\nCam Direction: {2}\nOn Ground: {3}\nFrame per Second: {4}\nVerbose Mode ON\nMinecrappy 0.1", player.transform.position, player.GetComponent<Rigidbody>().velocity, cam.transform.rotation, PlayerController.IsOnGround(), fps);
+            debugText.text = string.Format("Position: {0}\nVelocity: {1}\nCam Direction: {2}\nOn Ground: {3}\n\nResolution: ({5}, {6})\nFrame per Second: {4}\n\nVerbose Mode: True\nFoggy Effect: {7}\nDepth of Field Effect: {8}\nMotion Blur Effect: {9}\n\nMinecrappy 0.2", player.transform.position, player.GetComponent<Rigidbody>().velocity, cam.transform.rotation, PlayerController.IsOnGround(), fps, UnityEngine.Screen.width, UnityEngine.Screen.height, ConfigController.instance.foggyEffect, ConfigController.instance.depthOfFieldEffect, ConfigController.instance.motionBlurEffect);
         }
         else
 		{
@@ -63,6 +65,21 @@ public class KeyboardController : MonoBehaviour
             configCanvas.SetActive(KeyboardController.displayMenu);
             Cursor.visible = KeyboardController.displayMenu;
             blockTypeDropdown.interactable = KeyboardController.displayMenu;
+        }
+
+        if (Input.GetButtonUp("TriggerFoggyEffect")) {
+            ConfigController.instance.foggyEffect = !ConfigController.instance.foggyEffect;
+            cam.GetComponent<CameraFoggyController>().enabled = ConfigController.instance.foggyEffect;
+        }
+
+        if (Input.GetButtonUp("TriggerDepthOfField")) {
+            ConfigController.instance.depthOfFieldEffect = !ConfigController.instance.depthOfFieldEffect;
+            DoFEffectManager.SetActive(ConfigController.instance.depthOfFieldEffect);
+        }
+
+        if (Input.GetButtonUp("TriggerMotionBlurEffect")) {
+            ConfigController.instance.motionBlurEffect = !ConfigController.instance.motionBlurEffect;
+            cam.GetComponent<MotionBlurController>().enabled = ConfigController.instance.motionBlurEffect;
         }
     }
 

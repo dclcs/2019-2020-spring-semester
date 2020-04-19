@@ -31,11 +31,13 @@ public class CameraController : MonoBehaviour
 
         //transform.position = playerTransform.position + deviation;
 
+        // Input.GetAxis("Joycon X");
+        // Input.GetAxis("Joycon Y");
 
 
-        float cam_h = (Input.GetAxis("Joycon X") + Input.GetAxis("Mouse X")) * rSpeed;
+        float cam_h = (Input.GetAxis("Joycon X") + Input.GetAxis("Mouse X")) * rSpeed * Time.deltaTime;
         // inverse y axis
-        float cam_v = (Input.GetAxis("Joycon Y") - Input.GetAxis("Mouse Y")) * rSpeed;
+        float cam_v = (Input.GetAxis("Joycon Y") - Input.GetAxis("Mouse Y")) * rSpeed * Time.deltaTime;
 
         if (KeyboardController.isPaused())
         {
