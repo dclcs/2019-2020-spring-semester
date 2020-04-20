@@ -3,7 +3,7 @@
 --- !u!30 &1
 GraphicsSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
   m_Deferred:
     m_Mode: 1
     m_Shader: {fileID: 69, guid: 0000000000000000f000000000000000, type: 0}
@@ -46,6 +46,9 @@ GraphicsSettings:
   - {fileID: 4800000, guid: fbbd7f40419c449f4b3517e601eb6bcc, type: 3}
   - {fileID: 4800000, guid: 2e6028b596ee34405800f917bce2f297, type: 3}
   - {fileID: 4800000, guid: 5f41e1b1fb721e046ba058a750ba9b14, type: 3}
+  - {fileID: 4800000, guid: f705524fbcc6644c5bede5a32a30e29a, type: 3}
+  - {fileID: 4800000, guid: 9c3373ce1610040a48ebaa7fae0beb8f, type: 3}
+  - {fileID: 4800000, guid: 6f73041c787e146d7839b9f9b89e49c0, type: 3}
   m_PreloadedShaders: []
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000,
     type: 0}
@@ -71,3 +74,4 @@ GraphicsSettings:
   m_LightsUseLinearIntensity: 0
   m_LightsUseColorTemperature: 0
   m_LogWhenShaderIsCompiled: 0
+  m_AllowEnlightenSupportForUpgradedProject: 1
