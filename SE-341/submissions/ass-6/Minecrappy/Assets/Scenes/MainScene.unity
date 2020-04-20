@@ -219,6 +219,7 @@ MonoBehaviour:
   blackTex: {fileID: 2800000, guid: 3cd019fa84ae344eb8cba46c9a6885ec, type: 3}
   furry: {fileID: 2800000, guid: d2909e71b4ea54fdcb76916e8acb9711, type: 3}
   grass: {fileID: 2800000, guid: f9b4a7451f1734a4d98a6f7215ce11f0, type: 3}
+  hatchingMaterial: {fileID: 2100000, guid: a2b4a16bc2ef44d1bba88c4182387987, type: 2}
 --- !u!54 &38607790
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2985,7 +2986,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 4.5912e-41, y: 0.0009095581, z: 1.170564e-19, w: 3.0972774e+27}
+  m_BoundingSphereOverride: {x: 1e-45, y: 9.4e-44, z: 0, w: 5.540148e-24}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -3875,7 +3876,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e3aa32fdb8104d49a89e94f8633834d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlurSize: 0.027
+  BlurSize: 0.016
 --- !u!1 &1032142211
 GameObject:
   m_ObjectHideFlags: 0
@@ -4758,6 +4759,8 @@ MonoBehaviour:
       m_Image: {fileID: 21300000, guid: e2224fbc4f7384dec94ffa3314189ead, type: 3}
     - m_Text: Grass Shaded Blocks
       m_Image: {fileID: 21300000, guid: 353e2856ec10d44f2987abdc77564506, type: 3}
+    - m_Text: Hatching Blocks
+      m_Image: {fileID: 21300000, guid: 001565c584953416f881222b95a5ea16, type: 3}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

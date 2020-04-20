@@ -80,6 +80,10 @@ public class ConfigController : MonoBehaviour
             highlightColorDropdown.interactable = false;
             renderStyleDropdown.interactable = false;
             specReflectStrengthSlider.interactable = true;
+        } else if (blockType == BlockType.Hatching) {
+            highlightColorDropdown.interactable = false;
+            renderStyleDropdown.interactable = false;
+            specReflectStrengthSlider.interactable = false;
         }
 	}
 

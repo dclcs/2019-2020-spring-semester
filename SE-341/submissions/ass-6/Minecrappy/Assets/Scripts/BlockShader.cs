@@ -16,6 +16,8 @@ public class BlockShader : MonoBehaviour
     public Texture furry;
     public Texture grass;
 
+    public Material hatchingMaterial;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -121,5 +123,10 @@ public class BlockShader : MonoBehaviour
         material.SetTexture("_MainTex", grass);
         material.SetFloat("_Cutoff", 1f - System.Convert.ToSingle(grassLength));
         renderer.material = material;
+    }
+
+    public void generateHatchingBlock() {
+        initRenderer();
+        renderer.material = hatchingMaterial;
     }
 }

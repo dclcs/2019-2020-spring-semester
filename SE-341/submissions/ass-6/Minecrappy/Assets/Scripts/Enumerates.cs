@@ -19,7 +19,8 @@ public enum BlockType
     Outline = 2,
     Wave = 3,
     Furry = 4,
-    Grass = 5
+    Grass = 5,
+    Hatching = 6
 }
 
 public enum RenderStyle

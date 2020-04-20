@@ -828,7 +828,7 @@ ScriptsOnlyBuild:
     className: TMP_StyleSheet
   - hash:
       serializedVersion: 2
-      Hash: f77a5c59a01431b55697e58994542cb4
+      Hash: 094d187c8d94c095cb59a71fb9b2ef1b
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: BlockShader

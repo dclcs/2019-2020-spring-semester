@@ -50,6 +50,9 @@ public class BlockSpawnController : MonoBehaviour
                 case BlockType.Grass:
                     spawnGrassBlock(position);
                     break;
+                case BlockType.Hatching:
+                    spawnHatchingBlock(position);
+                    break;
 			}
         }
     }
@@ -97,5 +100,11 @@ public class BlockSpawnController : MonoBehaviour
         GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
         BlockShader shader = gameObj.GetComponent<BlockShader>();
         shader.generateGrassBlock(ConfigController.instance.specReflect);
+    }
+
+    void spawnHatchingBlock(Vector3 position) {
+        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        BlockShader shader = gameObj.GetComponent<BlockShader>();
+        shader.generateHatchingBlock();
     }
 }
