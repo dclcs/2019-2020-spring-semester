@@ -54,5 +54,4 @@
 		}
 		
 	}
-	Fallback "Specular"
 }

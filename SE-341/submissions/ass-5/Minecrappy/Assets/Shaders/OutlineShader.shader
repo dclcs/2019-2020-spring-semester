@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Custom/OutlineShader"
+﻿Shader "Custom/OutlineShader"
 {
     Properties
     {
@@ -38,11 +36,10 @@ Shader "Custom/OutlineShader"
             v2f vert(appdata v)
             {
                 v2f o;
-                  
-                float3 norm = normalize(v.normal);
+
                 v.vertex.xyz += v.normal * _OutlineWidth;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                  
+
                 return o;
             }
               
@@ -61,4 +58,5 @@ Shader "Custom/OutlineShader"
             }
         }
     }
+	// CustomEditor "CustomShaderGUI"
 }
