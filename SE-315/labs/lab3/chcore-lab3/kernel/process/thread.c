@@ -26,14 +26,13 @@
 
 #include "thread_env.h"
 
-static
-int thread_init(struct thread *thread, struct process *process,
-		u64 stack, u64 pc, u32 prio, u32 type, s32 aff)
+static int thread_init(struct thread *thread, struct process *process,
+					   u64 stack, u64 pc, u32 prio, u32 type, s32 aff)
 {
 	/* XXX: no need to get/put */
 	thread->process = obj_get(process, PROCESS_OBJ_ID,
-				  TYPE_PROCESS);
-	thread->vmspace   = obj_get(process, VMSPACE_OBJ_ID, TYPE_VMSPACE);
+							  TYPE_PROCESS);
+	thread->vmspace = obj_get(process, VMSPACE_OBJ_ID, TYPE_VMSPACE);
 	obj_put(thread->process);
 	obj_put(thread->vmspace);
 	/* Thread context is used as the kernel stack for that thread */
@@ -82,13 +81,15 @@ int thread_create(struct process *process, u64 stack, u64 pc, u64 arg, u32 prio,
 	struct thread *thread;
 	int cap, ret = 0;
 
-	if (!process) {
+	if (!process)
+	{
 		ret = -ECAPBILITY;
 		goto out_fail;
 	}
 
 	thread = obj_alloc(TYPE_THREAD, sizeof(*thread));
-	if (!thread) {
+	if (!thread)
+	{
 		ret = -ENOMEM;
 		goto out_obj_put;
 	}
@@ -98,7 +99,8 @@ int thread_create(struct process *process, u64 stack, u64 pc, u64 arg, u32 prio,
 	arch_set_thread_arg(thread, arg);
 	/* cap is thread_cap in the target process */
 	cap = cap_alloc(process, thread, 0);
-	if (cap < 0) {
+	if (cap < 0)
+	{
 		ret = cap;
 		goto out_free_obj;
 	}
@@ -116,17 +118,17 @@ out_fail:
 	return ret;
 }
 
-#define PFLAGS2VMRFLAGS(PF)                                                    \
-	(((PF)&PF_X ? VMR_EXEC : 0) | ((PF)&PF_W ? VMR_WRITE : 0) |            \
+#define PFLAGS2VMRFLAGS(PF)                                     \
+	(((PF)&PF_X ? VMR_EXEC : 0) | ((PF)&PF_W ? VMR_WRITE : 0) | \
 	 ((PF)&PF_R ? VMR_READ : 0))
 
 #define OFFSET_MASK (0xFFF)
 
 /* load binary into some process (process) */
 static u64 load_binary(struct process *process,
-		       struct vmspace *vmspace,
-		       const char *bin,
-		       struct process_metadata *metadata)
+					   struct vmspace *vmspace,
+					   const char *bin,
+					   struct process_metadata *metadata)
 {
 	struct elf_file *elf;
 	vmr_prop_t flags;
@@ -140,21 +142,24 @@ static u64 load_binary(struct process *process,
 
 	elf = elf_parse_file(bin);
 	pmo_cap = kmalloc(elf->header.e_phnum * sizeof(*pmo_cap));
-	if (!pmo_cap) {
+	if (!pmo_cap)
+	{
 		r = -ENOMEM;
 		goto out_fail;
 	}
 
 	/* load each segment in the elf binary */
-	for (i = 0; i < elf->header.e_phnum; ++i) {
+	for (i = 0; i < elf->header.e_phnum; ++i)
+	{
 		pmo_cap[i] = -1;
-		if (elf->p_headers[i].p_type == PT_LOAD) {
+		if (elf->p_headers[i].p_type == PT_LOAD)
+		{
 			/*
 			 * Lab3: Your code here
 			 * prepare the arguments for the two following function calls: pmo_init
 			 * and vmspace_map_range.
 			 * pmo_init allocates the demanded size of physical memory for the PMO.
-			 * vmspace_map_range maps the pmo to a sepcific virtual memory address.
+			 * vmspace_map_range maps the pmo to a specific virtual memory address.
 			 * You should get the size of current segment and the virtual address
 			 * to be mapped from elf headers.
 			 * HINT: we suggest you use the seg_sz and p_vaddr variables for
@@ -162,15 +167,30 @@ static u64 load_binary(struct process *process,
 			 * page aligned segment size. Take care of the page alignment when allocating
 			 * and mapping physical memory.
 			 */
+			struct elf_program_header header = elf->p_headers[i];
+
+			p_vaddr = header.p_vaddr;
+			seg_sz = header.p_memsz;
+
+			if (seg_sz % PAGE_SIZE == 0)
+			{
+				seg_map_sz = seg_sz;
+			}
+			else
+			{
+				seg_map_sz = seg_sz + (PAGE_SIZE - seg_sz % PAGE_SIZE);
+			}
 
 			pmo = obj_alloc(TYPE_PMO, sizeof(*pmo));
-			if (!pmo) {
+			if (!pmo)
+			{
 				r = -ENOMEM;
 				goto out_free_cap;
 			}
 			pmo_init(pmo, PMO_DATA, seg_map_sz, 0);
 			pmo_cap[i] = cap_alloc(process, pmo, 0);
-			if (pmo_cap[i] < 0) {
+			if (pmo_cap[i] < 0)
+			{
 				r = pmo_cap[i];
 				goto out_free_obj;
 			}
@@ -180,25 +200,32 @@ static u64 load_binary(struct process *process,
 			 * You should copy data from the elf into the physical memory in pmo.
 			 * The physical address of a pmo can be get from pmo->start.
 			 */
+			printk("going to copy %u bytes...\n", seg_sz);
+			for (size_t i = 0; i < seg_sz; i++)
+			{
+				printk("copy memory address %p <= %p (content: %p)\n", pmo->start + i, p_vaddr + i, *(u64 *)(p_vaddr + i));
+				*(u64 *)(pmo->start + i) = *(u64 *)(p_vaddr + i);
+			}
 
 			flags = PFLAGS2VMRFLAGS(elf->p_headers[i].p_flags);
 
 			ret = vmspace_map_range(vmspace,
-						ROUND_DOWN(p_vaddr, PAGE_SIZE),
-						seg_map_sz, flags, pmo);
+									ROUND_DOWN(p_vaddr, PAGE_SIZE),
+									seg_map_sz, flags, pmo);
 
 			BUG_ON(ret != 0);
 		}
 	}
 
 	/* return binary metadata */
-	if (metadata != NULL) {
+	if (metadata != NULL)
+	{
 		metadata->phdr_addr = elf->p_headers[0].p_vaddr +
-			            elf->header.e_phoff;
+							  elf->header.e_phoff;
 		metadata->phentsize = elf->header.e_phentsize;
-		metadata->phnum     = elf->header.e_phnum;
-		metadata->flags     = elf->header.e_flags;
-		metadata->entry     = elf->header.e_entry;
+		metadata->phnum = elf->header.e_phnum;
+		metadata->flags = elf->header.e_flags;
+		metadata->entry = elf->header.e_entry;
 	}
 
 	kfree((void *)bin);
@@ -208,7 +235,8 @@ static u64 load_binary(struct process *process,
 out_free_obj:
 	obj_free(pmo);
 out_free_cap:
-	for (--i; i >= 0; i--) {
+	for (--i; i >= 0; i--)
+	{
 		if (pmo_cap[i] != 0)
 			cap_free(process, pmo_cap[i]);
 	}
@@ -220,15 +248,15 @@ out_fail:
 extern void flush_idcache(void);
 
 extern void prepare_env(char *env, u64 top_vaddr,
-			struct process_metadata *meta, char *name);
+						struct process_metadata *meta, char *name);
 
 /*
  * main_thread: the first thread in a process (process).
  * So, thread_create_main needs to load the code/data as well.
  */
 int thread_create_main(struct process *process, u64 stack_base,
-		       u64 stack_size, u32 prio, u32 type, s32 aff,
-		       const char *bin_start, char *bin_name)
+					   u64 stack_size, u32 prio, u32 type, s32 aff,
+					   const char *bin_start, char *bin_name)
 {
 	int ret, thread_cap, stack_pmo_cap;
 	struct thread *thread;
@@ -243,24 +271,27 @@ int thread_create_main(struct process *process, u64 stack_base,
 
 	/* Allocate and setup a user stack for the init thread */
 	stack_pmo = obj_alloc(TYPE_PMO, sizeof(*stack_pmo));
-	if (!stack_pmo) {
+	if (!stack_pmo)
+	{
 		ret = -ENOMEM;
 		goto out_fail;
 	}
 	pmo_init(stack_pmo, PMO_DATA, stack_size, 0);
 	stack_pmo_cap = cap_alloc(process, stack_pmo, 0);
-	if (stack_pmo_cap < 0) {
+	if (stack_pmo_cap < 0)
+	{
 		ret = stack_pmo_cap;
 		goto out_free_obj_pmo;
 	}
 
 	ret = vmspace_map_range(init_vmspace, stack_base, stack_size,
-				VMR_READ | VMR_WRITE, stack_pmo);
+							VMR_READ | VMR_WRITE, stack_pmo);
 	BUG_ON(ret != 0);
 
 	/* init thread */
 	thread = obj_alloc(TYPE_THREAD, sizeof(*thread));
-	if (!thread) {
+	if (!thread)
+	{
 		ret = -ENOMEM;
 		goto out_free_cap_pmo;
 	}
@@ -271,14 +302,15 @@ int thread_create_main(struct process *process, u64 stack_base,
 	pc = load_binary(process, init_vmspace, bin_start, &meta);
 
 	prepare_env((char *)phys_to_virt(stack_pmo->start) + stack_size,
-		    stack, &meta, bin_name);
+				stack, &meta, bin_name);
 	stack -= ENV_SIZE_ON_STACK;
 
 	ret = thread_init(thread, process, stack, pc, prio, type, aff);
 	BUG_ON(ret != 0);
 
 	thread_cap = cap_alloc(process, thread, 0);
-	if (thread_cap < 0) {
+	if (thread_cap < 0)
+	{
 		ret = thread_cap;
 		goto out_free_obj_thread;
 	}
@@ -306,7 +338,6 @@ void switch_thread_vmspace_to(struct thread *thread)
 {
 	switch_vmspace_to(thread->vmspace);
 }
-
 
 /*
  * Syscalls

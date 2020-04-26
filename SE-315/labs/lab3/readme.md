@@ -82,7 +82,7 @@ The following is a common usage model for the exception levels:
 
 - **EL0**: User-space applications.
 - **EL1**: OS kernels and associated functions that are typically described as privileged.
-- **EL2**:  Hypervisor.
+- **EL2**: Hypervisor.
 - **EL3**: Secure monitor.
 
 ChCore only uses exception level El0 and El1. EL1 represents for kernel-mode in ChCore, at which all kernel codes in directory `kernel/` are executing. EL0 represents for user-mode, at which the user code in the `user/` folder should be working.
@@ -182,7 +182,7 @@ In this lab, you will create just one user process containing one single thread.
 You will now write the code in `kernel/process/thread.c` and `kernel/sched/context.c` necessary to run a user process with only one thread on CPU0. Because we do not yet have a filesystem, we will set up the kernel to load a static binary image that is *embedded within the kernel itself*. ChCore combines all executable elf images compiled from `user/*` into a single file with the help of `cpio` and embeds that file into the kernel at variable `binary_cpio_bin_start`. Checkout `user/binary_include.S` and `scripts/compile_user.sh` for more details. To compile all user programs in the `user/` directory, use `make user` as described before.
 
 In `main()` in `kernel/main.c` you'll see code to run one of these binary images defined by the macro `TEST` in the root process. However, the critical functions to set up a thread and load an elf format binary are not complete; you will need to fill them in.
-
+m
 Below is a call graph of the code up to the point where the user code is invoked. Make sure you are familiar with them. 
 
 - `start`

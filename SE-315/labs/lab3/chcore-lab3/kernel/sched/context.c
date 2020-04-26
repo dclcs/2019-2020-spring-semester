@@ -22,12 +22,13 @@ struct thread_ctx *create_thread_ctx(void)
 	void *kernel_stack;
 
 	kernel_stack = kzalloc(DEFAULT_KERNEL_STACK_SZ);
-	if (kernel_stack == NULL) {
+	if (kernel_stack == NULL)
+	{
 		kwarn("create_thread_ctx fails due to lack of memory\n");
 		return NULL;
 	}
 	return kernel_stack + DEFAULT_KERNEL_STACK_SZ -
-	       sizeof(struct thread_ctx);
+		   sizeof(struct thread_ctx);
 }
 
 void destroy_thread_ctx(struct thread *thread)
@@ -35,13 +36,26 @@ void destroy_thread_ctx(struct thread *thread)
 	void *kernel_stack;
 	BUG_ON(!thread->thread_ctx);
 	kernel_stack = (void *)thread->thread_ctx - DEFAULT_KERNEL_STACK_SZ +
-		       sizeof(struct thread_ctx);
+				   sizeof(struct thread_ctx);
 	kfree(kernel_stack);
 }
 
-void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
-		     u32 type, s32 aff)
+unsigned long get_cspr()
 {
+	unsigned long pgd;
+	__asm__("mrs %0,ttbr1_el1"
+			: "=r"(pgd));
+	return pgd;
+}
+
+void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
+					 u32 type, s32 aff)
+{
+	u64 stack_inreg = stack;
+	u64 entry_inreg = func;
+	u64 temp = 0;
+
+	printk("called <init_thread_ctx>. thread: %p\nstack: %p\nfunc: %p\nprio: %u\ntype: %u\naff: %d\n", thread, stack, func, prio, type, aff);
 	/*
 	 * Lab3: Your code here
 	 * You need to initialize a thread's context here for later eret_to_thread(context) to work properly
@@ -59,6 +73,10 @@ void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
 
 	/* Set thread type */
 	thread->thread_ctx->type = type;
+
+	arch_set_thread_stack(thread, stack);
+	arch_set_thread_next_ip(thread, func);
+	thread->thread_ctx->ec.reg[SPSR_EL1] = SPSR_EL1_EL0t;
 }
 
 u64 arch_get_thread_stack(struct thread *thread)

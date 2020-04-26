@@ -32,8 +32,7 @@ char thread_type[][TYPE_STR_LEN] = {
 	"USER  ",
 	"SHADOW",
 	"KERNEL",
-	"TESTS "
-};
+	"TESTS "};
 
 char thread_state[][STATE_STR_LEN] = {
 	"TS_INIT      ",
@@ -42,9 +41,7 @@ char thread_state[][STATE_STR_LEN] = {
 	"TS_RUNNING   ",
 	"TS_EXIT      ",
 	"TS_WAITING   ",
-	"TS_EXITING   "
-};
-
+	"TS_EXITING   "};
 
 /*
  * Switch vmspace and arch-related stuff
@@ -52,6 +49,7 @@ char thread_state[][STATE_STR_LEN] = {
  */
 u64 switch_context(void)
 {
+	printk("entering switch_context\n");
 	/* TODO: with IRQ disabled.
 	 * tmac: what if IRQ is not disabled? But directly resumes the execution
 	 * after interrupts.
@@ -63,11 +61,11 @@ u64 switch_context(void)
 	BUG_ON(!target_thread);
 	BUG_ON(!target_thread->thread_ctx);
 
-
 	/* These 3 types of thread do not have vmspace */
 	if (target_thread->thread_ctx->type != TYPE_IDLE &&
 		target_thread->thread_ctx->type != TYPE_KERNEL &&
-		target_thread->thread_ctx->type != TYPE_TESTS) {
+		target_thread->thread_ctx->type != TYPE_TESTS)
+	{
 
 		BUG_ON(!target_thread->vmspace);
 		/*
@@ -76,12 +74,22 @@ u64 switch_context(void)
 		* So, we invoke record_running_cpu here.
 		*/
 		BUG_ON(!target_thread->vmspace);
+
+		printk("<switch_context> is going to call <switch_thread_vmspace_to>\n");
 		switch_thread_vmspace_to(target_thread);
+
+		printk("<switch_context> called <switch_thread_vmspace_to>\n");
 	}
 	/*
 	 * Lab3: Your code here
 	 * Return the correct value in order to make eret_to_thread work correctly
 	 * in main.c
 	 */
-	return 0;
+	target_ctx = target_thread->thread_ctx;
+	printk("target_ctx = %p\n", target_ctx);
+	for (size_t i = 0; i < 35; ++i)
+	{
+		printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
+	}
+	return target_ctx->ec.reg[SP_EL0];
 }

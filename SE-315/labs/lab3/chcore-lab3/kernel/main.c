@@ -55,7 +55,7 @@ void main(void *addr)
 	kinfo("[ChCore] interrupt init finished\n");
 
 #ifdef TEST
-	/* Create initial thread here*/
+	/* Create initial thread here */
 	process_create_root(TEST);
 	kinfo("[ChCore] root thread init finished\n");
 #else
@@ -64,7 +64,10 @@ void main(void *addr)
 	BUG("No given TEST!");
 #endif
 
-	eret_to_thread(switch_context());
+	u64 context = switch_context();
+
+	kinfo("switch_content() result = %p\n", context);
+	eret_to_thread(context);
 
 	/* Should provide panic and use here */
 	BUG("[FATAL] Should never be here!\n");
