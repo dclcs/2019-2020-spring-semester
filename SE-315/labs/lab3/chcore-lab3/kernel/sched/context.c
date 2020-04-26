@@ -40,14 +40,6 @@ void destroy_thread_ctx(struct thread *thread)
 	kfree(kernel_stack);
 }
 
-unsigned long get_cspr()
-{
-	unsigned long pgd;
-	__asm__("mrs %0,ttbr1_el1"
-			: "=r"(pgd));
-	return pgd;
-}
-
 void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
 					 u32 type, s32 aff)
 {
