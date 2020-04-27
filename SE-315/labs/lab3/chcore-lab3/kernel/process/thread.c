@@ -169,6 +169,7 @@ static u64 load_binary(struct process *process,
 			 */
 			struct elf_program_header header = elf->p_headers[i];
 
+			printk("start parse header[%d]. align: %u, filesz: %u, memsz: %u, offset: %u, vaddr: %p\n", i, header.p_align, header.p_filesz, header.p_memsz, header.p_offset, header.p_vaddr);
 			p_vaddr = header.p_vaddr;
 			seg_sz = header.p_memsz;
 
@@ -201,10 +202,11 @@ static u64 load_binary(struct process *process,
 			 * The physical address of a pmo can be get from pmo->start.
 			 */
 			printk("going to copy %u bytes...\n", seg_sz);
-			for (size_t i = 0; i < seg_sz; i++)
+			for (size_t i = 0; i < seg_sz; ++i)
 			{
-				printk("copy memory address %p <= %p (content: %p)\n", pmo->start + i, p_vaddr + i, *(u64 *)(p_vaddr + i));
-				*(u64 *)(pmo->start + i) = *(u64 *)(p_vaddr + i);
+				char *dest = (char *)(pmo->start + i), *src = bin + i;
+				printk("copy memory address %p <= %p (content: %p)\n", dest, src, *src);
+				*dest = *src;
 			}
 
 			flags = PFLAGS2VMRFLAGS(elf->p_headers[i].p_flags);

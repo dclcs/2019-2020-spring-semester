@@ -66,8 +66,14 @@ void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
 	/* Set thread type */
 	thread->thread_ctx->type = type;
 
+	// printk("going to set SP_EL0 as %p\n", stack);
 	arch_set_thread_stack(thread, stack);
+	// printk("SP_EL0 set!\n");
+
+	// printk("going to set ELR_EL1 as %p\n", func);
 	arch_set_thread_next_ip(thread, func);
+	// printk("ELR_EL1 set!\n");
+
 	thread->thread_ctx->ec.reg[SPSR_EL1] = SPSR_EL1_EL0t;
 }
 

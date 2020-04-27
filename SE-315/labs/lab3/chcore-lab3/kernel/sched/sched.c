@@ -91,5 +91,5 @@ u64 switch_context(void)
 	{
 		printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
 	}
-	return target_ctx->ec.reg[SP_EL0];
+	return target_ctx->ec.reg;
 }
