@@ -68,3 +68,26 @@ After such operation, the control flow will arrive `handle_entry_c` when bad ins
 
 Take `ESR_EL1_EC_IABT_LEL` into `switch` expression should handle that.
 
+### Part C: System Calls and Page Faults
+
+#### Exercise 4
+
+Firstly, if we gets a `el0_syscall` exception, the control flow will falls into `exception_table.S:180` by judging if `x24` is `#ESR_EL1_EC_SVC_64`. After storing general registers into stack, we puts `syscall_table` entry into `x27`, and puts `syscall_num` into `x16`, then calculates `[x27, x16, lsl #3]` to get the address of the `x16`th entry of the `syscall_table`, and put it into `x16`. Then, we can use `blr x16` to perform the system call.
+
+#### Exercise 5
+
+Just follow the instructions.
+
+Especially, if we want to add a readable variable in `__asm__`, we should define it as `+r`. If we want to make it write-only, define it as `=r`.
+
+#### Exercise 6
+
+#### Exercise 7
+
+#### Exercise 8
+
+#### Exercise 9
+
+### Grading
+
+Finally, we restores the `-Werror` argument and `make grade`.

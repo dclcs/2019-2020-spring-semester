@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "kprint.h": "c",
+        "syscall_num.h": "c",
+        "memory": "c"
+    }
+}

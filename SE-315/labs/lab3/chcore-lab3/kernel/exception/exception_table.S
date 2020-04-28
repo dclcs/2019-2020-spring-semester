@@ -119,6 +119,10 @@
  * means SP_EL1 is used
  */
 
+
+.align	11
+EXPORT(el1_vector)
+
 exception_entry sync_el1t
 exception_entry irq_el1t
 exception_entry fiq_el1t
@@ -138,9 +142,6 @@ exception_entry sync_el0_32
 exception_entry irq_el0_32
 exception_entry fiq_el0_32
 exception_entry error_el0_32
-
-.align	11
-EXPORT(el1_vector)
 
 sync_el1t:
 	handle_entry	1, SYNC_EL1t
