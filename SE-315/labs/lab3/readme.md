@@ -294,7 +294,7 @@ When handling synchronous exceptions, registers are used to supply information t
 
 Let's put these pieces together and trace through an example. Let's say the processor is executing code in a user thread and encounters a instruction that hasn't been defined in ARMv8.
 
-1. The processer puts the cause of the exception into `ESR_EL1`, stores the `PSTSTE` to `SPSR_EL1` and puts the return address (also the address of the undefined instruction) into `ELR_EL1`.
+1. The processer puts the cause of the exception into `ESR_EL1`, stores the `PSTATE` to `SPSR_EL1` and puts the return address (also the address of the undefined instruction) into `ELR_EL1`.
 2. The processer switches to kernel mode (`EL1`) and the kernel stack pointer (stored in  `SP_EL1`) is used as stack after the mode switch.
 3. The processer checks the `VBAR_EL1` to get the address of Exception Vector Table used in EL1. The processer looks up the Exception Vector table. Since current exception is a synchronous exception comes from EL0 executing at AArch64 mode, the processor chooses entry `VBAR_EL1 + 0x400`.
 4. The processer executes the code at `VBAR_EL1 + 0x400`, which in our case is a `b` instruction jumping to the exception handler.
@@ -309,7 +309,7 @@ In ChCore, since only EL1 are used as kernel mode, we only need to initialize th
 
 - Fill in the exception vector table in `exception_table.S` with the help of some macros in that file.
 - Complete the `exception_init` function in `exception.c` to set up the exception vector after kernel have been booted.
-- Handle bad instruction exception by let the kernel print info of macro`UNKNOWN` defined in `esr.h` with `kinfo(UNKNOWN)` and call `sys_exit(-ESUPPORT)` in the handler to let the user thread exit, since such kind of exception is unable to be recovered.
+- Handle bad instruction exception by let the kernel print info of macro `UNKNOWN` defined in `esr.h` with `kinfo(UNKNOWN)` and call `sys_exit(-ESUPPORT)` in the handler to let the user thread exit, since such kind of exception is unable to be recovered.
 
 Test your exception handling code using some of the test programs in the `user/lab3` directory that cause exceptions before making any system calls, such as `user/lab3/badinsn.c`. Try them out using `make run-badinsn` and you should be able to see the kernel trapped in a dead loop printing:
 
@@ -333,7 +333,7 @@ Test your exception handling code using some of the test programs in the `user/l
 [ChCore] Lab stalling ...
 ```
 
-Normally, `sys_exit` will delete current thread, find the next runnable thread and switch context. However, since we only have one thread now, the `sys_exit` have no context to switch. So the exception handler will still return to the fault address stored in `ELR_EL1` after the `sys_exit`, which caused a dead loop of bad instruction exception. Don't warry, we called `breakpoint()` in the `sys_exit` and our grading script will kill the kernel at that point. For your convenience, you can call `BUG_ON(1)` in the `sys_exit` while coding. Don't forget to remove that modification before you finally grading your lab.
+Normally, `sys_exit` will delete current thread, find the next runnable thread and switch context. However, since we only have one thread now, the `sys_exit` have no context to switch. So the exception handler will still return to the fault address stored in `ELR_EL1` after the `sys_exit`, which caused a dead loop of bad instruction exception. Don't worry, we called `breakpoint()` in the `sys_exit` and our grading script will kill the kernel at that point. For your convenience, you can call `BUG_ON(1)` in the `sys_exit` while coding. Don't forget to remove that modification before you finally grading your lab.
 
 You should be able to get `make grade` succeed on the `badinsn` and `badinsn2` tests at this point.
 

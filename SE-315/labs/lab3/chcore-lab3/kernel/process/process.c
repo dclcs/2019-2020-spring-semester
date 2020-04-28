@@ -40,21 +40,22 @@ static int slot_table_init(struct slot_table *slot_table, unsigned int size)
 	slot_table->slots_size = size;
 	/* XXX: vmalloc is better? */
 	slot_table->slots = kzalloc(size * sizeof(*slot_table->slots));
-	if (!slot_table->slots) {
+	if (!slot_table->slots)
+	{
 		r = -ENOMEM;
 		goto out_fail;
 	}
 
-	slot_table->slots_bmp = kzalloc(BITS_TO_LONGS(size)
-					* sizeof(unsigned long));
-	if (!slot_table->slots_bmp) {
+	slot_table->slots_bmp = kzalloc(BITS_TO_LONGS(size) * sizeof(unsigned long));
+	if (!slot_table->slots_bmp)
+	{
 		r = -ENOMEM;
 		goto out_free_slots;
 	}
 
-	slot_table->full_slots_bmp = kzalloc(BITS_TO_LONGS(BITS_TO_LONGS(size))
-					     * sizeof(unsigned long));
-	if (!slot_table->full_slots_bmp) {
+	slot_table->full_slots_bmp = kzalloc(BITS_TO_LONGS(BITS_TO_LONGS(size)) * sizeof(unsigned long));
+	if (!slot_table->full_slots_bmp)
+	{
 		r = -ENOMEM;
 		goto out_free_slots_bmp;
 	}
@@ -81,11 +82,11 @@ static int expand_slot_table(struct slot_table *slot_table)
 		return r;
 
 	memcpy(new_slot_table.slots, slot_table->slots,
-	       old_size * sizeof(*slot_table->slots));
+		   old_size * sizeof(*slot_table->slots));
 	memcpy(new_slot_table.slots_bmp, slot_table->slots_bmp,
-	       BITS_TO_LONGS(old_size) * sizeof(unsigned long));
+		   BITS_TO_LONGS(old_size) * sizeof(unsigned long));
 	memcpy(new_slot_table.full_slots_bmp, slot_table->full_slots_bmp,
-	       BITS_TO_LONGS(BITS_TO_LONGS(old_size)) * sizeof(unsigned long));
+		   BITS_TO_LONGS(BITS_TO_LONGS(old_size)) * sizeof(unsigned long));
 	slot_table->slots_size = new_size;
 	slot_table->slots = new_slot_table.slots;
 	slot_table->slots_bmp = new_slot_table.slots_bmp;
@@ -102,23 +103,24 @@ int alloc_slot_id(struct process *process)
 
 	slot_table = &process->slot_table;
 
-	while (true) {
+	while (true)
+	{
 		bmp_size = slot_table->slots_size;
 		full_bmp_size = BITS_TO_LONGS(bmp_size);
 
 		empty_idx = find_next_zero_bit(slot_table->full_slots_bmp,
-					       full_bmp_size, 0);
+									   full_bmp_size, 0);
 		if (empty_idx >= full_bmp_size)
 			goto expand;
 
 		empty_idx = find_next_zero_bit(slot_table->slots_bmp,
-					       bmp_size,
-					       empty_idx * BITS_PER_LONG);
+									   bmp_size,
+									   empty_idx * BITS_PER_LONG);
 		if (empty_idx >= bmp_size)
 			goto expand;
 		else
 			break;
-expand:
+	expand:
 		r = expand_slot_table(slot_table);
 		if (r < 0)
 			goto out_fail;
@@ -126,8 +128,7 @@ expand:
 	BUG_ON(empty_idx < 0 || empty_idx >= bmp_size);
 
 	set_bit(empty_idx, slot_table->slots_bmp);
-	if (slot_table->full_slots_bmp[empty_idx / BITS_PER_LONG]
-	    == ~((unsigned long)0))
+	if (slot_table->full_slots_bmp[empty_idx / BITS_PER_LONG] == ~((unsigned long)0))
 		set_bit(empty_idx / BITS_PER_LONG, slot_table->full_slots_bmp);
 
 	return empty_idx;
@@ -145,7 +146,7 @@ static int process_init(struct process *process, unsigned int size)
 	return 0;
 }
 
-static struct process * process_create(void)
+static struct process *process_create(void)
 {
 	struct process *process;
 	struct object *object;
@@ -189,7 +190,6 @@ out_fail:
 	return NULL;
 }
 
-
 void process_exit(struct process *process)
 {
 	struct process *process_get;
@@ -198,7 +198,7 @@ void process_exit(struct process *process)
 
 	/* hold a reference and release all cap related to it */
 	process_get = obj_get(process, PROCESS_OBJ_ID,
-			      TYPE_PROCESS);
+						  TYPE_PROCESS);
 	/* process is already freed by others */
 	if (!process_get)
 		return;
@@ -207,7 +207,8 @@ void process_exit(struct process *process)
 	slot_table = &process->slot_table;
 
 	for_each_set_bit(slot_id, slot_table->slots_bmp,
-			 slot_table->slots_size) {
+					 slot_table->slots_size)
+	{
 		cap_free(process, slot_id);
 	}
 
@@ -234,7 +235,7 @@ static int ramdisk_read_file(char *path, char **buf)
 
 	int ret = 0;
 	*buf = cpio_extract_single(&binary_cpio_bin_start, path, cpio_cb_file,
-				   NULL);
+							   NULL);
 	if (ret == 0)
 		return 0;
 	else
@@ -242,29 +243,29 @@ static int ramdisk_read_file(char *path, char **buf)
 }
 
 /* process_create_root: create the root process */
-void process_create_root(char* bin_name) {
+void process_create_root(char *bin_name)
+{
 	struct process *root_process;
 	int thread_cap;
 	struct thread *root_thread;
 	char *binary = NULL;
 	int ret;
 
-	ret =  ramdisk_read_file(bin_name, &binary);
+	ret = ramdisk_read_file(bin_name, &binary);
 	BUG_ON(ret < 0);
 	BUG_ON(binary == NULL);
 
 	root_process = process_create();
 
 	thread_cap = thread_create_main(root_process, ROOT_THREAD_STACK_BASE,
-					ROOT_THREAD_STACK_SIZE, ROOT_THREAD_PRIO,
-					TYPE_ROOT, 0, binary, bin_name);
+									ROOT_THREAD_STACK_SIZE, ROOT_THREAD_PRIO,
+									TYPE_ROOT, 0, binary, bin_name);
 	/* XXX: no need to get/put */
 	root_thread = obj_get(root_process, thread_cap, TYPE_THREAD);
 	/* Enqueue: put init thread into the ready queue */
 	obj_put(root_thread);
 	current_thread = root_thread;
 }
-
 
 /* syscalls */
 int sys_create_process(void)
@@ -275,20 +276,22 @@ int sys_create_process(void)
 
 	/* cap current process */
 	new_process = obj_alloc(TYPE_PROCESS, sizeof(*new_process));
-	if (!new_process) {
+	if (!new_process)
+	{
 		r = -ENOMEM;
 		goto out_fail;
 	}
 	process_init(new_process, BASE_OBJECT_NUM);
 	cap = cap_alloc(current_process, new_process, 0);
-	if (cap < 0) {
+	if (cap < 0)
+	{
 		r = cap;
 		goto out_free_obj_new_grp;
 	}
 
 	/* 1st cap is process */
-	if (cap_copy(current_thread->process, new_process, cap, 0, 0)
-	    != PROCESS_OBJ_ID) {
+	if (cap_copy(current_thread->process, new_process, cap, 0, 0) != PROCESS_OBJ_ID)
+	{
 		printk("init process cap[0] is not process\n");
 		r = -1;
 		goto out_free_cap_grp_current;
@@ -297,7 +300,8 @@ int sys_create_process(void)
 	/* TODO: also put vmspace's cap in current process? */
 	/* 2st cap is vmspace */
 	vmspace = obj_alloc(TYPE_VMSPACE, sizeof(*vmspace));
-	if (!vmspace) {
+	if (!vmspace)
+	{
 		r = -ENOMEM;
 		goto out_free_obj_vmspace;
 	}
@@ -319,7 +323,3 @@ out_free_obj_new_grp:
 out_fail:
 	return r;
 }
-
-
-
-

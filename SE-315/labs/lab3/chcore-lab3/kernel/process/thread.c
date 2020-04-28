@@ -201,11 +201,11 @@ static u64 load_binary(struct process *process,
 			 * You should copy data from the elf into the physical memory in pmo.
 			 * The physical address of a pmo can be get from pmo->start.
 			 */
-			printk("going to copy %u bytes...\n", seg_sz);
+			// printk("going to copy %u bytes...\n", seg_sz);
 			for (size_t i = 0; i < seg_sz; ++i)
 			{
 				char *dest = (char *)(pmo->start + i), *src = bin + i;
-				printk("copy memory address %p <= %p (content: %p)\n", dest, src, *src);
+				// printk("copy memory address %p <= %p (content: %p)\n", dest, src, *src);
 				*dest = *src;
 			}
 

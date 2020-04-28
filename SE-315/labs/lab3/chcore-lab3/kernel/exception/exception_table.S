@@ -86,7 +86,7 @@
 
 
 /*
- * Vecotr table offsets from vector table base address from ARMv8 Manual
+ * Vector table offsets from vector table base address from ARMv8 Manual
  *	Address		|	Exception Type		| 	Description
  * ============================================================================
  *	VBAR_Eln+0x000	|	 Synchronous		|	 SPSel=0
@@ -118,6 +118,27 @@
  * NOTE: el1t means SP_EL0 is used as stack before exception and el1h
  * means SP_EL1 is used
  */
+
+exception_entry sync_el1t
+exception_entry irq_el1t
+exception_entry fiq_el1t
+exception_entry error_el1t
+
+exception_entry sync_el1h
+exception_entry irq_el1h
+exception_entry fiq_el1h
+exception_entry error_el1h
+
+exception_entry sync_el0_64
+exception_entry irq_el0_64
+exception_entry fiq_el0_64
+exception_entry error_el0_64
+
+exception_entry sync_el0_32
+exception_entry irq_el0_32
+exception_entry fiq_el0_32
+exception_entry error_el0_32
+
 .align	11
 EXPORT(el1_vector)
 
