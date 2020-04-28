@@ -58,3 +58,13 @@ Finally, we set the `root_thread` (the initial thread) as our `current_thread`, 
 
 ### Part B: Exception Handling
 
+#### Exercise 3
+
+All exception handler's label has been defined in `exception_table.S`. So we just need to arrange the table by macro `exception_entry`.
+
+After that, in `exception_init` function, we call assembly function `set_exception_vector()` to set the exception vector table register.
+
+After such operation, the control flow will arrive `handle_entry_c` when bad instruction occurred.
+
+Take `ESR_EL1_EC_IABT_LEL` into `switch` expression should handle that.
+
