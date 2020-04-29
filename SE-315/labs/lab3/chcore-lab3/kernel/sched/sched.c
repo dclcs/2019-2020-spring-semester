@@ -36,7 +36,8 @@ char thread_state[][STATE_STR_LEN] = {
  * Switch vmspace and arch-related stuff
  * Return the context pointer which should be set to stack pointer register
  */
-u64 switch_context(void) {
+u64 switch_context(void)
+{
   printk("entering switch_context\n");
   /* TODO: with IRQ disabled.
    * tmac: what if IRQ is not disabled? But directly resumes the execution
@@ -52,7 +53,8 @@ u64 switch_context(void) {
   /* These 3 types of thread do not have vmspace */
   if (target_thread->thread_ctx->type != TYPE_IDLE &&
       target_thread->thread_ctx->type != TYPE_KERNEL &&
-      target_thread->thread_ctx->type != TYPE_TESTS) {
+      target_thread->thread_ctx->type != TYPE_TESTS)
+  {
 
     BUG_ON(!target_thread->vmspace);
     /*
@@ -62,10 +64,10 @@ u64 switch_context(void) {
      */
     BUG_ON(!target_thread->vmspace);
 
-    printk("<switch_context> is going to call <switch_thread_vmspace_to>\n");
+    // printk("<switch_context> is going to call <switch_thread_vmspace_to>\n");
     switch_thread_vmspace_to(target_thread);
 
-    printk("<switch_context> called <switch_thread_vmspace_to>\n");
+    // printk("<switch_context> called <switch_thread_vmspace_to>\n");
   }
   /*
    * Lab3: Your code here
@@ -73,9 +75,10 @@ u64 switch_context(void) {
    * in main.c
    */
   target_ctx = target_thread->thread_ctx;
-  printk("target_ctx = %p\n", target_ctx);
-  for (size_t i = 0; i < 35; ++i) {
-    printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
-  }
-  return target_ctx->ec.reg;
+  // printk("target_ctx = %p\n", target_ctx);
+  // for (size_t i = 0; i < 35; ++i)
+  // {
+  // printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
+  // }
+  return (u64)target_ctx->ec.reg;
 }

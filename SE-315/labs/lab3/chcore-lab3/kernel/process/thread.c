@@ -204,7 +204,8 @@ static u64 load_binary(struct process *process,
 			// printk("going to copy %u bytes...\n", seg_sz);
 			for (size_t i = 0; i < seg_sz; ++i)
 			{
-				char *dest = (char *)(pmo->start + i), *src = bin + i;
+				char *dest = (char *)(pmo->start + i);
+				const char *src = bin + i;
 				// printk("copy memory address %p <= %p (content: %p)\n", dest, src, *src);
 				*dest = *src;
 			}

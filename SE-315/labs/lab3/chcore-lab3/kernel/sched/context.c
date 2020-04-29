@@ -40,14 +40,17 @@ void destroy_thread_ctx(struct thread *thread)
 	kfree(kernel_stack);
 }
 
+void arch_set_thread_stack(struct thread *thread, u64 stack);
+void arch_set_thread_next_ip(struct thread *thread, u64 ip);
+
 void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
 					 u32 type, s32 aff)
 {
-	u64 stack_inreg = stack;
-	u64 entry_inreg = func;
-	u64 temp = 0;
+	// u64 stack_inreg = stack;
+	// u64 entry_inreg = func;
+	// u64 temp = 0;
 
-	printk("called <init_thread_ctx>. thread: %p\nstack: %p\nfunc: %p\nprio: %u\ntype: %u\naff: %d\n", thread, stack, func, prio, type, aff);
+	// printk("called <init_thread_ctx>. thread: %p\nstack: %p\nfunc: %p\nprio: %u\ntype: %u\naff: %d\n", thread, stack, func, prio, type, aff);
 	/*
 	 * Lab3: Your code here
 	 * You need to initialize a thread's context here for later eret_to_thread(context) to work properly

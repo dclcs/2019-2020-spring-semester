@@ -116,3 +116,37 @@ Notice that the `kmalloc` returns virtual memory address (starts with a series o
 ### Grading
 
 Finally, we restores the `-Werror` argument and `make grade`.
+
+There's merely some implicit casting and unused variables cleaning work to do.
+
+```
+make grade
+LAB3: test >>>>>>>>>>>>>>>>>
+./scripts/grade-lab3
+badinsn: (4.3s) 
+  badinsn output: OK 
+  badinsn2: (4.4s) 
+  badinsn2 output: OK 
+  hello: (4.3s) 
+  hello output: OK 
+  putc: (3.9s) 
+  putc output: OK 
+  createpmo: (4.2s) 
+  createpmo output: OK 
+  mappmo: (3.8s) 
+  mappmo output: OK 
+  mappmoerr: (3.9s) 
+  mappmoerr output: OK 
+  brk: (4.0s) 
+  brk output: OK 
+  faultread: (4.0s) 
+  faultread output: OK 
+  faultwrite: (4.1s) 
+  faultwrite output: OK 
+  pf: (4.1s) 
+  pf output: OK 
+Score: 100/100
+```
+
+See you in *Lab 4*.
+
