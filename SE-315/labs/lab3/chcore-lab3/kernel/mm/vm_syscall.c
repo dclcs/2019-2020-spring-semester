@@ -25,13 +25,15 @@ int sys_create_device_pmo(u64 paddr, u64 size)
 
 	BUG_ON(size == 0);
 	pmo = obj_alloc(TYPE_PMO, sizeof(*pmo));
-	if (!pmo) {
+	if (!pmo)
+	{
 		r = -ENOMEM;
 		goto out_fail;
 	}
 	pmo_init(pmo, PMO_DEVICE, size, paddr);
 	cap = cap_alloc(current_process, pmo, 0);
-	if (cap < 0) {
+	if (cap < 0)
+	{
 		r = cap;
 		goto out_free_obj;
 	}
@@ -52,13 +54,15 @@ int sys_create_pmo(u64 size, u64 type)
 	kinfo("sys_create_pmo called\n");
 	BUG_ON(size == 0);
 	pmo = obj_alloc(TYPE_PMO, sizeof(*pmo));
-	if (!pmo) {
+	if (!pmo)
+	{
 		r = -ENOMEM;
 		goto out_fail;
 	}
 	pmo_init(pmo, type, size, 0);
 	cap = cap_alloc(current_process, pmo, 0);
-	if (cap < 0) {
+	if (cap < 0)
+	{
 		r = cap;
 		goto out_free_obj;
 	}
@@ -70,7 +74,8 @@ out_fail:
 	return r;
 }
 
-struct pmo_request {
+struct pmo_request
+{
 	/* args */
 	u64 size;
 	u64 type;
@@ -88,7 +93,8 @@ int sys_create_pmos(u64 user_buf, u64 cnt)
 	int cap;
 
 	/* in case of integer overflow */
-	if (cnt > MAX_CNT) {
+	if (cnt > MAX_CNT)
+	{
 		kwarn("create too many pmos for one time (max: %d)\n", MAX_CNT);
 		return -EINVAL;
 	}
@@ -96,13 +102,15 @@ int sys_create_pmos(u64 user_buf, u64 cnt)
 	/* TODO: can we directly read/write user buffers */
 	size = sizeof(*requests) * cnt;
 	requests = (struct pmo_request *)kmalloc(size);
-	if (requests == NULL) {
+	if (requests == NULL)
+	{
 		kwarn("cannot allocate more memory\n");
 		return -EAGAIN;
 	}
 	copy_from_user((char *)requests, (char *)user_buf, size);
 
-	for (i = 0; i < cnt; ++i) {
+	for (i = 0; i < cnt; ++i)
+	{
 		cap = sys_create_pmo(requests[i].size, requests[i].type);
 		/*
 		 * TODO: what if some errors occur (i.e., create part of pmos).
@@ -120,40 +128,43 @@ int sys_create_pmos(u64 user_buf, u64 cnt)
 	return 0;
 }
 
-#define WRITE_PMO	0
-#define READ_PMO	1
+#define WRITE_PMO 0
+#define READ_PMO 1
 static int read_write_pmo(u64 pmo_cap, u64 offset, u64 user_buf,
-			  u64 size, u64 type)
+						  u64 size, u64 type)
 {
 	struct pmobject *pmo;
 	int r = 0;
 
 	/* caller should have the pmo_cap */
 	pmo = obj_get(current_process, pmo_cap, TYPE_PMO);
-	if (!pmo) {
+	if (!pmo)
+	{
 		r = -ECAPBILITY;
 		goto out_fail;
 	}
 
 	// FIXME: add support for PMO_ANONY
 	/* we only allow writing PMO_DATA now. */
-	if (pmo->type != PMO_DATA) {
+	if (pmo->type != PMO_DATA)
+	{
 		r = -EINVAL;
 		goto out_obj_put;
 	}
 
-	if (offset + size < offset || offset + size > pmo->size) {
+	if (offset + size < offset || offset + size > pmo->size)
+	{
 		r = -EINVAL;
 		goto out_obj_put;
 	}
 
 	if (type == WRITE_PMO)
 		r = copy_from_user((char *)phys_to_virt(pmo->start) + offset,
-				   (char *)user_buf, size);
+						   (char *)user_buf, size);
 	else if (type == READ_PMO)
 		r = copy_to_user((char *)user_buf,
-				 (char *)phys_to_virt(pmo->start) + offset,
-				 size);
+						 (char *)phys_to_virt(pmo->start) + offset,
+						 size);
 	else
 		BUG("read write pmo invalid type\n");
 
@@ -177,7 +188,6 @@ int sys_read_pmo(u64 pmo_cap, u64 offset, u64 user_ptr, u64 len)
 	return read_write_pmo(pmo_cap, offset, user_ptr, len, READ_PMO);
 }
 
-
 /* TODO: hide this interface later */
 /*
  * A process can not only map a PMO into its private address space,
@@ -192,15 +202,17 @@ int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
 
 	kinfo("sys_map_pmo called\n");
 	pmo = obj_get(current_process, pmo_cap, TYPE_PMO);
-	if (!pmo) {
+	if (!pmo)
+	{
 		r = -ECAPBILITY;
 		goto out_fail;
 	}
 
 	/* map the pmo to the target process */
 	target_process = obj_get(current_process, target_process_cap,
-				 TYPE_PROCESS);
-	if (!target_process) {
+							 TYPE_PROCESS);
+	if (!target_process)
+	{
 		r = -ECAPBILITY;
 		goto out_obj_put_pmo;
 	}
@@ -211,7 +223,8 @@ int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
 	// TODO: check wheter perm is legal
 	// TODO: check addr validation
 	r = vmspace_map_range(vmspace, addr, pmo->size, perm, pmo);
-	if (r != 0) {
+	if (r != 0)
+	{
 		r = -EPERM;
 		goto out_obj_put_vmspace;
 	}
@@ -223,7 +236,7 @@ int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
 	if (target_process != current_process)
 		/* if using cap_move, we need to consider remove the mappings */
 		r = cap_copy(current_process, target_process,
-			       pmo_cap, 0, 0);
+					 pmo_cap, 0, 0);
 	else
 		r = 0;
 
@@ -233,10 +246,13 @@ out_obj_put_vmspace:
 out_obj_put_pmo:
 	obj_put(pmo);
 out_fail:
+
+	kinfo("<sys_map_pmo> return value: %d\n", r);
 	return r;
 }
 
-struct pmo_map_request {
+struct pmo_map_request
+{
 	/* args */
 	u64 pmo_cap;
 	u64 addr;
@@ -254,7 +270,8 @@ int sys_map_pmos(u64 target_process_cap, u64 user_buf, u64 cnt)
 	int ret;
 
 	/* in case of integer overflow */
-	if (cnt > MAX_CNT) {
+	if (cnt > MAX_CNT)
+	{
 		kwarn("create too many pmos for one time (max: %d)\n", MAX_CNT);
 		return -EINVAL;
 	}
@@ -262,21 +279,23 @@ int sys_map_pmos(u64 target_process_cap, u64 user_buf, u64 cnt)
 	/* TODO: can we directly read/write user buffers */
 	size = sizeof(*requests) * cnt;
 	requests = (struct pmo_map_request *)kmalloc(size);
-	if (requests == NULL) {
+	if (requests == NULL)
+	{
 		kwarn("cannot allocate more memory\n");
 		return -EAGAIN;
 	}
 	copy_from_user((char *)requests, (char *)user_buf, size);
 
-	for (i = 0; i < cnt; ++i) {
+	for (i = 0; i < cnt; ++i)
+	{
 		/*
 		 * if target_process is not current_process,
 		 * ret is cap on success.
 		 */
 		ret = sys_map_pmo(target_process_cap,
-				  requests[i].pmo_cap,
-				  requests[i].addr,
-				  requests[i].perm);
+						  requests[i].pmo_cap,
+						  requests[i].addr,
+						  requests[i].perm);
 		/*
 		 * TODO: what if some errors occur (i.e., create part of pmos).
 		 * levave it to user space for now.
@@ -304,14 +323,16 @@ int sys_unmap_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr)
 
 	/* map the pmo to the target process */
 	target_process = obj_get(current_process, target_process_cap,
-				 TYPE_PROCESS);
-	if (!target_process) {
+							 TYPE_PROCESS);
+	if (!target_process)
+	{
 		ret = -EPERM;
 		goto fail1;
 	}
 
 	vmspace = obj_get(target_process, VMSPACE_OBJ_ID, TYPE_VMSPACE);
-	if (!vmspace) {
+	if (!vmspace)
+	{
 		ret = -EPERM;
 		goto fail2;
 	}
@@ -330,14 +351,14 @@ fail1:
 	return ret;
 }
 
-
 /*
  * User process heap start: 0x600000000000
  *
  * defined in mm/vmregion.c
  */
 
-u64 sys_handle_brk(u64 addr) {
+u64 sys_handle_brk(u64 addr)
+{
 	struct vmspace *vmspace;
 	struct pmobject *pmo;
 	struct vmregion *vmr;
@@ -353,7 +374,7 @@ u64 sys_handle_brk(u64 addr) {
 	 * If addr is 0, this function should initialize the heap, implemeted by:
 	 * 1. Create a new pmo with size 0 and type PMO_ANONYM.
 	 * 2. Initialize vmspace->heap_vmr using function init_heap_vmr(), which generates 
-	 * the mapping between  user heap's virtual address (already stored in 
+	 * the mapping between user heap's virtual address (already stored in 
 	 * vmspace->user_current_heap) and the pmo you just created.
 	 *
 	 * HINT: For more details about how to create and initiailze a pmo, check function 
@@ -368,6 +389,38 @@ u64 sys_handle_brk(u64 addr) {
 	 * top.
 	 *
 	 */
+
+	kinfo("sys_handle_brk(%p) called\n", addr);
+
+	if (addr == 0)
+	{
+		pmo = (struct pmobject *)kmalloc(sizeof(struct pmobject));
+		pmo_init(pmo, PMO_ANONYM, 0, 0);
+
+		kinfo("going to init the heap\n");
+
+		vmr = init_heap_vmr(vmspace, vmspace->user_current_heap, pmo);
+		vmspace->heap_vmr = vmr;
+		kinfo("init heap: ok\n");
+	}
+	else
+	{
+		pmo = vmspace->heap_vmr->pmo;
+
+		kinfo("judge addr(%p), and vmspace->user_current_heap(%p)?\n", addr, vmspace->user_current_heap);
+		if (addr > vmspace->heap_vmr->size)
+		{
+			u64 offset = addr - vmspace->heap_vmr->size;
+			pmo->size += offset;
+			vmspace->heap_vmr->size += offset;
+		}
+		else if (addr <= vmspace->user_current_heap)
+		{
+			return -EINVAL;
+		}
+	}
+
+	retval = vmspace->user_current_heap + vmspace->heap_vmr->size;
 
 	/*
 	 * return origin heap addr on failure;

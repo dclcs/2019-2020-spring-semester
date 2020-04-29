@@ -78,15 +78,40 @@ Firstly, if we gets a `el0_syscall` exception, the control flow will falls into 
 
 Just follow the instructions.
 
-Especially, if we want to add a readable variable in `__asm__`, we should define it as `+r`. If we want to make it write-only, define it as `=r`.
+Especially, if we want to add a readable variable in `__asm__`, we should define it with `+`. If we want to make it write-only, define it with `=`.
 
 #### Exercise 6
 
+There's a special C syntax for array initialization.
+
+```c
+const void *syscall_table[NR_SYSCALL] = {
+	[0 ... NR_SYSCALL - 1] = sys_debug,
+	/* lab3 syscalls finished */
+	[SYS_putc] = sys_putc,
+	[SYS_exit] = sys_exit,
+	[SYS_create_pmo] = sys_create_pmo,
+	[SYS_map_pmo] = sys_map_pmo,
+	[SYS_handle_brk] = sys_handle_brk,
+};
+
+```
+
+which seems quite weird. The later a equation is declared, the higher priority it contains.
+
 #### Exercise 7
+
+Currently, when we call `ret` in the user function, it will touch the end of `__start_c` function again. This function doesn't do anythign further, so it will goes to its parent function `START`, which also touches its end. Now the whole executing flow is over and no more code can be executed, also it can't go back to kernel mode to give any further scheduling.
 
 #### Exercise 8
 
+Added. Notice the return value is signed integer.
+
 #### Exercise 9
+
+Just did every steps following the instructions.
+
+Notice that the `kmalloc` returns virtual memory address (starts with a series of `0xfffff...`). So we have to use `virt_to_phys` macro to unwrap it before it could work normally.
 
 ### Grading
 

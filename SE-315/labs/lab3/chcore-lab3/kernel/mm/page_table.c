@@ -265,7 +265,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 		// printk("called <map_range_in_pgtbl>. pgtbl: %p, va: %p, pa: %p, len: %lu, flags: %lu\r", pgtbl, va, pa, len, flags);
 
 		ret = get_next_ptp((ptp_t *)(pgtbl), 0, va, &l1_ptp, &l0_pte, true);
-		// printk("1st called get_next_ptp. l1_ptp = %p, l1_pte = %p, ret = %d\n", l1_ptp, l1_pte, ret);
+		// printk("1st called get_next_ptp. l1_ptp = %p, l0_pte = %p, ret = %d\n", l1_ptp, l0_pte, ret);
 
 		if (ret != NORMAL_PTP)
 		{
@@ -274,7 +274,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 		}
 
 		ret = get_next_ptp(l1_ptp, 1, va, &l2_ptp, &l1_pte, true);
-		// printk("2nd called get_next_ptp. l2_ptp = %p, l2_pte = %p, ret = %d\n", l2_ptp, l2_pte, ret);
+		// printk("2nd called get_next_ptp. l2_ptp = %p, l1_pte = %p, ret = %d\n", l2_ptp, l1_pte, ret);
 		if (ret != NORMAL_PTP)
 		{
 			flush_tlb();
@@ -282,7 +282,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 		}
 
 		ret = get_next_ptp(l2_ptp, 2, va, &l3_ptp, &l2_pte, true);
-		// printk("3rd called get_next_ptp. l3_ptp = %p, l3_pte = %p, ret = %d\n", l3_ptp, l3_pte, ret);
+		// printk("3rd called get_next_ptp. l3_ptp = %p, l2_pte = %p, ret = %d\n", l3_ptp, l2_pte, ret);
 
 		if (ret != NORMAL_PTP)
 		{
@@ -291,7 +291,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 		}
 
 		ret = get_next_ptp(l3_ptp, 3, va, &l4_ptp, &l3_pte, true);
-		// printk("4th called get_next_ptp. l4_ptp = %p, l4_pte = %p, ret = %d\n", l4_ptp, l4_pte, ret);
+		// printk("4th called get_next_ptp. l4_ptp = %p, l3_pte = %p, ret = %d\n", l4_ptp, l3_pte, ret);
 
 		if (ret != NORMAL_PTP)
 		{
@@ -304,7 +304,7 @@ int map_range_in_pgtbl(vaddr_t *pgtbl, vaddr_t base_va, paddr_t base_pa,
 		// printk("<map> finished. physical_page id = %p\n", pa >> PAGE_SHIFT);
 		// printk("Now tries to unwrap VMA %p...\n", va);
 
-		// printk("It is %llu!!! Horray!\n", *(u64 *)va);
+		// printk("It is %u!!! Horray!\n", *(u64 *)va);
 	}
 
 	flush_tlb();

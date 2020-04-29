@@ -57,7 +57,7 @@ u64 syscall(u64 sys_no, u64 arg0, u64 arg1, u64 arg2, u64 arg3, u64 arg4,
 	__asm__ volatile(
 		"svc #1");
 	__asm__("mov %0, x0"
-			: "+r"(ret));
+			: "=r"(ret));
 	return ret;
 }
 

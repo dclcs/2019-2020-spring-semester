@@ -36,7 +36,6 @@ void exception_init(void)
 
 void handle_entry_c(int type, u64 esr, u64 address)
 {
-
 	/* ec: exception class */
 	u32 esr_ec = GET_ESR_EL1_EC(esr);
 	// kinfo("entered handle_entry_c. type: %d esr: %u address: %p\nesr_ec: %u\n", type, esr, address, esr_ec);
@@ -51,9 +50,20 @@ void handle_entry_c(int type, u64 esr, u64 address)
 	 * Handle exceptions as required in the lab document. Checking exception codes in
 	 * esr.h may help.
 	 */
+
+	// maybe a page fault? or a wild addressing?
+	case ESR_EL1_EC_DABT_LEL:
+	case ESR_EL1_EC_DABT_CEL:
+		do_page_fault(esr, address);
+		break;
+	// unknown instruction
 	case ESR_EL1_EC_UNKNOWN:
 		kinfo(UNKNOWN);
 		sys_exit(-ESUPPORT);
+		break;
+	// operation not permitted
+	case ESR_EL1_EC_IABT_LEL:
+		sys_exit(-EPERM);
 		break;
 	default:
 		// default:
