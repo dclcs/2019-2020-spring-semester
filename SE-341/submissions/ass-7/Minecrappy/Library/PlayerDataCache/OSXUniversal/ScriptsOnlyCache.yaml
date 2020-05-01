@@ -9,6 +9,7 @@ ScriptsOnlyBuild:
     - DepthOfFieldController
     - KeyboardController
     - MotionBlurController
+    - PendulumTypeAController
     - PlayerController
     Unity.Postprocessing.Runtime.dll:
     - UnityEngine.Rendering.PostProcessing.AmbientOcclusion
@@ -100,75 +101,77 @@ ScriptsOnlyBuild:
     - Class: 109
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 11250}
+      Script: {instanceID: 11252}
     - Class: 114
-      Script: {instanceID: 11270}
-    - Class: 114
-      Script: {instanceID: 11448}
+      Script: {instanceID: 11272}
     - Class: 114
       Script: {instanceID: 11450}
     - Class: 114
-      Script: {instanceID: 11490}
+      Script: {instanceID: 11452}
     - Class: 114
-      Script: {instanceID: 11510}
+      Script: {instanceID: 11492}
     - Class: 114
-      Script: {instanceID: 11616}
+      Script: {instanceID: 11512}
     - Class: 114
-      Script: {instanceID: 11820}
+      Script: {instanceID: 11618}
     - Class: 114
-      Script: {instanceID: 11844}
+      Script: {instanceID: 11822}
     - Class: 114
-      Script: {instanceID: 11918}
+      Script: {instanceID: 11846}
     - Class: 114
-      Script: {instanceID: 11946}
+      Script: {instanceID: 11920}
     - Class: 114
-      Script: {instanceID: 12070}
+      Script: {instanceID: 11948}
     - Class: 114
-      Script: {instanceID: 12104}
+      Script: {instanceID: 12072}
     - Class: 114
-      Script: {instanceID: 12136}
+      Script: {instanceID: 12106}
     - Class: 114
-      Script: {instanceID: 12152}
+      Script: {instanceID: 12138}
     - Class: 114
-      Script: {instanceID: 12228}
+      Script: {instanceID: 12154}
     - Class: 114
-      Script: {instanceID: 12358}
+      Script: {instanceID: 12230}
     - Class: 114
-      Script: {instanceID: 12600}
+      Script: {instanceID: 12360}
     - Class: 114
-      Script: {instanceID: 12614}
+      Script: {instanceID: 12602}
     - Class: 114
-      Script: {instanceID: 12652}
+      Script: {instanceID: 12616}
     - Class: 114
-      Script: {instanceID: 12688}
+      Script: {instanceID: 12654}
     - Class: 114
-      Script: {instanceID: 12750}
+      Script: {instanceID: 12690}
     - Class: 114
-      Script: {instanceID: 12904}
+      Script: {instanceID: 12706}
     - Class: 114
-      Script: {instanceID: 12920}
+      Script: {instanceID: 12754}
     - Class: 114
-      Script: {instanceID: 13078}
+      Script: {instanceID: 12908}
     - Class: 114
-      Script: {instanceID: 13096}
+      Script: {instanceID: 12924}
     - Class: 114
-      Script: {instanceID: 13180}
+      Script: {instanceID: 13082}
     - Class: 114
-      Script: {instanceID: 13194}
+      Script: {instanceID: 13100}
     - Class: 114
-      Script: {instanceID: 13202}
+      Script: {instanceID: 13184}
     - Class: 114
-      Script: {instanceID: 13246}
+      Script: {instanceID: 13198}
     - Class: 114
-      Script: {instanceID: 13298}
+      Script: {instanceID: 13206}
     - Class: 114
-      Script: {instanceID: 13300}
+      Script: {instanceID: 13250}
     - Class: 114
-      Script: {instanceID: 13312}
+      Script: {instanceID: 13302}
     - Class: 114
-      Script: {instanceID: 13330}
+      Script: {instanceID: 13304}
     - Class: 114
-      Script: {instanceID: 13348}
+      Script: {instanceID: 13316}
+    - Class: 114
+      Script: {instanceID: 13334}
+    - Class: 114
+      Script: {instanceID: 13352}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -700,6 +703,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: TimelineAsset
+  - hash:
+      serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeAController
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
