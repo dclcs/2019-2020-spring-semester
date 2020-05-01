@@ -10,6 +10,7 @@ ScriptsOnlyBuild:
     - KeyboardController
     - MotionBlurController
     - PendulumTypeAController
+    - PendulumTypeBController
     - PlayerController
     Unity.Postprocessing.Runtime.dll:
     - UnityEngine.Rendering.PostProcessing.AmbientOcclusion
@@ -172,6 +173,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 13334}
     - Class: 114
       Script: {instanceID: 13352}
+    - Class: 114
+      Script: {instanceID: 15312}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -991,6 +994,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeBController
   platform: 2
   scenePathNames:
   - Assets/Scenes/MainScene.unity
