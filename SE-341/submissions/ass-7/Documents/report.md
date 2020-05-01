@@ -31,6 +31,8 @@ while True:
 
 #### Benchmark
 
+##### Mathematics
+
 首先，我们构建一个基准函数：不通过微分方程模拟的方式计算摆球的位置，而是通过
 $$
 \left\{  
@@ -40,11 +42,21 @@ $$
              \end{array}  
 \right.
 $$
-
-
 计算位置。这种计算方式能始终保证 $\theta$ 和 $(x, y)$ 的一致性。可以作为我们摆球的参照标准。
 
+##### Simulating
+
+参见 `./Simulation/simulate_benchmark.py`。
+
+##### Implementation
+
+![north](report.assets/north.gif)
+
+
+
 #### Explicit Euler's
+
+##### Mathematics
 
 $$
 x(t_0 + h) = x_0 + hf(x_0)
@@ -85,8 +97,16 @@ $$
 
 ![image-20200501215720045](report.assets/image-20200501215720045.png)
 
-> 注意因为我们选取的零势能点相对较高，系统的机械能呈现为负值。
+> 注意因为我们选取的零势能点相对较高，系统的机械能呈现为负值。单位是 Joule。
 
 根据欧拉法模拟的单摆系统居然无中生有，逐渐增大了机械能。
 
-这实在太可疑了。我们不要用简单欧拉法。
+这实在太可疑了。
+
+##### Simulating
+
+参见 `./Simulation/simulate_euler.py`。
+
+##### Implementation
+
+![south](report.assets/south.gif)
