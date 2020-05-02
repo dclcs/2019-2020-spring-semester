@@ -4,7 +4,7 @@
 
 ### Pendulum Simulation
 
-#### Base
+#### Motion Equations
 
 首先，可以利用已经给出的简化型微分方程公式简单地进行数值模拟得到结果。
 
@@ -110,3 +110,48 @@ $$
 ##### Implementation
 
 ![south](report.assets/south.gif)
+
+#### Midpoint
+
+##### Mathematics
+
+我们知道 Euler 法的问题在于采用 $t_0$ 时刻的 $f(t_0)$ 代替 $[t_0, t_0 + \Delta t]$ 内的斜率，而大部分情况下这会带来偏差：$f(t)$ 增大时跟不上，$f(t)$ 减小时又刹不住。
+
+显然，更好的办法是采用 $t_0 + \dfrac {\Delta t} 2$ 时刻的 $f(t)$ 代替 $[t_0, t_0 + \Delta t]$ 内的斜率，至少这样不会产生那么明显的 Bias 了。
+
+这里无法很好地精确算出两次采样中点处的 $f(t_0 + \dfrac {\Delta t} 2)$，所以只好勉为其难地采样两次才进行一次步进：即 $x(t_0 + 2 \Delta t) = x(t_0) + f(t_0 + \Delta t) \times 2\Delta t$。
+
+![image-20200502204202781](report.assets/image-20200502204202781.png)
+
+就此来说，几乎没有什么改进。而且还因为采样率降低了一倍，产生了很不好的锯齿。
+
+##### Simulating
+
+参见 `./Simulation/simulate_trapezoid.py`。
+
+##### Implementation
+
+![west](report.assets/west.gif)
+
+#### Trapezoid
+
+##### Mathematics
+
+Trapezoid 方法呢，利用了一个近似，即：
+$$
+f(t_0 + \dfrac {\Delta t} 2) \simeq \dfrac {f(t_0) + f(t_0 + \Delta t)} {2}
+$$
+这样，我们就可以在不降低采样率的同时，弥补显式欧拉法的缺陷。
+
+![image-20200502203312339](report.assets/image-20200502203312339.png)
+
+挺好的。
+
+##### Simulating
+
+参见 `./Simulation/simulate_trapezoid.py`。
+
+##### Implementation
+
+![east](report.assets/east.gif)
+

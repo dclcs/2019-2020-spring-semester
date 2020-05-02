@@ -11,6 +11,8 @@ ScriptsOnlyBuild:
     - MotionBlurController
     - PendulumTypeAController
     - PendulumTypeBController
+    - PendulumTypeCController
+    - PendulumTypeDController
     - PlayerController
     Unity.Postprocessing.Runtime.dll:
     - UnityEngine.Rendering.PostProcessing.AmbientOcclusion
@@ -122,59 +124,63 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 11920}
     - Class: 114
-      Script: {instanceID: 11948}
+      Script: {instanceID: 11944}
     - Class: 114
-      Script: {instanceID: 12072}
+      Script: {instanceID: 11950}
     - Class: 114
-      Script: {instanceID: 12106}
+      Script: {instanceID: 12074}
     - Class: 114
-      Script: {instanceID: 12138}
+      Script: {instanceID: 12108}
     - Class: 114
-      Script: {instanceID: 12154}
+      Script: {instanceID: 12140}
     - Class: 114
-      Script: {instanceID: 12230}
+      Script: {instanceID: 12156}
     - Class: 114
-      Script: {instanceID: 12360}
+      Script: {instanceID: 12232}
     - Class: 114
-      Script: {instanceID: 12602}
+      Script: {instanceID: 12362}
     - Class: 114
-      Script: {instanceID: 12616}
+      Script: {instanceID: 12604}
     - Class: 114
-      Script: {instanceID: 12654}
+      Script: {instanceID: 12618}
     - Class: 114
-      Script: {instanceID: 12690}
+      Script: {instanceID: 12656}
     - Class: 114
-      Script: {instanceID: 12706}
+      Script: {instanceID: 12692}
     - Class: 114
-      Script: {instanceID: 12754}
+      Script: {instanceID: 12708}
     - Class: 114
-      Script: {instanceID: 12908}
+      Script: {instanceID: 12756}
     - Class: 114
-      Script: {instanceID: 12924}
+      Script: {instanceID: 12910}
     - Class: 114
-      Script: {instanceID: 13082}
+      Script: {instanceID: 12926}
     - Class: 114
-      Script: {instanceID: 13100}
+      Script: {instanceID: 13084}
     - Class: 114
-      Script: {instanceID: 13184}
+      Script: {instanceID: 13102}
     - Class: 114
-      Script: {instanceID: 13198}
+      Script: {instanceID: 13186}
     - Class: 114
-      Script: {instanceID: 13206}
+      Script: {instanceID: 13200}
     - Class: 114
-      Script: {instanceID: 13250}
+      Script: {instanceID: 13208}
     - Class: 114
-      Script: {instanceID: 13302}
+      Script: {instanceID: 13252}
     - Class: 114
       Script: {instanceID: 13304}
     - Class: 114
-      Script: {instanceID: 13316}
+      Script: {instanceID: 13306}
     - Class: 114
-      Script: {instanceID: 13334}
+      Script: {instanceID: 13318}
     - Class: 114
-      Script: {instanceID: 13352}
+      Script: {instanceID: 13336}
     - Class: 114
-      Script: {instanceID: 15312}
+      Script: {instanceID: 13354}
+    - Class: 114
+      Script: {instanceID: 15362}
+    - Class: 114
+      Script: {instanceID: 15364}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -454,6 +460,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: TMP_TextEventCheck
+  - hash:
+      serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeBController
   - hash:
       serializedVersion: 2
       Hash: b8a5e8091ab0b8861d2add371082c5e0
@@ -999,7 +1011,13 @@ ScriptsOnlyBuild:
       Hash: d1f8edde4b0147fc5756856e1d0cb5bd
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
-    className: PendulumTypeBController
+    className: PendulumTypeCController
+  - hash:
+      serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeDController
   platform: 2
   scenePathNames:
   - Assets/Scenes/MainScene.unity
