@@ -1803,6 +1803,8 @@ MonoBehaviour:
   block: {fileID: 38607785}
   mainCamera: {fileID: 963194227}
   player: {fileID: 1598110611}
+  furryPrefab: {fileID: 3035914047972335615, guid: 2e135fb1f78a2481185a7df349967f9c,
+    type: 3}
   distance: 2
   height: 1
 --- !u!1 &494252624

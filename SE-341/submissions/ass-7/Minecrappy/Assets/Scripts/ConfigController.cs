@@ -71,7 +71,7 @@ public class ConfigController : MonoBehaviour
             renderStyleDropdown.interactable = false;
             specReflectStrengthSlider.interactable = true;
         } else if (blockType == BlockType.Furry) {
-            highlightColorDropdown.interactable = false;
+            highlightColorDropdown.interactable = true;
             renderStyleDropdown.interactable = false;
             specReflectStrengthSlider.interactable = true;
         }

@@ -8,6 +8,7 @@ public class BlockSpawnController : MonoBehaviour
     public GameObject block;
     public Camera mainCamera;
     public GameObject player;
+    public GameObject furryPrefab;
 
     public float distance = 2f;
     public float height = 1f;
@@ -91,9 +92,15 @@ public class BlockSpawnController : MonoBehaviour
     }
 
     void spawnFurryBlock(Vector3 position) {
-        GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
-        BlockShader shader = gameObj.GetComponent<BlockShader>();
-        shader.generateFurryBlock(ConfigController.instance.specReflect);
+        GameObject prefabObj = (MonoBehaviour.Instantiate(furryPrefab, position, transform.localRotation) as GameObject);
+        prefabObj.transform.position = position;
+        HairSpawner spawner = prefabObj.GetComponent<HairSpawner>();
+
+        spawner.damping = (float)ConfigController.instance.specReflect;
+        spawner.hairColor = Utilities.generateColor(ConfigController.instance.highlightColor);
+        // GameObject gameObj = Instantiate(block, position, transform.localRotation) as GameObject;
+        // BlockShader shader = gameObj.GetComponent<BlockShader>();
+        // shader.generateFurryBlock(ConfigController.instance.specReflect);
     }
 
     void spawnGrassBlock(Vector3 position) {

@@ -7,6 +7,7 @@ ScriptsOnlyBuild:
     - CameraFoggyController
     - ConfigController
     - DepthOfFieldController
+    - HairSpawner
     - KeyboardController
     - MotionBlurController
     - PendulumTypeAController
@@ -104,83 +105,85 @@ ScriptsOnlyBuild:
     - Class: 109
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 11252}
+      Script: {instanceID: 11254}
     - Class: 114
-      Script: {instanceID: 11272}
+      Script: {instanceID: 11274}
     - Class: 114
-      Script: {instanceID: 11450}
+      Script: {instanceID: 11454}
     - Class: 114
-      Script: {instanceID: 11452}
+      Script: {instanceID: 11456}
     - Class: 114
-      Script: {instanceID: 11492}
+      Script: {instanceID: 11496}
     - Class: 114
-      Script: {instanceID: 11512}
+      Script: {instanceID: 11516}
     - Class: 114
-      Script: {instanceID: 11618}
+      Script: {instanceID: 11622}
     - Class: 114
-      Script: {instanceID: 11822}
+      Script: {instanceID: 11786}
     - Class: 114
-      Script: {instanceID: 11846}
+      Script: {instanceID: 11828}
     - Class: 114
-      Script: {instanceID: 11920}
+      Script: {instanceID: 11852}
     - Class: 114
-      Script: {instanceID: 11944}
+      Script: {instanceID: 11926}
     - Class: 114
       Script: {instanceID: 11950}
     - Class: 114
-      Script: {instanceID: 12074}
+      Script: {instanceID: 11956}
     - Class: 114
-      Script: {instanceID: 12108}
+      Script: {instanceID: 12080}
     - Class: 114
-      Script: {instanceID: 12140}
+      Script: {instanceID: 12114}
     - Class: 114
-      Script: {instanceID: 12156}
+      Script: {instanceID: 12134}
     - Class: 114
-      Script: {instanceID: 12232}
+      Script: {instanceID: 12148}
     - Class: 114
-      Script: {instanceID: 12362}
+      Script: {instanceID: 12164}
     - Class: 114
-      Script: {instanceID: 12604}
+      Script: {instanceID: 12228}
     - Class: 114
-      Script: {instanceID: 12618}
+      Script: {instanceID: 12242}
     - Class: 114
-      Script: {instanceID: 12656}
+      Script: {instanceID: 12372}
     - Class: 114
-      Script: {instanceID: 12692}
+      Script: {instanceID: 12614}
     - Class: 114
-      Script: {instanceID: 12708}
+      Script: {instanceID: 12628}
     - Class: 114
-      Script: {instanceID: 12756}
+      Script: {instanceID: 12666}
     - Class: 114
-      Script: {instanceID: 12910}
+      Script: {instanceID: 12702}
     - Class: 114
-      Script: {instanceID: 12926}
+      Script: {instanceID: 12718}
     - Class: 114
-      Script: {instanceID: 13084}
+      Script: {instanceID: 12766}
     - Class: 114
-      Script: {instanceID: 13102}
+      Script: {instanceID: 12920}
     - Class: 114
-      Script: {instanceID: 13186}
+      Script: {instanceID: 12936}
     - Class: 114
-      Script: {instanceID: 13200}
+      Script: {instanceID: 13094}
     - Class: 114
-      Script: {instanceID: 13208}
+      Script: {instanceID: 13112}
     - Class: 114
-      Script: {instanceID: 13252}
+      Script: {instanceID: 13196}
     - Class: 114
-      Script: {instanceID: 13304}
+      Script: {instanceID: 13210}
     - Class: 114
-      Script: {instanceID: 13306}
+      Script: {instanceID: 13218}
     - Class: 114
-      Script: {instanceID: 13318}
+      Script: {instanceID: 13262}
     - Class: 114
-      Script: {instanceID: 13336}
+      Script: {instanceID: 13314}
     - Class: 114
-      Script: {instanceID: 13354}
+      Script: {instanceID: 13316}
     - Class: 114
-      Script: {instanceID: 15362}
+      Script: {instanceID: 13328}
     - Class: 114
-      Script: {instanceID: 15364}
+      Script: {instanceID: 13346}
+    - Class: 114
+      Script: {instanceID: 13364}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -256,6 +259,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_ScrollbarEventHandler
+  - hash:
+      serializedVersion: 2
+      Hash: dc39aa4db34740d14f2965cb32b1d1b7
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: HairSimulator
   - hash:
       serializedVersion: 2
       Hash: af93f9c42e90877a9ba31e37adfd900c
@@ -414,6 +423,12 @@ ScriptsOnlyBuild:
     className: AnimationPlayableAsset
   - hash:
       serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeCController
+  - hash:
+      serializedVersion: 2
       Hash: aba7b2852ef61d175dd9602e7723d5e5
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
@@ -528,6 +543,12 @@ ScriptsOnlyBuild:
     className: TMP_Asset
   - hash:
       serializedVersion: 2
+      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PendulumTypeDController
+  - hash:
+      serializedVersion: 2
       Hash: d4020bafcd3ccbb5601a6e6c8ac78be0
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
@@ -556,6 +577,12 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: TMPro.Examples
     className: VertexJitter
+  - hash:
+      serializedVersion: 2
+      Hash: 33867e25aadc3d45a9bb8ecf21acdf30
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: HairSpawner
   - hash:
       serializedVersion: 2
       Hash: d6fc8d3165070298511ec776ea575626
@@ -732,7 +759,7 @@ ScriptsOnlyBuild:
     className: SimpleScript
   - hash:
       serializedVersion: 2
-      Hash: cd5bac577f44ee9cfa55837f723d9c09
+      Hash: 77c515992500da1d15bc7d5d4ae4eeda
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: BlockSpawnController
@@ -1006,18 +1033,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
-  - hash:
-      serializedVersion: 2
-      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: PendulumTypeCController
-  - hash:
-      serializedVersion: 2
-      Hash: d1f8edde4b0147fc5756856e1d0cb5bd
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: PendulumTypeDController
   platform: 2
   scenePathNames:
   - Assets/Scenes/MainScene.unity

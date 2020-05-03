@@ -81,6 +81,18 @@ public class KeyboardController : MonoBehaviour
             ConfigController.instance.motionBlurEffect = !ConfigController.instance.motionBlurEffect;
             cam.GetComponent<MotionBlurController>().enabled = ConfigController.instance.motionBlurEffect;
         }
+
+        if (Input.GetButtonUp("PreviousItem")) {
+            if (blockTypeDropdown.value > 0) {
+                blockTypeDropdown.value--;
+            }
+        }
+
+        if (Input.GetButtonUp("NextItem")) {
+            if (blockTypeDropdown.value < 6) {
+                blockTypeDropdown.value++;
+            }
+        }
     }
 
     public static bool isPaused()
