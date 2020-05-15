@@ -844,6 +844,7 @@ IL2CPP_EXTERN_C String_t* _stringLiteral3AFDEB0202F5E0AD9A6699BE926901242FEBEE58
 IL2CPP_EXTERN_C String_t* _stringLiteral3B2735839D1797305D98210526CD0E0525FA22A9;
 IL2CPP_EXTERN_C String_t* _stringLiteral3DBD4D451A7AC4F4DC6130B051DB02301C88F6E5;
 IL2CPP_EXTERN_C String_t* _stringLiteral3DFBD675986DFFFCD35C0DBEB611C6AE56F1E294;
+IL2CPP_EXTERN_C String_t* _stringLiteral3F97C5DD6CCFE6E9BDFBAD8CC0E1479FE20ADA5B;
 IL2CPP_EXTERN_C String_t* _stringLiteral4187A530F15B19E40E419B2BADD37E50513CBA28;
 IL2CPP_EXTERN_C String_t* _stringLiteral429E5FA4D1D7144F34D28671D44DCF82BA6A3ADD;
 IL2CPP_EXTERN_C String_t* _stringLiteral43CD1760645DEAC8D9320A491A0AA53D189F6230;
@@ -889,6 +890,7 @@ IL2CPP_EXTERN_C String_t* _stringLiteral928B8A7EE43919C1DF3867AE7CF21D4FA3728C14
 IL2CPP_EXTERN_C String_t* _stringLiteral92E6062AA93DC5BC03D248525E0730F5BC6D54B9;
 IL2CPP_EXTERN_C String_t* _stringLiteral93B051546FEE5C330DD87032B1F06D531BB21AD0;
 IL2CPP_EXTERN_C String_t* _stringLiteral960389B58FB916F8E6C58B645F68DD85BF982F95;
+IL2CPP_EXTERN_C String_t* _stringLiteral96381E2F024C12724EC5487B5A626D994F68A795;
 IL2CPP_EXTERN_C String_t* _stringLiteral986540166B814140B53AB5EC48E64A78DA46A1CA;
 IL2CPP_EXTERN_C String_t* _stringLiteral9B5C0B859FABA061DD60FD8070FCE74FCEE29D0B;
 IL2CPP_EXTERN_C String_t* _stringLiteral9CBF7C15A966BA91A86BE990E065301A02547C1C;
@@ -1156,6 +1158,7 @@ IL2CPP_EXTERN_C const RuntimeMethod* PropertyBuilder_get_DeclaringType_mF0B93F21
 IL2CPP_EXTERN_C const RuntimeMethod* PropertyBuilder_get_Name_mE13739BBFE642A0F4FD6ED4F84E421B801646C90_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* PropertyBuilder_get_PropertyType_m1CEC27A385168DDAFCD632C64028BE6BE966BE97_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* PropertyBuilder_get_ReflectedType_mA8CAC290328538798010B793C3DF0DBC73355DCD_RuntimeMethod_var;
+IL2CPP_EXTERN_C const RuntimeMethod* Random_Next_m7D31C038876D9B7DB46C9652934B0EEC165F5141_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* Random_Next_m96543D08C12C92C74CAF608F8EACA422D71AEB54_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* ReadOnlyCollection_1__ctor_m86F65831222D96F16253A71C148E5F93A74B2F05_RuntimeMethod_var;
 IL2CPP_EXTERN_C const RuntimeMethod* TypeBuilderInstantiation_MakeGenericType_m6EA0D8A23A3197C63ACE9848425637D48E8689D4_RuntimeMethod_var;
@@ -1528,6 +1531,7 @@ IL2CPP_EXTERN_C const uint32_t PropertyBuilder_get_DeclaringType_mF0B93F21756F02
 IL2CPP_EXTERN_C const uint32_t PropertyBuilder_get_Name_mE13739BBFE642A0F4FD6ED4F84E421B801646C90_MetadataUsageId;
 IL2CPP_EXTERN_C const uint32_t PropertyBuilder_get_PropertyType_m1CEC27A385168DDAFCD632C64028BE6BE966BE97_MetadataUsageId;
 IL2CPP_EXTERN_C const uint32_t PropertyBuilder_get_ReflectedType_mA8CAC290328538798010B793C3DF0DBC73355DCD_MetadataUsageId;
+IL2CPP_EXTERN_C const uint32_t Random_Next_m7D31C038876D9B7DB46C9652934B0EEC165F5141_MetadataUsageId;
 IL2CPP_EXTERN_C const uint32_t Random_Next_m96543D08C12C92C74CAF608F8EACA422D71AEB54_MetadataUsageId;
 IL2CPP_EXTERN_C const uint32_t Random__ctor_mDD202982FB7CEDE3F31824E919AD2BFA6D66BA27_MetadataUsageId;
 IL2CPP_EXTERN_C const uint32_t RankException__ctor_mC6FEF2C917A7DCC3C446A2AD596022380C980826_MetadataUsageId;
@@ -11063,6 +11067,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Random__ctor_mDD202982FB7CEDE3F31824E919
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Random_InternalSample_mA3843DC92D371421662F385DD2CC4D76EBE18FFD (Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * __this, const RuntimeMethod* method);
 // System.Void System.ArgumentOutOfRangeException::.ctor(System.String,System.String)
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ArgumentOutOfRangeException__ctor_m300CE4D04A068C209FD858101AC361C1B600B5AE (ArgumentOutOfRangeException_t94D19DF918A54511AEDF4784C9A08741BAD1DEDA * __this, String_t* ___paramName0, String_t* ___message1, const RuntimeMethod* method);
+// System.Double System.Random::GetSampleForLargeRange()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double Random_GetSampleForLargeRange_mEA06A2F9F25D901B7D58BC802642450FFC893F60 (Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * __this, const RuntimeMethod* method);
 // System.Void System.Reflection.Assembly/ResolveEventHolder::.ctor()
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void ResolveEventHolder__ctor_m405E62AFEAC8D87E9B9E2AC65601E6966809449E (ResolveEventHolder_t5267893EB7CB9C12F7B9B463FD4C221BEA03326E * __this, const RuntimeMethod* method);
 // System.String System.Reflection.Assembly::get_code_base(System.Boolean)
@@ -19185,6 +19191,116 @@ IL_004e:
 		__this->set_inextp_4(L_22);
 		int32_t L_23 = V_0;
 		return L_23;
+	}
+}
+// System.Int32 System.Random::Next()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Random_Next_m6F786127C44FECF9C6AB822196BC4F9F31385565 (Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * __this, const RuntimeMethod* method)
+{
+	{
+		int32_t L_0 = Random_InternalSample_mA3843DC92D371421662F385DD2CC4D76EBE18FFD(__this, /*hidden argument*/NULL);
+		return L_0;
+	}
+}
+// System.Double System.Random::GetSampleForLargeRange()
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR double Random_GetSampleForLargeRange_mEA06A2F9F25D901B7D58BC802642450FFC893F60 (Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * __this, const RuntimeMethod* method)
+{
+	int32_t V_0 = 0;
+	int32_t G_B3_0 = 0;
+	{
+		int32_t L_0 = Random_InternalSample_mA3843DC92D371421662F385DD2CC4D76EBE18FFD(__this, /*hidden argument*/NULL);
+		V_0 = L_0;
+		int32_t L_1 = Random_InternalSample_mA3843DC92D371421662F385DD2CC4D76EBE18FFD(__this, /*hidden argument*/NULL);
+		if (!((int32_t)((int32_t)L_1%(int32_t)2)))
+		{
+			goto IL_0014;
+		}
+	}
+	{
+		G_B3_0 = 0;
+		goto IL_0015;
+	}
+
+IL_0014:
+	{
+		G_B3_0 = 1;
+	}
+
+IL_0015:
+	{
+		if (!G_B3_0)
+		{
+			goto IL_001a;
+		}
+	}
+	{
+		int32_t L_2 = V_0;
+		V_0 = ((-L_2));
+	}
+
+IL_001a:
+	{
+		int32_t L_3 = V_0;
+		return ((double)((double)((double)il2cpp_codegen_add((double)(((double)((double)L_3))), (double)(2147483646.0)))/(double)(4294967293.0)));
+	}
+}
+// System.Int32 System.Random::Next(System.Int32,System.Int32)
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Random_Next_m7D31C038876D9B7DB46C9652934B0EEC165F5141 (Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * __this, int32_t ___minValue0, int32_t ___maxValue1, const RuntimeMethod* method)
+{
+	static bool s_Il2CppMethodInitialized;
+	if (!s_Il2CppMethodInitialized)
+	{
+		il2cpp_codegen_initialize_method (Random_Next_m7D31C038876D9B7DB46C9652934B0EEC165F5141_MetadataUsageId);
+		s_Il2CppMethodInitialized = true;
+	}
+	int64_t V_0 = 0;
+	{
+		int32_t L_0 = ___minValue0;
+		int32_t L_1 = ___maxValue1;
+		if ((((int32_t)L_0) <= ((int32_t)L_1)))
+		{
+			goto IL_002f;
+		}
+	}
+	{
+		ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A* L_2 = (ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A*)(ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A*)SZArrayNew(ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A_il2cpp_TypeInfo_var, (uint32_t)2);
+		ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A* L_3 = L_2;
+		NullCheck(L_3);
+		ArrayElementTypeCheck (L_3, _stringLiteral3F97C5DD6CCFE6E9BDFBAD8CC0E1479FE20ADA5B);
+		(L_3)->SetAt(static_cast<il2cpp_array_size_t>(0), (RuntimeObject *)_stringLiteral3F97C5DD6CCFE6E9BDFBAD8CC0E1479FE20ADA5B);
+		ObjectU5BU5D_t3C9242B5C88A48B2A5BD9FDA6CD0024E792AF08A* L_4 = L_3;
+		NullCheck(L_4);
+		ArrayElementTypeCheck (L_4, _stringLiteralF3280D372817136526DB22E63C3B720DE73B0E80);
+		(L_4)->SetAt(static_cast<il2cpp_array_size_t>(1), (RuntimeObject *)_stringLiteralF3280D372817136526DB22E63C3B720DE73B0E80);
+		String_t* L_5 = Environment_GetResourceString_m7389941B4C0688D875CC647D99A739DA2F907ADB(_stringLiteral96381E2F024C12724EC5487B5A626D994F68A795, L_4, /*hidden argument*/NULL);
+		ArgumentOutOfRangeException_t94D19DF918A54511AEDF4784C9A08741BAD1DEDA * L_6 = (ArgumentOutOfRangeException_t94D19DF918A54511AEDF4784C9A08741BAD1DEDA *)il2cpp_codegen_object_new(ArgumentOutOfRangeException_t94D19DF918A54511AEDF4784C9A08741BAD1DEDA_il2cpp_TypeInfo_var);
+		ArgumentOutOfRangeException__ctor_m300CE4D04A068C209FD858101AC361C1B600B5AE(L_6, _stringLiteral3F97C5DD6CCFE6E9BDFBAD8CC0E1479FE20ADA5B, L_5, /*hidden argument*/NULL);
+		IL2CPP_RAISE_MANAGED_EXCEPTION(L_6, Random_Next_m7D31C038876D9B7DB46C9652934B0EEC165F5141_RuntimeMethod_var);
+	}
+
+IL_002f:
+	{
+		int32_t L_7 = ___maxValue1;
+		int32_t L_8 = ___minValue0;
+		V_0 = ((int64_t)il2cpp_codegen_subtract((int64_t)(((int64_t)((int64_t)L_7))), (int64_t)(((int64_t)((int64_t)L_8)))));
+		int64_t L_9 = V_0;
+		if ((((int64_t)L_9) > ((int64_t)(((int64_t)((int64_t)((int32_t)2147483647LL)))))))
+		{
+			goto IL_004b;
+		}
+	}
+	{
+		double L_10 = VirtFuncInvoker0< double >::Invoke(4 /* System.Double System.Random::Sample() */, __this);
+		int64_t L_11 = V_0;
+		int32_t L_12 = ___minValue0;
+		return ((int32_t)il2cpp_codegen_add((int32_t)(((int32_t)((int32_t)((double)il2cpp_codegen_multiply((double)L_10, (double)(((double)((double)L_11)))))))), (int32_t)L_12));
+	}
+
+IL_004b:
+	{
+		double L_13 = Random_GetSampleForLargeRange_mEA06A2F9F25D901B7D58BC802642450FFC893F60(__this, /*hidden argument*/NULL);
+		int64_t L_14 = V_0;
+		int32_t L_15 = ___minValue0;
+		return (((int32_t)((int32_t)((int64_t)il2cpp_codegen_add((int64_t)(((int64_t)((int64_t)((double)il2cpp_codegen_multiply((double)L_13, (double)(((double)((double)L_14)))))))), (int64_t)(((int64_t)((int64_t)L_15))))))));
 	}
 }
 // System.Int32 System.Random::Next(System.Int32)

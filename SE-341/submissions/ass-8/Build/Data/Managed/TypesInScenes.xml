@@ -18,6 +18,7 @@
 		<type fullname="UnityEditor.Physics2DSettings" preserve="nothing"/>
 		<type fullname="UnityEngine.MeshRenderer" preserve="nothing"/>
 		<type fullname="UnityEngine.AudioBehaviour" preserve="nothing"/>
+		<type fullname="UnityEngine.CapsuleCollider" preserve="nothing"/>
 		<type fullname="UnityEngine.BoxCollider" preserve="nothing"/>
 		<type fullname="UnityEngine.SphereCollider" preserve="nothing"/>
 		<type fullname="UnityEngine.Canvas" preserve="nothing"/>
@@ -46,20 +47,18 @@
 		<type fullname="UnityEngine.MeshFilter" preserve="nothing"/>
 	</assembly>
 	<assembly fullname="Assembly-CSharp">
-		<type fullname="BlockShader" preserve="nothing"/>
-		<type fullname="BlockSpawnController" preserve="nothing"/>
 		<type fullname="ConfigController" preserve="nothing"/>
+		<type fullname="GameSpawnController" preserve="nothing"/>
 		<type fullname="GvrEditorEmulator" preserve="nothing"/>
 		<type fullname="GvrPointerInputModule" preserve="nothing"/>
 		<type fullname="GvrPointerPhysicsRaycaster" preserve="nothing"/>
 		<type fullname="GvrReticlePointer" preserve="nothing"/>
-		<type fullname="HairSpawner" preserve="nothing"/>
 		<type fullname="KeyboardController" preserve="nothing"/>
 		<type fullname="PendulumTypeAController" preserve="nothing"/>
 		<type fullname="PendulumTypeBController" preserve="nothing"/>
 		<type fullname="PendulumTypeCController" preserve="nothing"/>
 		<type fullname="PendulumTypeDController" preserve="nothing"/>
-		<type fullname="PlayerController" preserve="nothing"/>
+		<type fullname="PlayableBlockScript" preserve="nothing"/>
 	</assembly>
 	<assembly fullname="Unity.Postprocessing.Runtime">
 		<type fullname="UnityEngine.Rendering.PostProcessing.DepthOfField" preserve="nothing"/>
@@ -76,7 +75,7 @@
 	</assembly>
 	<assembly fullname="UnityEngine.UI">
 		<type fullname="UnityEngine.EventSystems.EventSystem" preserve="nothing"/>
-		<type fullname="UnityEngine.EventSystems.StandaloneInputModule" preserve="nothing"/>
+		<type fullname="UnityEngine.EventSystems.EventTrigger" preserve="nothing"/>
 		<type fullname="UnityEngine.UI.Button" preserve="nothing"/>
 		<type fullname="UnityEngine.UI.CanvasScaler" preserve="nothing"/>
 		<type fullname="UnityEngine.UI.Dropdown" preserve="nothing"/>

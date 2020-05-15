@@ -26,16 +26,22 @@ public class PlayableBlockScript : MonoBehaviour
     private float currentHealth;
     
     public float healthDestroySpeed = 1;
+    public float naturalDestroySpeed = 0.1f;
 
     private bool isGazeEntering = false;
 
     public BlockType type = BlockType.Trivial;
+
+    private Rigidbody rb;
 
     // Start is called before the first frame update
     void Start()
     {
         currentColor = initColor;
         currentHealth = initHealth;
+        refreshMaterial();
+
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -43,11 +49,25 @@ public class PlayableBlockScript : MonoBehaviour
     {
         if (isGazeEntering) {
             currentHealth -= Time.deltaTime * healthDestroySpeed;
-            currentColor = new Color(initColor.r * currentHealth / initHealth, initColor.g * currentHealth / initHealth, initColor.b * currentHealth / initHealth, 1f);
+            if (currentHealth <= 0) {
+                // 加分
+                Destroy(gameObject);
+                GameConfig.gameScore += (int)initHealth;
+                GameConfig.blockCount--;
+            }
+        } else {
+            currentHealth -= Time.deltaTime * naturalDestroySpeed;
+            if (currentHealth <= 0) {
+                // 不加分
+                Destroy(gameObject);
+                GameConfig.blockCount++;
+            }
         }
-        if (currentHealth <= 0) {
-            Destroy(gameObject);
+        if (rb.velocity.y < 0.001) {
+            currentHealth -= Time.deltaTime * healthDestroySpeed;
         }
+        
+        currentColor = new Color(initColor.r * currentHealth / initHealth, initColor.g * currentHealth / initHealth, initColor.b * currentHealth / initHealth, currentHealth / initHealth);
         refreshMaterial();
     }
 
@@ -97,8 +117,6 @@ public class PlayableBlockScript : MonoBehaviour
 
     public void generateTrivialBlock()
     {
-        initRenderer();
-
         GetComponent<Renderer>().material = new Material(Shader.Find("Standard"));
 
         MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
@@ -109,8 +127,6 @@ public class PlayableBlockScript : MonoBehaviour
 
     public void generateNormalHighlightBlock()
     {
-        initRenderer();
-
         var material = new Material(Shader.Find("Custom/HighlightShader"));
 
         material.SetColor("_Diffuse", currentColor);
@@ -121,8 +137,6 @@ public class PlayableBlockScript : MonoBehaviour
     }
 
     public void generateOutlineBlock() {
-        initRenderer();
-
         var material = new Material(Shader.Find("Custom/OutlineShader"));
 
         material.SetColor("_OutlineColor", currentColor);
@@ -132,7 +146,6 @@ public class PlayableBlockScript : MonoBehaviour
     }
 
     public void generateWaveBlock() {
-        initRenderer();
         var material = new Material(Shader.Find("Custom/WaveShader"));
         material.SetColor("_SpecColor", currentColor);
         material.SetFloat("_WaterSpeed", 0.1f + System.Convert.ToSingle(waterSpeed));
@@ -149,7 +162,6 @@ public class PlayableBlockScript : MonoBehaviour
     }
 
     public void generateGrassBlock() {
-        initRenderer();
         var material = new Material(Shader.Find("Doctrina/Fur"));
         material.SetTexture("_MainTex", grass);
         material.SetFloat("_Cutoff", 1f - System.Convert.ToSingle(grassLength));
@@ -157,7 +169,6 @@ public class PlayableBlockScript : MonoBehaviour
     }
 
     public void generateHatchingBlock() {
-        initRenderer();
         GetComponent<Renderer>().material = hatchingMaterial;
     }
 }

@@ -22828,12 +22828,12 @@ IL_0047:
 		// float rndOffsetX = (float)m_Random.NextDouble();
 		Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * L_10 = __this->get_m_Random_1();
 		NullCheck(L_10);
-		double L_11 = VirtFuncInvoker0< double >::Invoke(6 /* System.Double System.Random::NextDouble() */, L_10);
+		double L_11 = VirtFuncInvoker0< double >::Invoke(8 /* System.Double System.Random::NextDouble() */, L_10);
 		V_1 = (((float)((float)L_11)));
 		// float rndOffsetY = (float)m_Random.NextDouble();
 		Random_t18A28484F67EFA289C256F508A5C71D9E6DEE09F * L_12 = __this->get_m_Random_1();
 		NullCheck(L_12);
-		double L_13 = VirtFuncInvoker0< double >::Invoke(6 /* System.Double System.Random::NextDouble() */, L_12);
+		double L_13 = VirtFuncInvoker0< double >::Invoke(8 /* System.Double System.Random::NextDouble() */, L_12);
 		V_2 = (((float)((float)L_13)));
 		// var noiseTex = blueNoise[m_NoiseTextureIndex];
 		Texture2DU5BU5D_tCAC03055C735C020BAFC218D55183CF03E74C1C9* L_14 = V_0;

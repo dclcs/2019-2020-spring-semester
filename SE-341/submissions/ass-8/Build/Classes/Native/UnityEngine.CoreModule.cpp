@@ -19163,15 +19163,6 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void StateChanged_EndInvoke_mBC050D5602C1F3EC
 #pragma clang diagnostic ignored "-Winvalid-offsetof"
 #pragma clang diagnostic ignored "-Wunused-variable"
 #endif
-// System.Void UnityEngine.Cursor::set_visible(System.Boolean)
-IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Cursor_set_visible_mDB51E60B3D7B14873A6F5FBE5E0A432D4A46C431 (bool ___value0, const RuntimeMethod* method)
-{
-	typedef void (*Cursor_set_visible_mDB51E60B3D7B14873A6F5FBE5E0A432D4A46C431_ftn) (bool);
-	static Cursor_set_visible_mDB51E60B3D7B14873A6F5FBE5E0A432D4A46C431_ftn _il2cpp_icall_func;
-	if (!_il2cpp_icall_func)
-	_il2cpp_icall_func = (Cursor_set_visible_mDB51E60B3D7B14873A6F5FBE5E0A432D4A46C431_ftn)il2cpp_codegen_resolve_icall ("UnityEngine.Cursor::set_visible(System.Boolean)");
-	_il2cpp_icall_func(___value0);
-}
 // UnityEngine.CursorLockMode UnityEngine.Cursor::get_lockState()
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR int32_t Cursor_get_lockState_mE0C93F496E3AA120AD168ED30371C35ED79C9DF1 (const RuntimeMethod* method)
 {

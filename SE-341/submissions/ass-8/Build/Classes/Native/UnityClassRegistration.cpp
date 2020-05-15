@@ -152,7 +152,7 @@ class WindZone;
 namespace UI { class CanvasRenderer; } template <> void RegisterUnityClass<UI::CanvasRenderer>(const char*);
 class Collider; template <> void RegisterUnityClass<Collider>(const char*);
 class BoxCollider; template <> void RegisterUnityClass<BoxCollider>(const char*);
-class CapsuleCollider; 
+class CapsuleCollider; template <> void RegisterUnityClass<CapsuleCollider>(const char*);
 class CharacterController; 
 class MeshCollider; template <> void RegisterUnityClass<MeshCollider>(const char*);
 class SphereCollider; template <> void RegisterUnityClass<SphereCollider>(const char*);
@@ -297,7 +297,7 @@ void RegisterAllClasses()
 {
 void RegisterBuiltinTypes();
 RegisterBuiltinTypes();
-	//Total: 73 non stripped classes
+	//Total: 74 non stripped classes
 	//0. Animator
 	RegisterUnityClass<Animator>("Animation");
 	//1. AnimatorOverrideController
@@ -420,29 +420,31 @@ RegisterBuiltinTypes();
 	RegisterUnityClass<Transform>("Core");
 	//60. BoxCollider
 	RegisterUnityClass<BoxCollider>("Physics");
-	//61. Collider
+	//61. CapsuleCollider
+	RegisterUnityClass<CapsuleCollider>("Physics");
+	//62. Collider
 	RegisterUnityClass<Collider>("Physics");
-	//62. MeshCollider
+	//63. MeshCollider
 	RegisterUnityClass<MeshCollider>("Physics");
-	//63. PhysicsManager
+	//64. PhysicsManager
 	RegisterUnityClass<PhysicsManager>("Physics");
-	//64. Rigidbody
+	//65. Rigidbody
 	RegisterUnityClass<Rigidbody>("Physics");
-	//65. SphereCollider
+	//66. SphereCollider
 	RegisterUnityClass<SphereCollider>("Physics");
-	//66. Physics2DSettings
+	//67. Physics2DSettings
 	RegisterUnityClass<Physics2DSettings>("Physics2D");
-	//67. TextRendering::Font
+	//68. TextRendering::Font
 	RegisterUnityClass<TextRendering::Font>("TextRendering");
-	//68. TextRenderingPrivate::TextMesh
+	//69. TextRenderingPrivate::TextMesh
 	RegisterUnityClass<TextRenderingPrivate::TextMesh>("TextRendering");
-	//69. UI::Canvas
+	//70. UI::Canvas
 	RegisterUnityClass<UI::Canvas>("UI");
-	//70. UI::CanvasGroup
+	//71. UI::CanvasGroup
 	RegisterUnityClass<UI::CanvasGroup>("UI");
-	//71. UI::CanvasRenderer
+	//72. UI::CanvasRenderer
 	RegisterUnityClass<UI::CanvasRenderer>("UI");
-	//72. WorldAnchor
+	//73. WorldAnchor
 	RegisterUnityClass<WorldAnchor>("VR");
 
 }
