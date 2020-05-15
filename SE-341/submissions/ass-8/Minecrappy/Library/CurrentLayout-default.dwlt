@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 5
-    y: 45
+    x: 225
+    y: 312
     width: 1440
     height: 855
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 542}
+  m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 0
 --- !u!114 &2
@@ -112,10 +112,10 @@ MonoBehaviour:
     y: 30
     width: 1440
     height: 805
-  m_MinSize: {x: 677, y: 492}
-  m_MaxSize: {x: 14001, y: 14042}
+  m_MinSize: {x: 679, y: 492}
+  m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 41
+  controlID: 62
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -137,10 +137,10 @@ MonoBehaviour:
     y: 0
     width: 977
     height: 805
-  m_MinSize: {x: 402, y: 492}
+  m_MinSize: {x: 403, y: 492}
   m_MaxSize: {x: 10001, y: 14042}
   vertical: 1
-  controlID: 42
+  controlID: 63
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -162,10 +162,10 @@ MonoBehaviour:
     y: 0
     width: 977
     height: 488
-  m_MinSize: {x: 402, y: 221}
-  m_MaxSize: {x: 8002, y: 4021}
+  m_MinSize: {x: 403, y: 221}
+  m_MaxSize: {x: 8003, y: 4021}
   vertical: 0
-  controlID: 43
+  controlID: 112
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -211,8 +211,8 @@ MonoBehaviour:
     y: 0
     width: 645
     height: 488
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 12}
@@ -410,31 +410,31 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 5
-    y: 75
+    x: 0
+    y: 19
     width: 331
     height: 467
   m_ViewDataDictionary: {fileID: 0}
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 38a50000
-      m_LastClickedID: 42296
-      m_ExpandedIDs: 88fcf3ffa0fcf3ff18fef3ff44fbffffcc38000060390000
+      m_SelectedIDs: 
+      m_LastClickedID: 0
+      m_ExpandedIDs: 44fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
-        m_Name: TrivialCube
-        m_OriginalName: TrivialCube
+        m_Name: 
+        m_OriginalName: 
         m_EditFieldRect:
           serializedVersion: 2
           x: 0
           y: 0
           width: 0
           height: 0
-        m_UserData: -1986
+        m_UserData: 0
         m_IsWaitingForDelay: 0
         m_IsRenaming: 0
-        m_OriginalEventType: 0
+        m_OriginalEventType: 11
         m_IsRenamingFilename: 0
         m_ClientGUIView: {fileID: 8}
       m_SearchString: 
@@ -465,8 +465,8 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 337
-    y: 75
+    x: 333
+    y: 19
     width: 643
     height: 467
   m_ViewDataDictionary: {fileID: 0}
@@ -644,8 +644,8 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 5
-    y: 563
+    x: 0
+    y: 507
     width: 976
     height: 296
   m_ViewDataDictionary: {fileID: 0}
@@ -662,20 +662,20 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Blocks
+    - Assets/Scripts
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Blocks
+  - Assets/Scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: /Volumes/Swap Volume/GitHub/2019-2020-spring-semester/SE-341/submissions/ass-8/Minecrappy
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 79}
-    m_SelectedIDs: 84400000
-    m_LastClickedID: 16516
-    m_ExpandedIDs: 000000006c4000006e40000070400000724000007440000076400000784000007a4000007c4000007e40000000ca9a3b
+    scrollPos: {x: 0, y: 524}
+    m_SelectedIDs: 6a410000
+    m_LastClickedID: 16746
+    m_ExpandedIDs: 000000008440000086400000884000008a4000008c4000008e4000009040000092400000944000009640000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -703,7 +703,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000006c4000006e40000070400000724000007440000076400000784000007a4000007c4000007e400000
+    m_ExpandedIDs: 000000008440000086400000884000008a4000008c4000008e40000090400000924000009440000096400000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -806,8 +806,8 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 982
-    y: 75
+    x: 978
+    y: 19
     width: 462
     height: 784
   m_ViewDataDictionary: {fileID: 0}

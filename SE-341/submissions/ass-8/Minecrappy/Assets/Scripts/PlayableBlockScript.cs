@@ -60,7 +60,7 @@ public class PlayableBlockScript : MonoBehaviour
             if (currentHealth <= 0) {
                 // 不加分
                 Destroy(gameObject);
-                GameConfig.blockCount++;
+                GameConfig.blockCount--;
             }
         }
         if (rb.velocity.y < 0.001) {
@@ -97,6 +97,7 @@ public class PlayableBlockScript : MonoBehaviour
                 break;
             default:
                 Destroy(gameObject);
+                GameConfig.blockCount--;
                 return;
         }
     }
