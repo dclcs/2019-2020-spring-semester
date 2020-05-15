@@ -6,6 +6,11 @@ public class GameSpawnController : MonoBehaviour
 {
     public GameObject blockPrefab;
     public GameObject spherePrefab;
+    public GameObject dingPrefab;
+    public GameObject textPrefab;
+    public GameObject defaultCamera;
+
+    public static GameSpawnController instance;
 
     private System.Random random = new System.Random();
 
@@ -13,10 +18,27 @@ public class GameSpawnController : MonoBehaviour
     public int maxBlockCount = 20;
     private float currentTime;
 
+    private int blockBroken = 0;
+    private int scoreGain = 0;
+    private float timeElapsed = 0;
+
+    public GameObject northText;
+    public GameObject westText;
+    public GameObject eastText;
+
+    private TMPro.TextMeshPro northTMP;
+    private TMPro.TextMeshPro westTMP;
+    private TMPro.TextMeshPro eastTMP;
+
     // Start is called before the first frame update
     void Start()
     {
         currentTime = refreshTime;
+        GameSpawnController.instance = this;
+
+        northTMP = northText.GetComponent<TMPro.TextMeshPro>();
+        westTMP = westText.GetComponent<TMPro.TextMeshPro>();
+        eastTMP = eastText.GetComponent<TMPro.TextMeshPro>();
     }
 
     // Update is called once per frame
@@ -27,6 +49,27 @@ public class GameSpawnController : MonoBehaviour
             currentTime = 0;
             generateBlock();
         }
+
+        timeElapsed += Time.deltaTime;
+
+        if (blockBroken == 0) {
+            northTMP.text = "no blocks broken";
+        } else if (blockBroken == 1) {
+            northTMP.text = "1 block broken";
+        } else {
+            northTMP.text = string.Format("{0} blocks broken", blockBroken);
+        }
+
+        westTMP.text = string.Format("score gained: {0}", scoreGain);
+
+        var time = (int)timeElapsed;
+        if (time == 0) {
+            eastTMP.text = "you started playing just now";
+        } else if (time == 1) {
+            eastTMP.text = "you've played for 1 second";
+        } else {
+            eastTMP.text = string.Format("you've played for {0} seconds", time);
+        }
     }
 
     void generateBlock() {
@@ -34,12 +77,12 @@ public class GameSpawnController : MonoBehaviour
             currentTime = refreshTime;
             return;
         }
-        var r = random.Next(30, 50);
+        var r = random.Next(10, 20);
         var alpha = (float)(random.NextDouble()) * 2 * Mathf.PI;
-        var theta = ((float)random.NextDouble() / 4 + 0.5f) * Mathf.PI / 2;
+        var theta = ((float)random.NextDouble() / 4 + 0.2f) * Mathf.PI / 2;
         var scale = (float)random.NextDouble() / 5 + 1;
 
-        var position = new Vector3(r * Mathf.Sin(theta) * Mathf.Cos(alpha), r * Mathf.Sin(theta) * Mathf.Sin(alpha), r * Mathf.Cos(theta));
+        var position = new Vector3(r * Mathf.Sin(theta) * Mathf.Cos(alpha), r * Mathf.Cos(theta), r * Mathf.Sin(theta) * Mathf.Sin(alpha));
 
         GameObject gameObj; 
         if (random.Next() % 2 == 0) {
@@ -79,7 +122,24 @@ public class GameSpawnController : MonoBehaviour
                 break;
         }
 
-
         GameConfig.blockCount++;
+    }
+
+    public void addScore(Vector3 position, int score) {
+        var textObj = Instantiate(textPrefab, position, Quaternion.Euler(0, defaultCamera.transform.eulerAngles.y, 0)) as GameObject;
+        textObj.GetComponent<TMPro.TextMeshPro>().text = string.Format("+{0}", score);
+        if (score < 13) {
+            textObj.GetComponent<TMPro.TextMeshPro>().color = new Color(0, 1, 1);
+        } else if (score < 17) {
+            textObj.GetComponent<TMPro.TextMeshPro>().color = new Color(1, 0, 1);
+        } else {
+            textObj.GetComponent<TMPro.TextMeshPro>().color = new Color(1, 1, 0);
+        }
+        blockBroken++;
+        scoreGain += score;
+    }
+
+    public void playDingEffect() {
+        Instantiate(dingPrefab);
     }
 }

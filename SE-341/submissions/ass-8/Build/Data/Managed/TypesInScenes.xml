@@ -33,6 +33,7 @@
 		<type fullname="UnityEngine.Component" preserve="nothing"/>
 		<type fullname="UnityEngine.GameObject" preserve="nothing"/>
 		<type fullname="UnityEngine.RenderSettings" preserve="nothing"/>
+		<type fullname="UnityEngine.AudioClip" preserve="nothing"/>
 		<type fullname="UnityEngine.Collider" preserve="nothing"/>
 		<type fullname="UnityEngine.Rigidbody" preserve="nothing"/>
 		<type fullname="UnityEngine.AudioListener" preserve="nothing"/>
@@ -48,12 +49,15 @@
 	</assembly>
 	<assembly fullname="Assembly-CSharp">
 		<type fullname="ConfigController" preserve="nothing"/>
+		<type fullname="FadeOutTextController" preserve="nothing"/>
 		<type fullname="GameSpawnController" preserve="nothing"/>
 		<type fullname="GvrEditorEmulator" preserve="nothing"/>
 		<type fullname="GvrPointerInputModule" preserve="nothing"/>
 		<type fullname="GvrPointerPhysicsRaycaster" preserve="nothing"/>
 		<type fullname="GvrReticlePointer" preserve="nothing"/>
+		<type fullname="IntroMusic" preserve="nothing"/>
 		<type fullname="KeyboardController" preserve="nothing"/>
+		<type fullname="MusicEffect" preserve="nothing"/>
 		<type fullname="PendulumTypeAController" preserve="nothing"/>
 		<type fullname="PendulumTypeBController" preserve="nothing"/>
 		<type fullname="PendulumTypeCController" preserve="nothing"/>

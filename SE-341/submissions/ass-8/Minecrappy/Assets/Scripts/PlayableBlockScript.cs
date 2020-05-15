@@ -50,18 +50,19 @@ public class PlayableBlockScript : MonoBehaviour
             currentHealth -= Time.deltaTime * healthDestroySpeed;
             if (currentHealth <= 0) {
                 // 加分
-                Destroy(gameObject);
-                GameConfig.gameScore += (int)initHealth;
+                GameSpawnController.instance.playDingEffect();
+                GameSpawnController.instance.addScore(transform.position, (int)initHealth);
                 GameConfig.blockCount--;
+                Destroy(gameObject);
             }
         } else {
             if (currentHealth <= 0) {
                 // 不加分
-                Destroy(gameObject);
                 GameConfig.blockCount--;
+                Destroy(gameObject);
             }
         }
-        if (System.Math.Abs(rb.velocity.y) < 0.001) {
+        if (gameObject.transform.position.y < 0) {
             currentHealth -= Time.deltaTime * healthDestroySpeed;
         }
         
