@@ -26,7 +26,6 @@ public class PlayableBlockScript : MonoBehaviour
     private float currentHealth;
     
     public float healthDestroySpeed = 1;
-    public float naturalDestroySpeed = 0.1f;
 
     private bool isGazeEntering = false;
 
@@ -56,14 +55,13 @@ public class PlayableBlockScript : MonoBehaviour
                 GameConfig.blockCount--;
             }
         } else {
-            currentHealth -= Time.deltaTime * naturalDestroySpeed;
             if (currentHealth <= 0) {
                 // 不加分
                 Destroy(gameObject);
                 GameConfig.blockCount--;
             }
         }
-        if (rb.velocity.y < 0.001) {
+        if (System.Math.Abs(rb.velocity.y) < 0.001) {
             currentHealth -= Time.deltaTime * healthDestroySpeed;
         }
         

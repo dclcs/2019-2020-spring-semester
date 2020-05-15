@@ -31,6 +31,7 @@ public class GameSpawnController : MonoBehaviour
 
     void generateBlock() {
         if (GameConfig.blockCount >= maxBlockCount) {
+            currentTime = refreshTime;
             return;
         }
         var r = random.Next(30, 50);
@@ -47,10 +48,37 @@ public class GameSpawnController : MonoBehaviour
             gameObj = Instantiate(spherePrefab, position, transform.localRotation) as GameObject;
         }
         gameObj.transform.localScale = new Vector3(scale, scale, scale);
+        gameObj.GetComponent<Rigidbody>().velocity = new Vector3((float)random.NextDouble() * 4 - 2, (float)random.NextDouble() * 4 - 2, (float)random.NextDouble() * 4 - 2);
+        gameObj.transform.rotation = Quaternion.Euler((float)random.NextDouble() * 4 - 2, (float)random.NextDouble() * 4 - 2, (float)random.NextDouble() * 4 - 2);
         PlayableBlockScript block = gameObj.GetComponent<PlayableBlockScript>();
         block.initColor = new Color(1 - (float)random.NextDouble() / 2, 1 - (float)random.NextDouble() / 2, 1 - (float)random.NextDouble() / 2);
         block.initHealth = random.Next(10, 20);
-        block.type = BlockType.Outline;
+
+        switch (random.Next(0, 6))
+        {
+            case 0:
+                block.type = BlockType.Trivial;
+                break;
+            case 1:
+                block.type = BlockType.Custom;
+                break;
+            case 2:
+                block.type = BlockType.Outline;
+                break;
+            case 3:
+                block.type = BlockType.Wave;
+                break;
+            case 4:
+                block.type = BlockType.Grass;
+                break;
+            case 5:
+                block.type = BlockType.Hatching;
+                break;
+            default:
+                block.type = BlockType.Trivial;
+                break;
+        }
+
 
         GameConfig.blockCount++;
     }
