@@ -8,7 +8,7 @@
 | `☐`   | 06/10 23:59 | OS | Lab #5 |
 | `☐`   | 05/27 23:59 | OS | Lab #4 |
 | `☐`   | 05/17 23:59 | ST | White Box |
-| `☐`   | 05/15 23:59 | GP | Cardboard VR |
+| `☑`   | 05/15 23:59 | GP | Cardboard VR |
 | `☑`   | 05/08 23:59 | OS | Homework #5 |
 | `☑`   | 05/04 23:59 | GP | Game Physics |
 | `☑`   | 04/29 23:59 | OS | Lab #3 |
