@@ -17,7 +17,8 @@ void tst_mutex(bool is_bsp)
 	global_barrier(is_bsp);
 
 	/* Mutex Lock */
-	for (int i = 0; i < LOCK_TEST_NUM; i++) {
+	for (int i = 0; i < LOCK_TEST_NUM; i++)
+	{
 		if (i % 2)
 			while (try_lock(&test_lock) != 0)
 				;
@@ -31,7 +32,8 @@ void tst_mutex(bool is_bsp)
 	global_barrier(is_bsp);
 	BUG_ON(mutex_test_count != PLAT_CPU_NUM * LOCK_TEST_NUM);
 	global_barrier(is_bsp);
-	if(is_bsp) {
+	if (is_bsp)
+	{
 		printk("pass tst_mutex\n");
 	}
 }
@@ -40,7 +42,8 @@ void tst_big_lock(bool is_bsp)
 {
 	int i;
 
-	if (is_bsp) {
+	if (is_bsp)
+	{
 		big_lock_test_count = 0;
 		BUG_ON(!is_locked(&big_kernel_lock));
 		unlock_kernel();
@@ -49,7 +52,8 @@ void tst_big_lock(bool is_bsp)
 	// kinfo("CPU%u 1-1\n", cpu_id);
 	global_barrier(is_bsp);
 
-	for (i = 0; i < LOCK_TEST_NUM; ++i) {
+	for (i = 0; i < LOCK_TEST_NUM; ++i)
+	{
 		if (i % 2)
 			while (try_lock(&big_kernel_lock) != 0)
 				;
@@ -65,7 +69,8 @@ void tst_big_lock(bool is_bsp)
 	global_barrier(is_bsp);
 	BUG_ON(LOCK_TEST_NUM * PLAT_CPU_NUM != big_lock_test_count);
 	global_barrier(is_bsp);
-	if(is_bsp) {
+	if (is_bsp)
+	{
 		lock_kernel();
 		printk("pass tst_big_lock\n");
 	}

@@ -35,10 +35,11 @@ int lock_init(struct lock *lock)
 */
 void lock(struct lock *lock)
 {
+
 	u32 lockval = 0, newval = 0, ret = 0;
 
 	BUG_ON(!lock);
-
+	// kinfo("lock (%p) :: owner = %d, next = %d\n", lock, lock->owner, lock->next);
 	/** 
 	 * The following asm code means:
 	 * 
@@ -46,17 +47,17 @@ void lock(struct lock *lock)
 	 * while(lock->next != lock->owner);
      */
 	asm volatile(
-	    "       prfm    pstl1strm, %3\n"
-	    "1:     ldaxr   %w0, %3\n"
-	    "       add     %w1, %w0, #0x1\n"
-	    "       stxr    %w2, %w1, %3\n"
-	    "       cbnz    %w2, 1b\n"
-	    "2:     ldar    %w2, %4\n"
-	    "       cmp     %w0, %w2\n"
-	    "       b.ne    2b\n"
-	    : "=&r"(lockval), "=&r"(newval), "=&r"(ret), "+Q"(lock->next)
-	    : "Q"(lock->owner)
-	    : "memory");
+		"       prfm    pstl1strm, %3\n"
+		"1:     ldaxr   %w0, %3\n"
+		"       add     %w1, %w0, #0x1\n"
+		"       stxr    %w2, %w1, %3\n"
+		"       cbnz    %w2, 1b\n"
+		"2:     ldar    %w2, %4\n"
+		"       cmp     %w0, %w2\n"
+		"       b.ne    2b\n"
+		: "=&r"(lockval), "=&r"(newval), "=&r"(ret), "+Q"(lock->next)
+		: "Q"(lock->owner)
+		: "memory");
 }
 
 /**
@@ -65,31 +66,30 @@ void lock(struct lock *lock)
 */
 int try_lock(struct lock *lock)
 {
+	u32 lockval = 0, newval = 0, ret = 0, ownerval = 0;
 
-        u32 lockval = 0, newval = 0, ret = 0, ownerval = 0;
-
-        BUG_ON(!lock);
-        asm volatile(
-                "       prfm    pstl1strm, %4\n"
-                "       ldaxr   %w0, %4\n"
-                "       ldar    %w3, %5\n"
-                "       add     %w1, %w0, #0x1\n"
-                "       cmp     %w0, %w3\n"
-                "       b.ne    1f\n"
-                "       stxr    %w2, %w1, %4\n"
-                "       cbz     %w2, 2f\n"
-                "1:     mov     %w2, #0xffffffffffffffff\n" /* fail */
-                "       b       3f\n"
-                "2:     mov     %w2, #0x0\n" /* success */
-                "       dmb     ish\n"    /* barrier */
-                "3:\n"
-                : "=&r"(lockval), "=&r" (newval), "=&r"(ret),
-                  "=&r"(ownerval), "+Q" (lock->next)
-                : "Q" (lock->owner)
-                : "memory");
-        return ret;
+	BUG_ON(!lock);
+	// kinfo("try_lock (%p) :: owner = %d, next = %d\n", lock, lock->owner, lock->next);
+	asm volatile(
+		"       prfm    pstl1strm, %4\n"
+		"       ldaxr   %w0, %4\n"
+		"       ldar    %w3, %5\n"
+		"       add     %w1, %w0, #0x1\n"
+		"       cmp     %w0, %w3\n"
+		"       b.ne    1f\n"
+		"       stxr    %w2, %w1, %4\n"
+		"       cbz     %w2, 2f\n"
+		"1:     mov     %w2, #0xffffffffffffffff\n" /* fail */
+		"       b       3f\n"
+		"2:     mov     %w2, #0x0\n" /* success */
+		"       dmb     ish\n"		 /* barrier */
+		"3:\n"
+		: "=&r"(lockval), "=&r"(newval), "=&r"(ret),
+		  "=&r"(ownerval), "+Q"(lock->next)
+		: "Q"(lock->owner)
+		: "memory");
+	return ret;
 }
-
 
 /**
  * Unlock the ticket lock
@@ -99,11 +99,17 @@ void unlock(struct lock *lock)
 	BUG_ON(!lock);
 	asm volatile("dmb ish");
 
+	// kinfo("unlock (%p) :: owner = %d, next = %d\n", lock, lock->owner, lock->next);
+
 	/** 
 	 * Lab 4 
 	 * Unlock the ticket lock here
 	 * Your code should be no more than 5 lines
 	*/
+	if (is_locked(lock))
+	{
+		atomic_fetch_add_32(&lock->owner, 1);
+	}
 }
 
 /** 
@@ -112,8 +118,12 @@ void unlock(struct lock *lock)
  * Return 1 if locked, 0 otherwise
  * Your code should be no more than 5 lines
 */
-int is_locked(struct lock *lock) { return -1; }
-
+int is_locked(struct lock *lock)
+{
+	BUG_ON(!lock);
+	asm volatile("dmb ish");
+	return lock->owner != lock->next;
+}
 
 /**
  * 	Lab 4 
@@ -121,6 +131,8 @@ int is_locked(struct lock *lock) { return -1; }
  */
 void kernel_lock_init(void)
 {
+	lock_init(&big_kernel_lock);
+	lock_kernel();
 }
 
 /**
@@ -129,6 +141,7 @@ void kernel_lock_init(void)
  */
 void lock_kernel(void)
 {
+	lock(&big_kernel_lock);
 }
 
 /**
@@ -137,4 +150,5 @@ void lock_kernel(void)
  */
 void unlock_kernel(void)
 {
+	unlock(&big_kernel_lock);
 }

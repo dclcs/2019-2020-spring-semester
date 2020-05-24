@@ -142,15 +142,15 @@ It can contain 4 `char` objects. More than that, it's declared as `volatile`. Th
 
 Once a processor hits `secondary_init_c`, we update its corresponding `cpu_status` array with `cpu_run` flag. `enable_smp_cores` will not activate more processors until the `cpu_status` gets updated.
 
-### Question 3
+#### Question 3
 
-#### Check memory race
+##### Check memory race
 
 According to `start.S`, each processor's kernel stack is actually independent: they're allocated in neighboring memory blocks, but they're actually independent (not considering over-boundary r/w).
 
 So there should be no memory race here.
 
-#### Check control flow race
+##### Check control flow race
 
 During each processor's activation period, it mainly calls two functions: `el1_mmu_activate` and `secondary_cpu_boot`.
 
@@ -168,7 +168,23 @@ That will not cause control flow race, though. They're just loading the constant
 
 So, no control flow race will occur if we simultaneously activates all processors.
 
+#### Exercise 4
 
+First, we're expected to implement a simple ticket lock system.
 
+Since `fetch_and_add` atomic function has been implemented as a macro, there's no much code for us to write.
 
+#### Exercise 5
+
+Just fill in the blanks.
+
+Notice that by default we should obtain the *BIG KERNEL LOCK* once we initialize it, otherwise it will hit a `BUG_ON` assertion error.
+
+#### Question 6
+
+Main reason is those handler-used registers will never be used after the exception handler completes.
+
+However, those registers before the exception triggering events should be stored well, since after the exception handler completes, those registers will be used, still.
+
+### Part B: Scheduling
 
