@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/chos/kernel/common/tools.S
+common/asm.h
+-
+common/vars.h
+-
+
+/chos/kernel/head.S
+common/asm.h
+-
+common/vars.h
+-
+
+/chos/kernel/mm/bzero.S
+common/asm.h
+-
+
+/chos/kernel/mm/memcpy.S
+common/asm.h
+-
+
+/chos/kernel/mm/memmove.S
+common/asm.h
+-
+
+/chos/kernel/mm/memset.S
+common/asm.h
+-
+
+/chos/kernel/mm/page_table.S
+common/asm.h
+-
+
+kernel/common/asm.h
+
+kernel/common/vars.h
+
