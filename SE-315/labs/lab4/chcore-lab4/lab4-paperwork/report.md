@@ -190,3 +190,13 @@ However, those registers before the exception triggering events should be stored
 
 #### Exercise 7
 
+This part contains full and thorough instructions, so it's not very hard to implement.
+
+Notice that our `list_head` linked list doesn't contain any meaningful `content` field, which brought us much trouble trying to obtain the `struct thread *` with `struct list_head` object.
+
+So a new field `thread *thread` has been added to `struct list_head`, which will be set to the pointer to the `thread` that contains it.
+
+Except that, no much modifications are necessary.
+
+Currently, `rr_sched_handle_timer_irq(void)` haven't been implemented since it's related to later exercises.
+
