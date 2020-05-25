@@ -46,12 +46,34 @@ struct thread idle_threads[PLAT_CPU_NUM];
  * Sched_enqueue
  * Put `thread` at the end of ready queue of assigned `affinity`.
  * If affinity = NO_AFF, assign the core to the current cpu.
- * If the thread is IDEL thread, do nothing!
+ * If the thread is IDLE thread, do nothing!
  * Do not forget to check if the affinity is valid!
  */
 int rr_sched_enqueue(struct thread *thread)
 {
-	return -1;
+	u32 affinity = thread->thread_ctx->affinity;
+	if (affinity == NO_AFF)
+	{
+		u32 cpu_id = smp_get_cpu_id();
+		list_append(&thread->node, &rr_ready_queue[cpu_id]);
+		thread->thread_ctx->cpuid = cpu_id;
+	}
+	else if (thread->thread_ctx->type == TYPE_IDLE)
+	{
+		// do nothing!
+	}
+	else
+	{
+		if (affinity < PLAT_CPU_NUM)
+		{
+			list_append(&thread->node, &rr_ready_queue[affinity]);
+			thread->thread_ctx->cpuid = affinity;
+		}
+		else
+		{
+			BUG_ON("bad affinity given to rr_sched_enqueue!");
+		}
+	}
 }
 
 /*
@@ -62,7 +84,7 @@ int rr_sched_enqueue(struct thread *thread)
  */
 int rr_sched_dequeue(struct thread *thread)
 {
-	return -1;
+	list_del(&thread->node);
 }
 
 /*
@@ -108,13 +130,15 @@ int rr_sched_init(void)
 	int i = 0;
 
 	/* Initialize global variables */
-	for (i = 0; i < PLAT_CPU_NUM; i++) {
+	for (i = 0; i < PLAT_CPU_NUM; i++)
+	{
 		current_threads[i] = NULL;
 		init_list_head(&rr_ready_queue[i]);
 	}
 
 	/* Initialize one idle thread for each core and insert into the RQ */
-	for (i = 0; i < PLAT_CPU_NUM; i++) {
+	for (i = 0; i < PLAT_CPU_NUM; i++)
+	{
 		/* Set the thread context of the idle threads */
 		BUG_ON(!(idle_threads[i].thread_ctx = create_thread_ctx()));
 		/* We will set the stack and func ptr in arch_idle_ctx_init */
@@ -122,7 +146,7 @@ int rr_sched_init(void)
 		/* Call arch-dependent function to fill the context of the idle
 		 * threads */
 		arch_idle_ctx_init(idle_threads[i].thread_ctx,
-				   idle_thread_routine);
+						   idle_thread_routine);
 		/* Idle thread is kernel thread which do not have vmspace */
 		idle_threads[i].vmspace = NULL;
 	}

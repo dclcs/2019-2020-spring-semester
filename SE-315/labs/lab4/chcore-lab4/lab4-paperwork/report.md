@@ -188,3 +188,5 @@ However, those registers before the exception triggering events should be stored
 
 ### Part B: Scheduling
 
+#### Exercise 7
+
