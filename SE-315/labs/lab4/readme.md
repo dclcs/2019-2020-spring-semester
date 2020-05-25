@@ -189,9 +189,7 @@ Once a CPU wants to schedule, it only needs to call `rr_sched()`, it first check
 
 When a CPU has no thread to schedule, it should not busy wait and hold the big kernel lock, which would block the entire kernel. Therefore, our round-robin policy creates one idle thread for each CPU. (idle threads are in `idle_threads` of `kernel/sched/policy_rr.c` ) `rr_choose_thread` first checks whether the CPU's `rr_ready_queue` is empty. If yes, `rr_choose_thread` returns the CPU's own idle thread. If not, it selects the head of `rr_ready_queue` and calls `rr_sched_dequeue()` to dequeue the head, and then return the head. `idle_thread` should not appear in the `rr_ready_queue`. Thus both `rr_sched_enqueue()` and `rr_sched_dequeue()` should handle the idle threads specially.
 
-```
-rr_sched_init()` is used to initialize the scheduler. It should be called only once in `main()` of `kernel/main.c` and the BSP is responsible to initialize all the entries in `rr_ready_queue` and `idle_threads
-```
+`rr_sched_init()` is used to initialize the scheduler. It should be called only once in `main()` of `kernel/main.c` and the BSP is responsible to initialize all the entries in `rr_ready_queue` and `idle_threads`.
 
 > **Exercise 7:** Implement the functions in `kernel/sched/policy_rr.c`. Your code should pass test `cooperative` and get 10 points!. Now, your scheduler can work on one CPU.
 

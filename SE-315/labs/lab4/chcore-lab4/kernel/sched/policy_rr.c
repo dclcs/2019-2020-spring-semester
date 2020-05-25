@@ -51,16 +51,27 @@ struct thread idle_threads[PLAT_CPU_NUM];
  */
 int rr_sched_enqueue(struct thread *thread)
 {
+	if (!thread || !thread->thread_ctx)
+	{
+		return -1;
+	}
+
 	u32 affinity = thread->thread_ctx->affinity;
-	if (affinity == NO_AFF)
+	if (thread->thread_ctx->type == TYPE_IDLE)
+	{
+		// idle thread? ignore it.
+		return 0;
+	}
+	else if (thread->thread_ctx->state == TS_READY)
+	{
+		// it's already an enqueued thread!
+		return -3;
+	}
+	else if (affinity == NO_AFF)
 	{
 		u32 cpu_id = smp_get_cpu_id();
 		list_append(&thread->node, &rr_ready_queue[cpu_id]);
 		thread->thread_ctx->cpuid = cpu_id;
-	}
-	else if (thread->thread_ctx->type == TYPE_IDLE)
-	{
-		// do nothing!
 	}
 	else
 	{
@@ -71,9 +82,12 @@ int rr_sched_enqueue(struct thread *thread)
 		}
 		else
 		{
-			BUG_ON("bad affinity given to rr_sched_enqueue!");
+			printk("BUG: bad affinity given to rr_sched_enqueue!\n");
+			return -4;
 		}
 	}
+	thread->thread_ctx->state = TS_READY;
+	return 0;
 }
 
 /*
@@ -84,7 +98,18 @@ int rr_sched_enqueue(struct thread *thread)
  */
 int rr_sched_dequeue(struct thread *thread)
 {
+	if (!thread || !thread->thread_ctx)
+	{
+		return -1;
+	}
+	if (thread->thread_ctx->type == TYPE_IDLE)
+	{
+		// reject dequeue an idle thread
+		return -2;
+	}
+	thread->thread_ctx->state = TS_INTER;
 	list_del(&thread->node);
+	return 0;
 }
 
 /*
@@ -100,6 +125,20 @@ int rr_sched_dequeue(struct thread *thread)
  */
 struct thread *rr_sched_choose_thread(void)
 {
+	u32 cpu_id = smp_get_cpu_id();
+	if (list_empty(&rr_ready_queue[cpu_id]))
+	{
+		return &idle_threads[cpu_id];
+	}
+	struct thread *target = sched_choose_thread();
+	while (true)
+	{
+		if (target->thread_ctx->state == TS_READY)
+		{
+			return target;
+		}
+		target = sched_choose_thread();
+	}
 	return NULL;
 }
 
@@ -117,9 +156,9 @@ struct thread *rr_sched_choose_thread(void)
  */
 int rr_sched(void)
 {
-	/* You need to use pointer of chosen thread to replace the NULL */
-	switch_to_thread(NULL);
-	return -1;
+	struct thread *target = rr_sched_choose_thread();
+	switch_to_thread(target);
+	return 0;
 }
 
 /*
@@ -162,6 +201,7 @@ int rr_sched_init(void)
  */
 void rr_sched_handle_timer_irq(void)
 {
+	sched_handle_timer_irq();
 }
 
 struct sched_ops rr = {

@@ -124,20 +124,21 @@ out_fail:
 
 #define OFFSET_MASK (0xFFF)
 
-/* load binary into some process (process) */
 static u64 load_binary(struct process *process,
 					   struct vmspace *vmspace,
 					   const char *bin,
 					   struct process_metadata *metadata)
 {
 	struct elf_file *elf;
-	vmr_prop_t flags;
 	int i, r;
 	size_t seg_sz, seg_map_sz;
 	u64 p_vaddr;
 
+	vmr_prop_t flags;
+
 	int *pmo_cap;
 	struct pmobject *pmo;
+
 	u64 ret;
 
 	elf = elf_parse_file(bin);
@@ -167,20 +168,11 @@ static u64 load_binary(struct process *process,
 			 * page aligned segment size. Take care of the page alignment when allocating
 			 * and mapping physical memory.
 			 */
-			struct elf_program_header header = elf->p_headers[i];
+			p_vaddr = elf->p_headers[i].p_vaddr;
+			seg_sz = elf->p_headers[i].p_memsz;
 
-			printk("start parse header[%d]. align: %u, filesz: %u, memsz: %u, offset: %u, vaddr: %p\n", i, header.p_align, header.p_filesz, header.p_memsz, header.p_offset, header.p_vaddr);
-			p_vaddr = header.p_vaddr;
-			seg_sz = header.p_memsz;
-
-			if (seg_sz % PAGE_SIZE == 0)
-			{
-				seg_map_sz = seg_sz;
-			}
-			else
-			{
-				seg_map_sz = seg_sz + (PAGE_SIZE - seg_sz % PAGE_SIZE);
-			}
+			seg_map_sz = ROUND_UP(seg_sz + p_vaddr, PAGE_SIZE) -
+						 ROUND_DOWN(p_vaddr, PAGE_SIZE);
 
 			pmo = obj_alloc(TYPE_PMO, sizeof(*pmo));
 			if (!pmo)
@@ -189,6 +181,7 @@ static u64 load_binary(struct process *process,
 				goto out_free_cap;
 			}
 			pmo_init(pmo, PMO_DATA, seg_map_sz, 0);
+
 			pmo_cap[i] = cap_alloc(process, pmo, 0);
 			if (pmo_cap[i] < 0)
 			{
@@ -196,19 +189,20 @@ static u64 load_binary(struct process *process,
 				goto out_free_obj;
 			}
 
+			BUG_ON(elf->p_headers[i].p_filesz > seg_sz);
+
+			memset((void *)p_vaddr, 0, seg_map_sz);
 			/*
-			 * Lab3: Your code here
-			 * You should copy data from the elf into the physical memory in pmo.
-			 * The physical address of a pmo can be get from pmo->start.
-			 */
-			// printk("going to copy %u bytes...\n", seg_sz);
-			for (size_t i = 0; i < seg_sz; ++i)
-			{
-				char *dest = (char *)(pmo->start + i);
-				const char *src = bin + i;
-				// printk("copy memory address %p <= %p (content: %p)\n", dest, src, *src);
-				*dest = *src;
-			}
+		 * OFFSET_MASK is for calculating the final offset for loading
+		 * different segments from ELF.
+		 * ELF segment can specify not aligned address.
+		 *
+		 */
+			memcpy((void *)pmo->start +
+					   (elf->p_headers[i].p_vaddr & OFFSET_MASK),
+				   (void *)(bin +
+							elf->p_headers[i].p_offset),
+				   elf->p_headers[i].p_filesz);
 
 			flags = PFLAGS2VMRFLAGS(elf->p_headers[i].p_flags);
 
@@ -246,7 +240,6 @@ out_free_cap:
 out_fail:
 	return r;
 }
-
 /* defined in page_table.S */
 extern void flush_idcache(void);
 

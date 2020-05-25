@@ -95,8 +95,10 @@ void tst_sched_param(bool is_bsp)
 	struct thread_ctx *thread_ctx = NULL;
 
 	/* Init threads */
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		threads[i] = create_test_thread(i, NO_AFF);
+		// printk("create %d thread: %p\n", i, threads[i]);
 	}
 
 	{ // test enqueue
@@ -115,11 +117,12 @@ void tst_sched_param(bool is_bsp)
 			threads[0]->thread_ctx->state = TS_INIT;
 		}
 		{
-			for (i = 0; i < local_thread_num; i++) {
+			for (i = 0; i < local_thread_num; i++)
+			{
 				BUG_ON(sched_enqueue(threads[i]));
 				BUG_ON(threads[i]->thread_ctx->cpuid != cpuid);
 				BUG_ON(threads[i]->thread_ctx->state !=
-				       TS_READY);
+					   TS_READY);
 			}
 
 			BUG_ON(!sched_enqueue(threads[0]));
@@ -141,9 +144,10 @@ void tst_sched_param(bool is_bsp)
 			BUG_ON(sched_dequeue(threads[3]));
 			BUG_ON(sched_dequeue(threads[0]));
 
-			for (i = 0; i < local_thread_num; i++) {
+			for (i = 0; i < local_thread_num; i++)
+			{
 				BUG_ON(threads[i]->thread_ctx->state !=
-				       TS_INTER);
+					   TS_INTER);
 			}
 
 			BUG_ON(!list_empty(&rr_ready_queue[cpuid]));
@@ -226,7 +230,8 @@ void tst_sched_param(bool is_bsp)
 		BUG_ON(!list_empty(&rr_ready_queue[cpuid]));
 	}
 
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		free_test_thread(threads[i]);
 	}
 
@@ -239,21 +244,24 @@ void tst_sched_queue(bool is_bsp)
 	struct thread *threads[THREAD_NUM];
 
 	/* Init threads */
-	for (i = 0; i < THREAD_NUM; i++) {
+	for (i = 0; i < THREAD_NUM; i++)
+	{
 		threads[i] = create_test_thread(i, NO_AFF);
 		BUG_ON(sched_enqueue(threads[i]));
 	}
 
 	global_barrier(is_bsp);
 
-	for (i = 0; i < THREAD_NUM; i++) {
+	for (i = 0; i < THREAD_NUM; i++)
+	{
 		current_thread->thread_ctx->sc->budget = 0;
 		sched();
 		BUG_ON(current_thread != threads[i]);
 		check_thread_ctx();
 	}
 
-	for (i = 0; i < THREAD_NUM; i++) {
+	for (i = 0; i < THREAD_NUM; i++)
+	{
 		current_thread->thread_ctx->sc->budget = 0;
 		sched();
 		BUG_ON(current_thread != threads[i]);
@@ -269,7 +277,8 @@ void tst_sched_cooperative(bool is_bsp)
 	tst_sched_param(is_bsp);
 	tst_sched_queue(is_bsp);
 
-	if (is_bsp) {
+	if (is_bsp)
+	{
 		printk("pass tst_sched_cooperative\n");
 	}
 }
@@ -281,7 +290,8 @@ void tst_sched_budget(bool is_bsp)
 	struct thread *threads[4];
 
 	/* Init threads */
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		threads[i] = create_test_thread(i, NO_AFF);
 		BUG_ON(sched_enqueue(threads[i]));
 	}
@@ -291,20 +301,23 @@ void tst_sched_budget(bool is_bsp)
 
 	sched();
 	BUG_ON(!current_thread->thread_ctx->sc);
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(current_thread != threads[0]);
 	}
 
 	current_thread->thread_ctx->sc->budget = 0;
 	sched();
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(current_thread != threads[1]);
 	}
 
 	current_thread->thread_ctx->sc->budget = 0;
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(!current_thread->thread_ctx->sc);
 		BUG_ON(current_thread != threads[(i + 2) % PLAT_CPU_NUM]);
@@ -322,7 +335,8 @@ void tst_sched_timer(bool is_bsp)
 	struct thread *threads[4];
 
 	/* Init threads */
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		threads[i] = create_test_thread(i, NO_AFF);
 		BUG_ON(sched_enqueue(threads[i]));
 	}
@@ -330,22 +344,26 @@ void tst_sched_timer(bool is_bsp)
 
 	global_barrier(is_bsp);
 
-	for (j=0;j<DEFAULT_BUDGET;j++){
+	for (j = 0; j < DEFAULT_BUDGET; j++)
+	{
 		sched_handle_timer_irq();
 	}
 	sched();
 	BUG_ON(!current_thread->thread_ctx->sc);
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(current_thread != threads[0]);
 	}
 
 	threads[0]->thread_ctx->sc->budget = 0;
-	for (j=0;j<DEFAULT_BUDGET;j++){
+	for (j = 0; j < DEFAULT_BUDGET; j++)
+	{
 		sched_handle_timer_irq();
-	}	
+	}
 	sched();
-	for (i = 0; i < local_thread_num; i++) {
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(current_thread != threads[1]);
 	}
@@ -355,10 +373,12 @@ void tst_sched_timer(bool is_bsp)
 	sched();
 	BUG_ON(current_thread != threads[1]);
 
-	for (j=0;j<DEFAULT_BUDGET;j++){
+	for (j = 0; j < DEFAULT_BUDGET; j++)
+	{
 		sched_handle_timer_irq();
-	}	
-	for (i = 0; i < local_thread_num; i++) {
+	}
+	for (i = 0; i < local_thread_num; i++)
+	{
 		sched();
 		BUG_ON(!current_thread->thread_ctx->sc);
 		BUG_ON(current_thread != threads[(i + 2) % PLAT_CPU_NUM]);
@@ -374,7 +394,8 @@ void tst_sched_preemptive(bool is_bsp)
 	tst_sched_budget(is_bsp);
 	tst_sched_timer(is_bsp);
 
-	if (is_bsp) {
+	if (is_bsp)
+	{
 		printk("pass tst_sched_preemptive\n");
 	}
 }
@@ -417,31 +438,37 @@ void tst_sched_aff(bool is_bsp)
 
 	global_barrier(is_bsp);
 
-	if (is_bsp) {
-		for (i = 0; i < THREAD_NUM + 1; i++) {
+	if (is_bsp)
+	{
+		for (i = 0; i < THREAD_NUM + 1; i++)
+		{
 			threads[i] = create_test_thread(i, cpuid);
 			BUG_ON(sched_enqueue(threads[i]));
 		}
-		for (i = 0; i < PLAT_CPU_NUM; i++) {
+		for (i = 0; i < PLAT_CPU_NUM; i++)
+		{
 			if (i != cpuid)
 				BUG_ON(!list_empty(&rr_ready_queue[i]));
 		}
 
 		threads[0]->thread_ctx->sc->budget = 0;
 		sched();
-		for (i = 0; i < THREAD_NUM + 1; i++) {
+		for (i = 0; i < THREAD_NUM + 1; i++)
+		{
 			threads[i]->thread_ctx->affinity = i % PLAT_CPU_NUM;
 			threads[i]->thread_ctx->sc->budget = 0;
 			sched();
 		}
-		for (i = 0; i < THREAD_NUM / PLAT_CPU_NUM; i++) {
+		for (i = 0; i < THREAD_NUM / PLAT_CPU_NUM; i++)
+		{
 			threads[i * PLAT_CPU_NUM]->thread_ctx->sc->budget = 0;
 			sched();
 		}
 	}
 
 	global_barrier(is_bsp);
-	for (i = 0; i < THREAD_NUM / PLAT_CPU_NUM; i++) {
+	for (i = 0; i < THREAD_NUM / PLAT_CPU_NUM; i++)
+	{
 		thread = atomic_sched_choose_thread();
 		BUG_ON(thread->thread_ctx->cpuid != cpuid);
 		BUG_ON(thread->thread_ctx->affinity % PLAT_CPU_NUM != cpuid);
@@ -451,8 +478,10 @@ void tst_sched_aff(bool is_bsp)
 
 	global_barrier(is_bsp);
 
-	if (is_bsp) {
-		for (i = 0; i < THREAD_NUM + 1; i++) {
+	if (is_bsp)
+	{
+		for (i = 0; i < THREAD_NUM + 1; i++)
+		{
 			free_test_thread(threads[i]);
 		}
 	}
@@ -465,7 +494,8 @@ void tst_sched_affinity(bool is_bsp)
 	tst_sched_aff_param(is_bsp);
 	tst_sched_aff(is_bsp);
 
-	if (is_bsp) {
+	if (is_bsp)
+	{
 		printk("pass tst_sched_affinity\n");
 	}
 }
@@ -483,19 +513,24 @@ void tst_sched(bool is_bsp)
 	global_barrier(is_bsp);
 
 	/* Init threads */
-	for (i = 0; i < PLAT_CPU_NUM; i++) {
-		for (j = 0; j < THREAD_NUM; j++) {
+	for (i = 0; i < PLAT_CPU_NUM; i++)
+	{
+		for (j = 0; j < THREAD_NUM; j++)
+		{
 			thread = create_test_thread(k, i);
 			BUG_ON(atomic_sched_enqueue(thread));
 			k++;
 		}
 	}
 
-	for (j = 0; j < TEST_NUM; j++) {
+	for (j = 0; j < TEST_NUM; j++)
+	{
 		/* Each core try to get those threads */
-		for (i = 0; i < THREAD_NUM * PLAT_CPU_NUM; i++) {
+		for (i = 0; i < THREAD_NUM * PLAT_CPU_NUM; i++)
+		{
 			/* get thread and dequeue from ready queue */
-			do {
+			do
+			{
 				/* do it again if choose idle thread */
 				atomic_sched();
 				current_thread->thread_ctx->sc->budget = 0;
@@ -503,17 +538,20 @@ void tst_sched(bool is_bsp)
 			BUG_ON(!current_thread->thread_ctx->sc);
 			/* Current thread set affinitiy */
 			current_thread->thread_ctx->affinity =
-			    (i + cpuid) % PLAT_CPU_NUM;
+				(i + cpuid) % PLAT_CPU_NUM;
 			check_thread_ctx();
 		}
-		if(smp_get_cpu_id() == 0) {
+		if (smp_get_cpu_id() == 0)
+		{
 			printk(".");
 		}
 	}
 
-	for (i = 0; i < THREAD_NUM * PLAT_CPU_NUM; i++) {
+	for (i = 0; i < THREAD_NUM * PLAT_CPU_NUM; i++)
+	{
 		/* get thread and dequeue from ready queue */
-		do {
+		do
+		{
 			/* do it again if choose idle thread */
 			atomic_sched();
 			current_thread->thread_ctx->sc->budget = 0;
@@ -531,7 +569,8 @@ void tst_sched(bool is_bsp)
 
 	global_barrier(is_bsp);
 
-	if (is_bsp) {
+	if (is_bsp)
+	{
 		printk("pass tst_sched\n");
 	}
 }
