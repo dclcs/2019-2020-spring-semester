@@ -32,7 +32,6 @@ void idle_thread_routine(void);
  * Per-CPU ready queue for ready tasks.
  */
 struct list_head rr_ready_queue[PLAT_CPU_NUM];
-
 /*
  * RR policy also has idle threads.
  * When no active user threads in ready queue,
@@ -55,6 +54,8 @@ int rr_sched_enqueue(struct thread *thread)
 	{
 		return -1;
 	}
+
+	thread->node.thread = thread;
 
 	u32 affinity = thread->thread_ctx->affinity;
 	if (thread->thread_ctx->type == TYPE_IDLE)
@@ -82,7 +83,7 @@ int rr_sched_enqueue(struct thread *thread)
 		}
 		else
 		{
-			printk("BUG: bad affinity given to rr_sched_enqueue!\n");
+			// printk("BUG: bad affinity given to rr_sched_enqueue!\n");
 			return -4;
 		}
 	}
@@ -102,12 +103,17 @@ int rr_sched_dequeue(struct thread *thread)
 	{
 		return -1;
 	}
-	if (thread->thread_ctx->type == TYPE_IDLE)
+
+	thread->node.thread = thread;
+
+	if (thread->thread_ctx->type == TYPE_IDLE || thread->thread_ctx->state != TS_READY)
 	{
-		// reject dequeue an idle thread
+		// reject dequeuing an idle thread
 		return -2;
 	}
+
 	thread->thread_ctx->state = TS_INTER;
+
 	list_del(&thread->node);
 	return 0;
 }
@@ -128,18 +134,24 @@ struct thread *rr_sched_choose_thread(void)
 	u32 cpu_id = smp_get_cpu_id();
 	if (list_empty(&rr_ready_queue[cpu_id]))
 	{
+		// printk("list is empty!\n");
 		return &idle_threads[cpu_id];
 	}
-	struct thread *target = sched_choose_thread();
-	while (true)
+	// printk("list isn't empty!\n");
+
+	struct list_head *head = &rr_ready_queue[cpu_id];
+	struct list_head *node = head->next;
+
+	while (node != head)
 	{
-		if (target->thread_ctx->state == TS_READY)
+		struct thread *target = node->thread;
+		if (target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
 		{
+			rr_sched_dequeue(target);
 			return target;
 		}
-		target = sched_choose_thread();
 	}
-	return NULL;
+	return &idle_threads[cpu_id];
 }
 
 /*
@@ -156,7 +168,13 @@ struct thread *rr_sched_choose_thread(void)
  */
 int rr_sched(void)
 {
+	if (current_thread && sched_is_running(current_thread))
+	{
+		rr_sched_enqueue(current_thread);
+	}
+
 	struct thread *target = rr_sched_choose_thread();
+	target->thread_ctx->sc->budget = DEFAULT_BUDGET;
 	switch_to_thread(target);
 	return 0;
 }

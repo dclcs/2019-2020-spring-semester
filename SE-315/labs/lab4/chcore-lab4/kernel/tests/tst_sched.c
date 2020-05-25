@@ -169,6 +169,7 @@ void tst_sched_param(bool is_bsp)
 			BUG_ON(!sched_dequeue(idle_thread));
 
 			thread = sched_choose_thread();
+			printk("thread: %p, threads[0]: %p\n", thread, threads[0]);
 			BUG_ON(thread != threads[0]);
 
 			BUG_ON(!list_empty(&rr_ready_queue[cpuid]));
@@ -275,6 +276,7 @@ void tst_sched_queue(bool is_bsp)
 void tst_sched_cooperative(bool is_bsp)
 {
 	tst_sched_param(is_bsp);
+	// printk("param check done\n");
 	tst_sched_queue(is_bsp);
 
 	if (is_bsp)
