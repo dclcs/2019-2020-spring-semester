@@ -46,7 +46,8 @@ u32 sys_getc(void)
  */
 u32 sys_get_cpu_id(void)
 {
-    return (u32)-1;
+    kinfo("called sys_get_cpu_id.");
+    return smp_get_cpu_id();
 }
 
 /*
@@ -54,7 +55,7 @@ u32 sys_get_cpu_id(void)
  * Update the syscall table as you like to redirect syscalls
  * to functions accordingly
  */
-const void* syscall_table[NR_SYSCALL] = {
+const void *syscall_table[NR_SYSCALL] = {
     [0 ... NR_SYSCALL - 1] = sys_debug,
     /* lab3 syscalls finished */
 
@@ -88,5 +89,4 @@ const void* syscall_table[NR_SYSCALL] = {
     /* TMP FS */
     [SYS_fs_load_cpio] = sys_fs_load_cpio,
 
-    [SYS_debug] = sys_debug
-};
+    [SYS_debug] = sys_debug};

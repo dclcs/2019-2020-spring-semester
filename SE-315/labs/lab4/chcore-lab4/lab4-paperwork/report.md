@@ -200,3 +200,19 @@ Except that, no much modifications are necessary.
 
 Currently, `rr_sched_handle_timer_irq(void)` haven't been implemented since it's related to later exercises.
 
+#### Exercise 8
+
+During the IRQ handler, we need to use our big kernel lock to protect its control flow from being interrupted.
+
+According to the exception handling assembly, it will call `handle_irq` with its exception type. If the IRQ request doesn't come from kernel, it must come from a lower exception level, aka., `EL0`. So its type must be `IRQ_EL0_64`. This is our first locking condition.
+
+Or, if our current running thread is an empty idle thread, we should also obtain a lock. We shoule check its type by `current_thread->thread_ctx->type`, determing if it's `TYPE_IDLE`.
+
+And, if we obtain a lock, we should also unlock it after `plat_handle_irq()` returns.
+
+If there's no such protection, our baby kernel might block forever. We should never allow a interrupting dead loop running in kernel mode.
+
+In this way, we should block any interrupting user-mode codes, since they're not controllable. However, that's not enough. Our idle thread, is a legally blocking code running in kernel mode, so that's also a potentially vulnerable point, which requires special locking tricks.
+
+#### Exercise 9
+

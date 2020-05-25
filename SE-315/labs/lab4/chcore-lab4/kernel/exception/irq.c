@@ -24,14 +24,12 @@
 #include <common/smp.h>
 #include <common/tools.h>
 
-
 /* Per core IRQ SOURCE MMIO address */
 u64 core_irq_source[PLAT_CPU_NUM] = {
 	CORE0_IRQ_SOURCE,
 	CORE1_IRQ_SOURCE,
 	CORE2_IRQ_SOURCE,
-	CORE3_IRQ_SOURCE
-};
+	CORE3_IRQ_SOURCE};
 
 void handle_irq(int type)
 {
@@ -42,6 +40,17 @@ void handle_irq(int type)
 	 * 	Or the thread being interrupted is an idle thread in the kernel.
 	 */
 
+	int is_locked = false;
+
+	if (type == IRQ_EL0_64 ||
+		/* it's a irq from user type */
+		current_thread->thread_ctx->type == TYPE_IDLE
+		/* currently running thread is an IDLE one */)
+	{
+		lock_kernel();
+		is_locked = true;
+	}
+
 	plat_handle_irq();
 
 	/**
@@ -49,6 +58,10 @@ void handle_irq(int type)
 	 * Do you miss something?
 	 */
 
+	if (is_locked)
+	{
+		unlock_kernel();
+	}
 }
 
 void plat_handle_irq(void)
@@ -60,7 +73,8 @@ void plat_handle_irq(void)
 	irq_src = get32(core_irq_source[cpuid]);
 
 	irq = 1 << ctzl(irq_src);
-	switch (irq) {
+	switch (irq)
+	{
 	case INT_SRC_TIMER3:
 		handle_timer_irq();
 		break;

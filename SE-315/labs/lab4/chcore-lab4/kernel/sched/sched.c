@@ -154,6 +154,9 @@ u64 switch_context(void)
  */
 void sys_yield(void)
 {
+    kinfo("called sys_yield!\n");
+    BUG_ON(!cur_sched_ops);
+    cur_sched_ops->sched();
 }
 
 int sched_init(struct sched_ops *sched_ops)

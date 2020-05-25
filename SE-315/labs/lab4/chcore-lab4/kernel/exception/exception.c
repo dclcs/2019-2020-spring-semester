@@ -53,7 +53,9 @@ void handle_entry_c(int type, u64 esr, u64 address)
 	/** 
 	 * Lab 4
 	 * Acquire the big kernel lock, if the exception is not from kernel
-	 */ 
+	 */
+
+	lock_kernel();
 
 	/* ec: exception class */
 	u32 esr_ec = GET_ESR_EL1_EC(esr);
@@ -89,4 +91,6 @@ void handle_entry_c(int type, u64 esr, u64 address)
 		kdebug("Unsupported Exception ESR %lx\n", esr);
 		break;
 	}
+
+	unlock_kernel();
 }

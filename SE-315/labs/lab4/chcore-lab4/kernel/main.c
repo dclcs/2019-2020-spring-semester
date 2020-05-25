@@ -63,6 +63,7 @@ void main(void *addr)
 	 *  Initialize and then acquire the big kernel lock.
 	 */
     kernel_lock_init();
+    lock_kernel();
     kinfo("[ChCore] lock init finished\n");
 
     /* Init scheduler with specified policy. */
@@ -90,13 +91,14 @@ void main(void *addr)
 #endif
 
     /** 
-	 * Where the pimary CPU first returns to the user mode
+	 * Where the primary CPU first returns to the user mode
 	 * Leave the scheduler to do its job 
 	*/
+    unlock_kernel();
     sched();
 
+    printk("sched() called\n");
     eret_to_thread(switch_context());
-
     /* Should provide panic and use here */
     BUG("[FATAL] Should never be here!\n");
 }

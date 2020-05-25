@@ -50,6 +50,8 @@ struct thread idle_threads[PLAT_CPU_NUM];
  */
 int rr_sched_enqueue(struct thread *thread)
 {
+	// printk("rr_sched_enqueue called with:\n");
+	// print_thread(thread);
 	if (!thread || !thread->thread_ctx)
 	{
 		return -1;
@@ -99,6 +101,8 @@ int rr_sched_enqueue(struct thread *thread)
  */
 int rr_sched_dequeue(struct thread *thread)
 {
+	// printk("rr_sched_dequeue called with:\n");
+	// print_thread(thread);
 	if (!thread || !thread->thread_ctx)
 	{
 		return -1;
@@ -131,6 +135,7 @@ int rr_sched_dequeue(struct thread *thread)
  */
 struct thread *rr_sched_choose_thread(void)
 {
+	// printk("called rr_sched_choose_thread\n");
 	u32 cpu_id = smp_get_cpu_id();
 	if (list_empty(&rr_ready_queue[cpu_id]))
 	{
@@ -142,7 +147,7 @@ struct thread *rr_sched_choose_thread(void)
 	struct list_head *head = &rr_ready_queue[cpu_id];
 	struct list_head *node = head->next;
 
-	while (node != head)
+	while (head != node)
 	{
 		struct thread *target = node->thread;
 		if (target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
@@ -168,7 +173,8 @@ struct thread *rr_sched_choose_thread(void)
  */
 int rr_sched(void)
 {
-	if (current_thread && sched_is_running(current_thread))
+	// printk("called rr_sched\n");
+	if (current_thread && current_thread->thread_ctx->type != TYPE_IDLE)
 	{
 		rr_sched_enqueue(current_thread);
 	}
@@ -176,6 +182,9 @@ int rr_sched(void)
 	struct thread *target = rr_sched_choose_thread();
 	target->thread_ctx->sc->budget = DEFAULT_BUDGET;
 	switch_to_thread(target);
+
+	// printk("rr_sched choose this: \n");
+	// print_thread(target);
 	return 0;
 }
 
@@ -184,6 +193,7 @@ int rr_sched(void)
  */
 int rr_sched_init(void)
 {
+	// printk("called rr_sched_init\n");
 	int i = 0;
 
 	/* Initialize global variables */
@@ -219,7 +229,7 @@ int rr_sched_init(void)
  */
 void rr_sched_handle_timer_irq(void)
 {
-	// sched_handle_timer_irq();
+	rr_sched();
 }
 
 struct sched_ops rr = {

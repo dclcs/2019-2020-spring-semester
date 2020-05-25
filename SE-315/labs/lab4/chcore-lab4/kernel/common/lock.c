@@ -132,7 +132,6 @@ int is_locked(struct lock *lock)
 void kernel_lock_init(void)
 {
 	lock_init(&big_kernel_lock);
-	lock_kernel();
 }
 
 /**

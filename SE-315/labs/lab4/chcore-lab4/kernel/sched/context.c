@@ -18,31 +18,32 @@
 #include <process/thread.h>
 #include <sched/sched.h>
 
-struct thread_ctx* create_thread_ctx(void)
+struct thread_ctx *create_thread_ctx(void)
 {
-    void* kernel_stack;
+    void *kernel_stack;
 
     kernel_stack = kzalloc(DEFAULT_KERNEL_STACK_SZ);
-    if (kernel_stack == NULL) {
+    if (kernel_stack == NULL)
+    {
         kwarn("create_thread_ctx fails due to lack of memory\n");
         return NULL;
     }
     return kernel_stack + DEFAULT_KERNEL_STACK_SZ - sizeof(struct thread_ctx);
 }
 
-void destroy_thread_ctx(struct thread* thread)
+void destroy_thread_ctx(struct thread *thread)
 {
-    void* kernel_stack;
+    void *kernel_stack;
     BUG_ON(!thread->thread_ctx);
-    kernel_stack = (void*)thread->thread_ctx - DEFAULT_KERNEL_STACK_SZ + sizeof(struct thread_ctx);
+    kernel_stack = (void *)thread->thread_ctx - DEFAULT_KERNEL_STACK_SZ + sizeof(struct thread_ctx);
     kfree(kernel_stack);
 }
 
-void arch_set_thread_stack(struct thread* thread, u64 stack);
-void arch_set_thread_next_ip(struct thread* thread, u64 ip);
+void arch_set_thread_stack(struct thread *thread, u64 stack);
+void arch_set_thread_next_ip(struct thread *thread, u64 ip);
 
-void init_thread_ctx(struct thread* thread, u64 stack, u64 func, u32 prio,
-    u32 type, s32 aff)
+void init_thread_ctx(struct thread *thread, u64 stack, u64 func, u32 prio,
+                     u32 type, s32 aff)
 {
     // u64 stack_inreg = stack;
     // u64 entry_inreg = func;
@@ -77,24 +78,34 @@ void init_thread_ctx(struct thread* thread, u64 stack, u64 func, u32 prio,
     /* Set the budget of the thread */
     thread->thread_ctx->sc = kmalloc(sizeof(sched_cont_t));
     thread->thread_ctx->sc->budget = DEFAULT_BUDGET;
+
+    // printk("going to set SP_EL0 as %p\n", stack);
+    arch_set_thread_stack(thread, stack);
+    // printk("SP_EL0 set!\n");
+
+    // printk("going to set ELR_EL1 as %p\n", func);
+    arch_set_thread_next_ip(thread, func);
+    // printk("ELR_EL1 set!\n");
+
+    thread->thread_ctx->ec.reg[SPSR_EL1] = SPSR_EL1_EL0t;
 }
 
-u64 arch_get_thread_stack(struct thread* thread)
+u64 arch_get_thread_stack(struct thread *thread)
 {
     return thread->thread_ctx->ec.reg[SP_EL0];
 }
 
-void arch_set_thread_stack(struct thread* thread, u64 stack)
+void arch_set_thread_stack(struct thread *thread, u64 stack)
 {
     thread->thread_ctx->ec.reg[SP_EL0] = stack;
 }
 
-void arch_set_thread_return(struct thread* thread, u64 ret)
+void arch_set_thread_return(struct thread *thread, u64 ret)
 {
     thread->thread_ctx->ec.reg[X0] = ret;
 }
 
-void arch_set_thread_next_ip(struct thread* thread, u64 ip)
+void arch_set_thread_next_ip(struct thread *thread, u64 ip)
 {
     /* Currently, we use fault PC to store the next ip */
     // thread->thread_ctx->ec.reg[FaultPC] = ip;
@@ -103,27 +114,27 @@ void arch_set_thread_next_ip(struct thread* thread, u64 ip)
     thread->thread_ctx->ec.reg[ELR_EL1] = ip;
 }
 
-u64 arch_get_thread_next_ip(struct thread* thread)
+u64 arch_get_thread_next_ip(struct thread *thread)
 {
     return thread->thread_ctx->ec.reg[ELR_EL1];
 }
 
-void arch_set_thread_info_page(struct thread* thread, u64 info_page_addr)
+void arch_set_thread_info_page(struct thread *thread, u64 info_page_addr)
 {
     thread->thread_ctx->ec.reg[X0] = info_page_addr;
 }
 
-void arch_set_thread_arg(struct thread* thread, u64 arg)
+void arch_set_thread_arg(struct thread *thread, u64 arg)
 {
     thread->thread_ctx->ec.reg[X0] = arg;
 }
 
-void arch_enable_interrupt(struct thread* thread)
+void arch_enable_interrupt(struct thread *thread)
 {
     thread->thread_ctx->ec.reg[SPSR_EL1] &= ~SPSR_EL1_IRQ;
 }
 
-void arch_disable_interrupt(struct thread* thread)
+void arch_disable_interrupt(struct thread *thread)
 {
     thread->thread_ctx->ec.reg[SPSR_EL1] |= SPSR_EL1_IRQ;
 }

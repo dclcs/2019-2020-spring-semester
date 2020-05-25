@@ -13,9 +13,10 @@ void *thread_routine(void *arg)
 	printf("Hello, I am thread %u\n", thread_id);
 	usys_yield();
 
-	while (times++ < 10) {
+	while (times++ < 10)
+	{
 		printf("Iteration %lu, thread %lu, cpu %u\n", times, thread_id,
-		       usys_get_cpu_id());
+			   usys_get_cpu_id());
 		usys_yield();
 	}
 	/* usys_exit: just de-schedule itself without reclaiming the resource */
@@ -29,12 +30,15 @@ int main(int argc, char *argv[])
 	int i;
 	u64 thread_i;
 
-	for (thread_i = 0; thread_i < 2; ++thread_i) {
+	printf("cpu_id = %d\n", usys_get_cpu_id());
+
+	for (thread_i = 0; thread_i < 2; ++thread_i)
+	{
 		child_thread_cap =
-		    create_thread(thread_routine, thread_i, PRIO, 0);
+			create_thread(thread_routine, thread_i, PRIO, 0);
 		if (child_thread_cap < 0)
 			printf("Create thread failed, return %d\n",
-			       child_thread_cap);
+				   child_thread_cap);
 		for (i = 0; i < 10000; i++)
 			;
 	}

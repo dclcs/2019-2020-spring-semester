@@ -383,7 +383,6 @@ int sys_create_thread(u64 process_cap, u64 stack, u64 pc, u64 arg, u32 prio, s32
 {
 	struct process *process = obj_get(current_process, process_cap, TYPE_PROCESS);
 	int thread_cap = thread_create(process, stack, pc, arg, prio, TYPE_USER, aff);
-
 	obj_put(process);
 	return thread_cap;
 }
