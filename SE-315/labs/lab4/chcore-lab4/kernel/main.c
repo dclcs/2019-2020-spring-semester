@@ -94,10 +94,10 @@ void main(void *addr)
 	 * Where the primary CPU first returns to the user mode
 	 * Leave the scheduler to do its job 
 	*/
-    unlock_kernel();
-    sched();
 
+    sched();
     printk("sched() called\n");
+    unlock_kernel();
     eret_to_thread(switch_context());
     /* Should provide panic and use here */
     BUG("[FATAL] Should never be here!\n");
