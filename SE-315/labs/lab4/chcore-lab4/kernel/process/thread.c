@@ -370,7 +370,7 @@ void sys_exit(int ret)
 	int cpuid = smp_get_cpu_id();
 	struct thread *target = current_threads[cpuid];
 
-	kinfo("sys_exit with value %d\n", ret);
+	// kinfo("sys_exit with value %d\n", ret);
 	/* Set thread state */
 	target->thread_ctx->state = TS_EXIT;
 	obj_free(target);
@@ -378,8 +378,10 @@ void sys_exit(int ret)
 	/* Set current running thread to NULL */
 	current_threads[cpuid] = NULL;
 	/* Reschedule */
-
 	cur_sched_ops->sched();
+
+	// printk("cpu #%d is going to leave kernel mode\n", smp_get_cpu_id());
+	// print_thread(current_thread);
 	eret_to_thread(switch_context());
 }
 
@@ -391,6 +393,7 @@ int sys_create_thread(u64 process_cap, u64 stack, u64 pc, u64 arg, u32 prio, s32
 {
 	struct process *process = obj_get(current_process, process_cap, TYPE_PROCESS);
 	int thread_cap = thread_create(process, stack, pc, arg, prio, TYPE_USER, aff);
+
 	obj_put(process);
 	return thread_cap;
 }
@@ -403,6 +406,7 @@ int sys_create_thread(u64 process_cap, u64 stack, u64 pc, u64 arg, u32 prio, s32
  */
 int sys_set_affinity(u64 thread_cap, s32 aff)
 {
+	// printk("called set_affinity(%d)\n", aff);
 	struct thread *thread = NULL;
 	int cpuid = smp_get_cpu_id(), ret = 0;
 
@@ -421,6 +425,10 @@ int sys_set_affinity(u64 thread_cap, s32 aff)
 	* Lab 4
 	* Finish the sys_set_affinity
 	*/
+	if (thread && thread->thread_ctx)
+	{
+		thread->thread_ctx->affinity = aff;
+	}
 
 	if (thread_cap != -1)
 		obj_put((void *)thread);
@@ -448,6 +456,10 @@ int sys_get_affinity(u64 thread_cap)
 	* Lab 4
 	* Finish the sys_get_affinity
 	*/
+	if (thread && thread->thread_ctx)
+	{
+		aff = thread->thread_ctx->affinity;
+	}
 
 	if (thread_cap != -1)
 		obj_put((void *)thread);

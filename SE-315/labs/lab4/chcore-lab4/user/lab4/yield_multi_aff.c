@@ -12,31 +12,34 @@ int child_thread_caps[THREAD_NUM];
 
 void *thread_routine(void *arg)
 {
+
 	u32 times = 0;
 	u64 thread_id = (u64)arg;
 	u64 next_thread_id = (thread_id + 1) % THREAD_NUM;
 	u64 prev_thread_id = (thread_id + THREAD_NUM - 1) % THREAD_NUM;
 	int aff;
 
-	while (times < 3) {
+	while (times < 3)
+	{
 		times++;
 		while (start_flags[thread_id] == 0)
 			;
 		start_flags[thread_id] = 0;
-
+		// printf("going on step 1 with %lu\n", (u64)arg);
 		usys_yield();
-
+		// printf("going on step 2 with %lu\n", (u64)arg);
 		aff = usys_get_affinity(child_thread_caps[thread_id]);
 
 		printf("Iteration %lu, thread %lu, cpu %u, aff %d\n", times,
-		       thread_id, usys_get_cpu_id(), aff);
+			   thread_id, usys_get_cpu_id(), aff);
 
 		usys_set_affinity(child_thread_caps[prev_thread_id],
-				  (thread_id + times) % 4);
+						  (thread_id + times) % 4);
 
 		start_flags[next_thread_id] = 1;
-
+		// printf("going on step 3 with %lu\n", (u64)arg);
 		usys_yield();
+		// printf("going on step 4 with %lu\n", (u64)arg);
 	}
 
 	/* usys_exit: just de-schedule itself without reclaiming the resource */
@@ -49,16 +52,18 @@ int main(int argc, char *argv[])
 	int i;
 	u64 thread_i;
 
-	for (thread_i = 0; thread_i < THREAD_NUM; ++thread_i) {
+	for (thread_i = 0; thread_i < THREAD_NUM; ++thread_i)
+	{
 		start_flags[thread_i] = 0;
 		child_thread_caps[thread_i] =
-		    create_thread(thread_routine, thread_i, PRIO, thread_i % 4);
+			create_thread(thread_routine, thread_i, PRIO, thread_i % 4);
 		if (child_thread_caps[thread_i] < 0)
 			printf("Create thread failed, return %d\n",
-			       child_thread_caps[thread_i]);
+				   child_thread_caps[thread_i]);
 		for (i = 0; i < 10000; i++)
 			;
 	}
+	// printf("i guess that's it\n");
 
 	start_flags[0] = 1;
 

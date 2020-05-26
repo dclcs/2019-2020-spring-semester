@@ -114,7 +114,7 @@ struct sched_ops {
     int (*sched_enqueue)(struct thread* thread);
     int (*sched_dequeue)(struct thread* thread);
     struct thread* (*sched_choose_thread)(void);
-    void (*sched_handle_timer_irq)(void);
+    void (*sched_handle_timer_irq)(int);
     /* Debug tools */
     void (*sched_top)(void);
 };
@@ -147,7 +147,7 @@ static inline struct thread* sched_choose_thread(void)
     return cur_sched_ops->sched_choose_thread();
 }
 
-static inline void sched_handle_timer_irq(void)
+static inline void sched_handle_timer_irq()
 {
-    cur_sched_ops->sched_handle_timer_irq();
+    cur_sched_ops->sched_handle_timer_irq(false);
 }

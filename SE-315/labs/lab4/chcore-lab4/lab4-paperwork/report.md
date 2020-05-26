@@ -232,3 +232,19 @@ But for `run-yield_spin`, there's no luck. In this program, the child thread con
 
 We need to introduce *Preemptive* to allow kernel to forcefully regain control and reschedule current CPU.
 
+Every time after a interruption gets invoked, control flow is given back to kernel. But after that, kernel should reschedule threads instead of keeping the control flow endlessly.
+
+So, we use `eret_to_thread` function to recover normal execution progress at the end of function `handle_irq()`. Otherwise, it will fall into a dead loop in `exception_table.S`.
+
+#### Exercise 11
+
+There's a little misunderstanding here: solely calling `rr_sched()` won't decrease the `budget` at all. Budget will only be triggered by `timer_handler`. And `timer_handler` won't trigger `sched()`, too.
+
+Getting this idea makes this exercise easy to implement.
+
+#### Exercise 12
+
+This part has been considered when Exercise 7 being implemented. So, there's only a little testing work to do here.
+
+#### Exercise 13
+

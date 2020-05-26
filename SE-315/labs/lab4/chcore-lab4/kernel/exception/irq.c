@@ -13,7 +13,6 @@
 #include <exception/irq.h>
 #include <exception/timer.h>
 #include <exception/exception.h>
-
 #include <common/kprint.h>
 #include <common/uart.h>
 #include <lib/machine.h>
@@ -40,28 +39,24 @@ void handle_irq(int type)
 	 * 	Or the thread being interrupted is an idle thread in the kernel.
 	 */
 
-	int is_locked = false;
-
+	// printk("handle_irq called. cpu_id: %d\n", smp_get_cpu_id());
 	if (type == IRQ_EL0_64 ||
 		/* it's a irq from user type */
 		current_thread->thread_ctx->type == TYPE_IDLE
 		/* currently running thread is an IDLE one */)
 	{
 		lock_kernel();
-		is_locked = true;
 	}
 
 	plat_handle_irq();
-
 	/**
 	 * Lab 4
 	 * Do you miss something?
 	 */
-
-	if (is_locked)
-	{
-		// unlock_kernel();
-	}
+	sched_handle_timer_irq();
+	sched();
+	// print_thread(current_thread);
+	eret_to_thread(switch_context());
 }
 
 void plat_handle_irq(void)

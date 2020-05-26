@@ -161,6 +161,7 @@ void sys_yield(void)
 {
     // kinfo("called sys_yield!\n");
     BUG_ON(!cur_sched_ops);
+    cur_sched_ops->sched_handle_timer_irq(true);
     cur_sched_ops->sched();
     eret_to_thread(switch_context());
 }

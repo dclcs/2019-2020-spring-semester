@@ -17,7 +17,7 @@ void *thread_routine(void *arg)
 		;
 
 	printf("Hello, I am thread %u on cpu %u\n", thread_id,
-	       usys_get_cpu_id());
+		   usys_get_cpu_id());
 
 	start_flags[(thread_id + 1) % THREAD_NUM] = 1;
 
@@ -32,13 +32,14 @@ int main(int argc, char *argv[])
 	int i;
 	u64 thread_i;
 
-	for (thread_i = 0; thread_i < THREAD_NUM; ++thread_i) {
+	for (thread_i = 0; thread_i < THREAD_NUM; ++thread_i)
+	{
 		start_flags[thread_i] = 0;
 		child_thread_cap =
-		    create_thread(thread_routine, thread_i, PRIO, thread_i % 4);
+			create_thread(thread_routine, thread_i, PRIO, thread_i % 4);
 		if (child_thread_cap < 0)
 			printf("Create thread failed, return %d\n",
-			       child_thread_cap);
+				   child_thread_cap);
 		for (i = 0; i < 10000; i++)
 			;
 	}

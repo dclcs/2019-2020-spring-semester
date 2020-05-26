@@ -120,6 +120,7 @@ void secondary_start(void)
     lock_kernel();
     /* Where the AP first returns to the user mode */
     sched();
+    // print_thread(current_thread);
     eret_to_thread(switch_context());
 
     /* Should provide panic and use here */

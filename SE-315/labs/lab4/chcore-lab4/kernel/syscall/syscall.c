@@ -89,5 +89,4 @@ const void *syscall_table[NR_SYSCALL] = {
     [SYS_transfer_caps] = sys_transfer_caps,
     /* TMP FS */
     [SYS_fs_load_cpio] = sys_fs_load_cpio,
-
     [SYS_debug] = sys_debug};

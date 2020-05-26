@@ -62,7 +62,6 @@ int rr_sched_dequeue(struct thread *thread);
  */
 int rr_sched_enqueue(struct thread *thread)
 {
-
 	if (!thread || !thread->thread_ctx)
 	{
 		return -1;
@@ -84,25 +83,28 @@ int rr_sched_enqueue(struct thread *thread)
 
 	if (affinity == NO_AFF)
 	{
+		// printk("NO AFF\n");
 		u32 cpu_id = smp_get_cpu_id();
 		list_add(&thread->node, &rr_ready_queue[cpu_id]);
+		// printk("perform list_add.\n");
+		// print_thread(thread);
 		thread->thread_ctx->cpuid = cpu_id;
+	}
+	else if (affinity < PLAT_CPU_NUM)
+	{
+		// printk("HAVE AFF %d\n", affinity);
+		list_add(&thread->node, &rr_ready_queue[affinity]);
+		// printk("perform list_add.\n");
+		// print_thread(thread);
+		thread->thread_ctx->cpuid = affinity;
 	}
 	else
 	{
-		if (affinity < PLAT_CPU_NUM)
-		{
-			list_add(&thread->node, &rr_ready_queue[affinity]);
-			thread->thread_ctx->cpuid = affinity;
-		}
-		else
-		{
-			// printk("BUG: bad affinity given to rr_sched_enqueue!\n");
-			return -4;
-		}
+		// printk("BUG: bad affinity given to rr_sched_enqueue!\n");
+		return -4;
 	}
 	thread->thread_ctx->state = TS_READY;
-
+	// print_thread(thread);
 	return 0;
 }
 
@@ -129,25 +131,22 @@ int rr_sched_dequeue(struct thread *thread)
 
 	thread->thread_ctx->state = TS_INTER;
 
-	u32 cpu_id = smp_get_cpu_id();
+	u32 cpu_id = thread->thread_ctx->cpuid;
 	struct list_head *head = &rr_ready_queue[cpu_id];
-	struct list_head *node = head->prev;
+	struct list_head *node = head;
 
 	do
 	{
 		struct list_head *prev = node->prev;
 		if (node->thread == thread)
 		{
+			// printk("going to delete %p\n", node);
 			list_del(node);
+			break;
 		}
-		else if (!head)
-		{
-			head = node;
-		}
-
+		// printk("in while loop, node = %p, prev = %p, head = %p\n", node, prev, head);
 		node = prev;
-	} while (head != node);
-
+	} while (node && head != node);
 	return 0;
 }
 
@@ -176,28 +175,23 @@ struct thread *rr_sched_choose_thread(void)
 	struct list_head *head = &rr_ready_queue[cpu_id];
 	struct list_head *node = head;
 	// printk("node = %p\n", node);
-	// printkk(" === traverse begin === \n");
+	// printk(" === traverse begin === \n");
 
 	do
 	{
 		// printkk("one cycle\n");
 		struct thread *target = node->thread;
-		if (target && target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
+		if (target && target->thread_ctx && target->thread_ctx->cpuid == cpu_id && target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
 		{
-			// printkk("found target!\n");
-			// printkk("dequeued it!\n");
-			// rr_ready_queue[cpu_id] = *target->node.;
+			// print_thread(target);
 			rr_sched_dequeue(target);
-			// printkk(" === traverse over fruitfully === \n");
-			// printkk("DQed target!\n");
 			return target;
 		}
-		// printkk("this cycle done in vain\n");
+		// printk("this cycle done in vain\n");
 		node = node->prev;
-	} while (node && head != node);
+	} while (node && head->thread != node->thread);
 
-	// printkk(" === traverse over === \n");
-
+	// printk(" === traverse over === \n");
 	return &idle_threads[cpu_id];
 }
 
@@ -215,16 +209,23 @@ struct thread *rr_sched_choose_thread(void)
  */
 int rr_sched(void)
 {
+	// printk("rr_sched called\n");
+	if (current_thread && current_thread->thread_ctx && current_thread->thread_ctx->type != TYPE_IDLE && current_thread->thread_ctx->state == TS_RUNNING)
+	{
+		if (current_thread->thread_ctx->sc->budget != 0)
+		{
+			// no reschedule if budget != 0
+			return 0;
+		}
+		rr_sched_enqueue(current_thread);
+	}
 	// printkk("called rr_sched\n");
 	struct thread *target = rr_sched_choose_thread();
 	// printkk("get a chosen target\n");
+	// print_thread(target);
+
 	target->thread_ctx->sc->budget = DEFAULT_BUDGET;
 
-	if (current_thread && current_thread->thread_ctx && current_thread->thread_ctx->type != TYPE_IDLE && current_thread->thread_ctx->state != TS_EXIT)
-	{
-
-		rr_sched_enqueue(current_thread);
-	}
 	// printkk("enqueue over\n");
 
 	switch_to_thread(target);
@@ -245,6 +246,7 @@ int rr_sched_init(void)
 	{
 		current_threads[i] = NULL;
 		init_list_head(&rr_ready_queue[i]);
+		rr_ready_queue[i].thread = NULL;
 	}
 
 	/* Initialize one idle thread for each core and insert into the RQ */
@@ -259,10 +261,10 @@ int rr_sched_init(void)
 		arch_idle_ctx_init(idle_threads[i].thread_ctx,
 						   idle_thread_routine);
 		/* Idle thread is kernel thread which do not have vmspace */
+		idle_threads[i].node.thread = &idle_threads[i];
 		idle_threads[i].vmspace = NULL;
 	}
 	kdebug("Scheduler initialized. Create %d idle threads.\n", i);
-
 	return 0;
 }
 
@@ -271,9 +273,18 @@ int rr_sched_init(void)
  * Handler called each time a timer interrupt is handled
  * Do not forget to call sched_handle_timer_irq() in proper code location.
  */
-void rr_sched_handle_timer_irq(void)
+void rr_sched_handle_timer_irq(int force)
 {
-	rr_sched();
+	// printk("timer tick with %d\n", force);
+	// printk("timer ticked. force? %d\n", force);
+	if (force)
+	{
+		current_thread->thread_ctx->sc->budget = 0;
+	}
+	else if (current_thread->thread_ctx->sc->budget != 0)
+	{
+		current_thread->thread_ctx->sc->budget -= 1;
+	}
 }
 
 struct sched_ops rr = {
