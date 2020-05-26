@@ -60,7 +60,7 @@ void handle_irq(int type)
 
 	if (is_locked)
 	{
-		unlock_kernel();
+		// unlock_kernel();
 	}
 }
 

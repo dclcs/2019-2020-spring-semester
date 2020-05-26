@@ -22,7 +22,8 @@
 
 void sys_debug(long arg)
 {
-    kinfo("[syscall] sys_debug: %lx\n", arg);
+    kinfo("[syscall] sys_debug: %lx (%c)\n", arg, (char)arg);
+    // printk("%c", (char)arg);
 }
 
 void sys_putc(char ch)
@@ -46,7 +47,6 @@ u32 sys_getc(void)
  */
 u32 sys_get_cpu_id(void)
 {
-    kinfo("called sys_get_cpu_id.");
     return smp_get_cpu_id();
 }
 
@@ -58,7 +58,7 @@ u32 sys_get_cpu_id(void)
 const void *syscall_table[NR_SYSCALL] = {
     [0 ... NR_SYSCALL - 1] = sys_debug,
     /* lab3 syscalls finished */
-
+    [SYS_exit] = sys_exit,
     [SYS_getc] = sys_getc,
     [SYS_yield] = sys_yield,
     [SYS_create_device_pmo] = sys_create_device_pmo,
@@ -77,15 +77,16 @@ const void *syscall_table[NR_SYSCALL] = {
 	 * Lab 4
 	 * Add syscall
 	 */
+    [SYS_putc] = sys_putc,
     [SYS_get_cpu_id] = sys_get_cpu_id,
     [SYS_ipc_reg_call] = sys_ipc_reg_call,
-
+    [SYS_create_pmo] = sys_create_pmo,
     [SYS_create_pmos] = sys_create_pmos,
+    [SYS_map_pmo] = sys_map_pmo,
     [SYS_map_pmos] = sys_map_pmos,
     [SYS_write_pmo] = sys_write_pmo,
     [SYS_read_pmo] = sys_read_pmo,
     [SYS_transfer_caps] = sys_transfer_caps,
-
     /* TMP FS */
     [SYS_fs_load_cpio] = sys_fs_load_cpio,
 

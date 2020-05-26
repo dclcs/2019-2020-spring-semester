@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	int i;
 	u64 thread_i;
 
-	printf("cpu_id = %d\n", usys_get_cpu_id());
+	// printf("cpu_id = %d\n", usys_get_cpu_id());
 
 	for (thread_i = 0; thread_i < 2; ++thread_i)
 	{

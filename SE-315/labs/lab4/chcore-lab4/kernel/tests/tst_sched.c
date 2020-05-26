@@ -199,8 +199,15 @@ void tst_sched_param(bool is_bsp)
 		BUG_ON(sched_enqueue(threads[2]));
 		BUG_ON(sched_enqueue(threads[0]));
 		BUG_ON(sched_enqueue(threads[1]));
-
+		if (smp_get_cpu_id() == 0)
+		{
+			print_thread(threads[0]);
+			print_thread(threads[1]);
+			print_thread(threads[2]);
+			print_thread(threads[3]);
+		}
 		sched();
+
 		current_thread->thread_ctx->sc->budget = 0;
 		BUG_ON(threads[3]->thread_ctx->state != TS_RUNNING);
 		BUG_ON(!sched_dequeue(threads[3]));
@@ -275,7 +282,7 @@ void tst_sched_queue(bool is_bsp)
 void tst_sched_cooperative(bool is_bsp)
 {
 	tst_sched_param(is_bsp);
-	// printk("param check done\n");
+	printk("param check done\n");
 	tst_sched_queue(is_bsp);
 
 	if (is_bsp)

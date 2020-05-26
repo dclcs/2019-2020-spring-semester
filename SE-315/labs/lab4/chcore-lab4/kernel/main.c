@@ -96,8 +96,7 @@ void main(void *addr)
 	*/
 
     sched();
-    printk("sched() called\n");
-    unlock_kernel();
+    // printk("sched() called\n");
     eret_to_thread(switch_context());
     /* Should provide panic and use here */
     BUG("[FATAL] Should never be here!\n");
@@ -118,7 +117,7 @@ void secondary_start(void)
 	 *  Lab 4
 	 *  Acquire the big kernel lock
 	 */
-
+    lock_kernel();
     /* Where the AP first returns to the user mode */
     sched();
     eret_to_thread(switch_context());

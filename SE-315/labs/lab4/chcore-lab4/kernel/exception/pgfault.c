@@ -86,15 +86,19 @@ int handle_trans_fault(struct vmspace *vmspace, vaddr_t fault_addr)
 	 * NOTE: when any problem happened in this function, return
 	 * -ENOMAPPING
 	 */
-	// kinfo("handle_trans_fault called! fault_addr: %p\n", fault_addr);
+	// kinfo("handle_trans_fault called! vmspace: %p, fault_addr: %p\n", vmspace, fault_addr);
 
 	vmr = find_vmr_for_va(vmspace, fault_addr);
 	if (!vmr)
 	{
 		return -ENOMAPPING;
 	}
+
+	// kinfo("found vmr = %p\n", vmr);
+
 	pmo = vmr->pmo;
 
+	// kinfo("found pmo->type = %d, expected %d\n", pmo->type, PMO_ANONYM);
 	if (pmo->type != PMO_ANONYM)
 	{
 		return -ENOMAPPING;

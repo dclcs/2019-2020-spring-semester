@@ -23,9 +23,18 @@
 #include <process/thread.h>
 #include <exception/irq.h>
 #include <sched/context.h>
+#include <exception/exception.h>
 
 /* in arch/sched/idle.S */
 void idle_thread_routine(void);
+
+void printkk(const char *fmt)
+{
+	if (smp_get_cpu_id() == 0)
+	{
+		printk(fmt);
+	}
+}
 
 /*
  * rr_ready_queue
@@ -40,6 +49,9 @@ struct list_head rr_ready_queue[PLAT_CPU_NUM];
  */
 struct thread idle_threads[PLAT_CPU_NUM];
 
+int rr_sched_enqueue(struct thread *thread);
+int rr_sched_dequeue(struct thread *thread);
+
 /*
  * Lab 4
  * Sched_enqueue
@@ -50,8 +62,7 @@ struct thread idle_threads[PLAT_CPU_NUM];
  */
 int rr_sched_enqueue(struct thread *thread)
 {
-	// printk("rr_sched_enqueue called with:\n");
-	// print_thread(thread);
+
 	if (!thread || !thread->thread_ctx)
 	{
 		return -1;
@@ -70,17 +81,18 @@ int rr_sched_enqueue(struct thread *thread)
 		// it's already an enqueued thread!
 		return -3;
 	}
-	else if (affinity == NO_AFF)
+
+	if (affinity == NO_AFF)
 	{
 		u32 cpu_id = smp_get_cpu_id();
-		list_append(&thread->node, &rr_ready_queue[cpu_id]);
+		list_add(&thread->node, &rr_ready_queue[cpu_id]);
 		thread->thread_ctx->cpuid = cpu_id;
 	}
 	else
 	{
 		if (affinity < PLAT_CPU_NUM)
 		{
-			list_append(&thread->node, &rr_ready_queue[affinity]);
+			list_add(&thread->node, &rr_ready_queue[affinity]);
 			thread->thread_ctx->cpuid = affinity;
 		}
 		else
@@ -90,6 +102,7 @@ int rr_sched_enqueue(struct thread *thread)
 		}
 	}
 	thread->thread_ctx->state = TS_READY;
+
 	return 0;
 }
 
@@ -108,8 +121,6 @@ int rr_sched_dequeue(struct thread *thread)
 		return -1;
 	}
 
-	thread->node.thread = thread;
-
 	if (thread->thread_ctx->type == TYPE_IDLE || thread->thread_ctx->state != TS_READY)
 	{
 		// reject dequeuing an idle thread
@@ -118,7 +129,25 @@ int rr_sched_dequeue(struct thread *thread)
 
 	thread->thread_ctx->state = TS_INTER;
 
-	list_del(&thread->node);
+	u32 cpu_id = smp_get_cpu_id();
+	struct list_head *head = &rr_ready_queue[cpu_id];
+	struct list_head *node = head->prev;
+
+	do
+	{
+		struct list_head *prev = node->prev;
+		if (node->thread == thread)
+		{
+			list_del(node);
+		}
+		else if (!head)
+		{
+			head = node;
+		}
+
+		node = prev;
+	} while (head != node);
+
 	return 0;
 }
 
@@ -135,27 +164,40 @@ int rr_sched_dequeue(struct thread *thread)
  */
 struct thread *rr_sched_choose_thread(void)
 {
-	// printk("called rr_sched_choose_thread\n");
+	// printkk("called rr_sched_choose_thread\n");
 	u32 cpu_id = smp_get_cpu_id();
 	if (list_empty(&rr_ready_queue[cpu_id]))
 	{
-		// printk("list is empty!\n");
+		// printkk("list is empty!\n");
 		return &idle_threads[cpu_id];
 	}
-	// printk("list isn't empty!\n");
+	// printkk("list isn't empty!\n");
 
 	struct list_head *head = &rr_ready_queue[cpu_id];
-	struct list_head *node = head->next;
+	struct list_head *node = head;
+	// printk("node = %p\n", node);
+	// printkk(" === traverse begin === \n");
 
-	while (head != node)
+	do
 	{
+		// printkk("one cycle\n");
 		struct thread *target = node->thread;
-		if (target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
+		if (target && target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
 		{
+			// printkk("found target!\n");
+			// printkk("dequeued it!\n");
+			// rr_ready_queue[cpu_id] = *target->node.;
 			rr_sched_dequeue(target);
+			// printkk(" === traverse over fruitfully === \n");
+			// printkk("DQed target!\n");
 			return target;
 		}
-	}
+		// printkk("this cycle done in vain\n");
+		node = node->prev;
+	} while (node && head != node);
+
+	// printkk(" === traverse over === \n");
+
 	return &idle_threads[cpu_id];
 }
 
@@ -173,18 +215,20 @@ struct thread *rr_sched_choose_thread(void)
  */
 int rr_sched(void)
 {
-	// printk("called rr_sched\n");
-	if (current_thread && current_thread->thread_ctx->type != TYPE_IDLE)
+	// printkk("called rr_sched\n");
+	struct thread *target = rr_sched_choose_thread();
+	// printkk("get a chosen target\n");
+	target->thread_ctx->sc->budget = DEFAULT_BUDGET;
+
+	if (current_thread && current_thread->thread_ctx && current_thread->thread_ctx->type != TYPE_IDLE && current_thread->thread_ctx->state != TS_EXIT)
 	{
+
 		rr_sched_enqueue(current_thread);
 	}
+	// printkk("enqueue over\n");
 
-	struct thread *target = rr_sched_choose_thread();
-	target->thread_ctx->sc->budget = DEFAULT_BUDGET;
 	switch_to_thread(target);
-
-	// printk("rr_sched choose this: \n");
-	// print_thread(target);
+	// kinfo("ok till then...\n");
 	return 0;
 }
 

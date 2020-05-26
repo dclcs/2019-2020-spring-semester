@@ -54,8 +54,11 @@ void handle_entry_c(int type, u64 esr, u64 address)
 	 * Lab 4
 	 * Acquire the big kernel lock, if the exception is not from kernel
 	 */
-
-	lock_kernel();
+	if (type == SYNC_EL0_64 || type == IRQ_EL0_64 || type == FIQ_EL0_64 || type == ERROR_EL0_64 || type == SYNC_EL0_32 || type == IRQ_EL0_32 || type == FIQ_EL0_32 || type == ERROR_EL0_32)
+	{
+		// printk("receive a handle_entry_c type: %d. will lock_kernel!\n", type);
+		lock_kernel();
+	}
 
 	/* ec: exception class */
 	u32 esr_ec = GET_ESR_EL1_EC(esr);
@@ -91,6 +94,4 @@ void handle_entry_c(int type, u64 esr, u64 address)
 		kdebug("Unsupported Exception ESR %lx\n", esr);
 		break;
 	}
-
-	unlock_kernel();
 }

@@ -30,11 +30,13 @@
 static int thread_init(struct thread *thread, struct process *process,
 					   u64 stack, u64 pc, u32 prio, u32 type, s32 aff)
 {
+	// printk("called thread_init. stack: %p pc: %p\n", stack, pc);
 	thread->process = obj_get(process, PROCESS_OBJ_ID,
 							  TYPE_PROCESS);
 	thread->vmspace = obj_get(process, VMSPACE_OBJ_ID, TYPE_VMSPACE);
 	obj_put(thread->process);
 	obj_put(thread->vmspace);
+
 	/* Thread context is used as the kernel stack for that thread */
 	thread->thread_ctx = create_thread_ctx();
 	if (!thread->thread_ctx)
@@ -89,6 +91,7 @@ void thread_deinit(void *thread_ptr)
 
 int thread_create(struct process *process, u64 stack, u64 pc, u64 arg, u32 prio, u32 type, s32 aff)
 {
+	// printk("called thread_create. stack: %p pc: %p\n", stack, pc);
 	struct thread *thread;
 	int cap, ret = 0;
 
@@ -123,6 +126,7 @@ int thread_create(struct process *process, u64 stack, u64 pc, u64 arg, u32 prio,
 		BUG_ON(ret);
 	}
 
+	// printk("returned value: cap(%d)\n", cap);
 	/* TYPE_KERNEL => do nothing */
 	return cap;
 
@@ -131,6 +135,8 @@ out_free_obj:
 out_obj_put:
 	obj_put(process);
 out_fail:
+
+	// printk("returned value: ret(%d)\n", ret);
 	return ret;
 }
 
@@ -272,6 +278,7 @@ int thread_create_main(struct process *process, u64 stack_base,
 					   u64 stack_size, u32 prio, u32 type, s32 aff,
 					   const char *bin_start, char *bin_name)
 {
+	// printk("called thread_create_main. stack_base: %p stack_size: %p\n", stack_base, stack_size);
 	int ret, thread_cap, stack_pmo_cap;
 	struct thread *thread;
 	struct pmobject *stack_pmo;
@@ -363,7 +370,7 @@ void sys_exit(int ret)
 	int cpuid = smp_get_cpu_id();
 	struct thread *target = current_threads[cpuid];
 
-	// kinfo("sys_exit with value %d\n", ret);
+	kinfo("sys_exit with value %d\n", ret);
 	/* Set thread state */
 	target->thread_ctx->state = TS_EXIT;
 	obj_free(target);
@@ -371,6 +378,7 @@ void sys_exit(int ret)
 	/* Set current running thread to NULL */
 	current_threads[cpuid] = NULL;
 	/* Reschedule */
+
 	cur_sched_ops->sched();
 	eret_to_thread(switch_context());
 }

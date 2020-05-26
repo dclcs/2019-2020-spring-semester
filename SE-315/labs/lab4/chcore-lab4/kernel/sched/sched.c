@@ -63,6 +63,11 @@ void arch_idle_ctx_init(struct thread_ctx *idle_ctx, void (*func)(void))
 
 void print_thread(struct thread *thread)
 {
+    if (!thread)
+    {
+        printk("Thread NULL <All NULL>\n");
+        return;
+    }
     printk("Thread %p\tType: %s\tState: %s\tCPU %d\tAFF %d\tBudget %d\tPrio: %d\t\n",
            thread,
            thread_type[thread->thread_ctx->type],
@@ -141,7 +146,7 @@ u64 switch_context(void)
     // printk("target_ctx = %p\n", target_ctx);
     // for (size_t i = 0; i < 35; ++i)
     // {
-    // printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
+    //     printk("target_ctx->ec.reg[%d] = %p\n", i, target_ctx->ec.reg[i]);
     // }
     return (u64)target_ctx->ec.reg;
 }
@@ -154,9 +159,10 @@ u64 switch_context(void)
  */
 void sys_yield(void)
 {
-    kinfo("called sys_yield!\n");
+    // kinfo("called sys_yield!\n");
     BUG_ON(!cur_sched_ops);
     cur_sched_ops->sched();
+    eret_to_thread(switch_context());
 }
 
 int sched_init(struct sched_ops *sched_ops)
