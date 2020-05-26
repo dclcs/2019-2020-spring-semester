@@ -216,3 +216,19 @@ In this way, we should block any interrupting user-mode codes, since they're not
 
 #### Exercise 9
 
+This part itself isn't quite hard. But it depends on so much prerequisite modules that might break this exercise in many ways.
+
+> At least it depends on `load_binary`, `syscall`, `kernel_lock`, etc. That makes the debugging a real struggle.
+
+Say it back, there's one critical difference we should notice: in kernel-mode test cases, we shouldn't make any actual control flow transforming, just playing with the provided data structures.
+
+However for functions like `yield` (or, `sys_yield`), it must be invoked by a user application's `syscall`, where we should use `eret_to_thread` to alter the control flow.
+
+#### Exercise 10
+
+Now we can already run `make run-yield_single` and get correct results.
+
+But for `run-yield_spin`, there's no luck. In this program, the child thread contains a infinite loop, which means once the child gains control, control flow will never alter, neither to the kernel nor to the main thread.
+
+We need to introduce *Preemptive* to allow kernel to forcefully regain control and reschedule current CPU.
+
