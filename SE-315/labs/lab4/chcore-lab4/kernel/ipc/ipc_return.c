@@ -23,7 +23,6 @@
 #include <sched/context.h>
 #include <sched/sched.h>
 
-
 /**
  * Lab 4
  * Helper function
@@ -41,7 +40,7 @@ static int thread_migrate_to_client(struct ipc_connection *conn, u64 ret_value)
 	 * Lab 4
 	 * The return value returned by server thread;
 	 */
-	arch_set_thread_return(source, LAB4_IPC_BLANK);
+	arch_set_thread_return(source, ret_value);
 	/**
 	 * Switch to the client
 	 */
@@ -62,7 +61,8 @@ void sys_ipc_return(u64 ret)
 {
 	struct ipc_connection *conn = current_thread->active_conn;
 
-	if (conn == NULL) {
+	if (conn == NULL)
+	{
 		WARN("An inactive thread calls ipc_return\n");
 		goto out;
 	}

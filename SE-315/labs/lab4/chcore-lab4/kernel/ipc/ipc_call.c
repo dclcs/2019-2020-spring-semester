@@ -23,7 +23,6 @@
 #include <sched/context.h>
 #include <sched/sched.h>
 
-
 /**
  * A helper function to transfer all the ipc_msg's capbilities of client's
  * process to server's process
@@ -37,48 +36,53 @@ int ipc_send_cap(struct ipc_connection *conn, ipc_msg_t *ipc_msg)
 	u64 *cap_buf;
 
 	r = copy_from_user((char *)&cap_slot_number,
-			   (char *)&ipc_msg->cap_slot_number,
-			   sizeof(cap_slot_number));
+					   (char *)&ipc_msg->cap_slot_number,
+					   sizeof(cap_slot_number));
 	if (r < 0)
 		goto out;
-	if (likely(cap_slot_number == 0)) {
+	if (likely(cap_slot_number == 0))
+	{
 		r = 0;
 		goto out;
-	} else if (cap_slot_number >= MAX_CAP_TRANSFER) {
+	}
+	else if (cap_slot_number >= MAX_CAP_TRANSFER)
+	{
 		r = -EINVAL;
 		goto out;
 	}
 
 	r = copy_from_user((char *)&cap_slots_offset,
-			   (char *)&ipc_msg->cap_slots_offset,
-			   sizeof(cap_slots_offset));
+					   (char *)&ipc_msg->cap_slots_offset,
+					   sizeof(cap_slots_offset));
 	if (r < 0)
 		goto out;
 
 	cap_buf = kmalloc(cap_slot_number * sizeof(*cap_buf));
-	if (!cap_buf) {
+	if (!cap_buf)
+	{
 		r = -ENOMEM;
 		goto out;
 	}
 
 	r = copy_from_user((char *)cap_buf, (char *)ipc_msg + cap_slots_offset,
-			   sizeof(*cap_buf) * cap_slot_number);
+					   sizeof(*cap_buf) * cap_slot_number);
 	if (r < 0)
 		goto out;
 
-	for (i = 0; i < cap_slot_number; i++) {
+	for (i = 0; i < cap_slot_number; i++)
+	{
 		u64 dest_cap;
 
 		kdebug("[IPC] send cap:%d\n", cap_buf[i]);
 		dest_cap = cap_copy(current_process, conn->target->process,
-				    cap_buf[i], false, 0);
+							cap_buf[i], false, 0);
 		if (dest_cap < 0)
 			goto out_free_cap;
 		cap_buf[i] = dest_cap;
 	}
 
 	r = copy_to_user((char *)ipc_msg + cap_slots_offset, (char *)cap_buf,
-			 sizeof(*cap_buf) * cap_slot_number);
+					 sizeof(*cap_buf) * cap_slot_number);
 	if (r < 0)
 		goto out_free_cap;
 
@@ -92,7 +96,6 @@ out_free_cap:
 out:
 	return r;
 }
-
 
 /**
  * Lab 4
@@ -116,19 +119,25 @@ static u64 thread_migrate_to_server(struct ipc_connection *conn, u64 arg)
 	 * This command set the sp register, read the file to find which field
 	 * of the ipc_connection stores the stack of the server thread?
 	 * */
-	arch_set_thread_stack(target, LAB4_IPC_BLANK);
+	// printk("set thread stack to %p\n", conn->server_stack_top);
+	arch_set_thread_stack(target, conn->server_stack_top);
 	/**
 	 * Lab 4
 	 * This command set the ip register, read the file to find which field
 	 * of the ipc_connection stores the instruction to be called when switch
 	 * to the server?
 	 * */
-	arch_set_thread_next_ip(target, LAB4_IPC_BLANK);
+	// printk("set callback to %p\n", target->server_ipc_config->callback);
+	arch_set_thread_next_ip(target, target->server_ipc_config->callback);
 	/**
 	 * Lab 4
 	 * The argument set by sys_ipc_call;
 	 */
-	arch_set_thread_arg(target, LAB4_IPC_BLANK);
+
+	// ipc_msg_t *arg_im = (ipc_msg_t *)arg;
+
+	// printk("and...if we take %p as ipc_msg_t*, slot num = %d, offset = %x, datalen = %d, data offset = %x, conncap = %d\n", arg, arg_im->cap_slot_number, arg_im->cap_slots_offset, arg_im->data_len, arg_im->data_offset, arg_im->server_conn_cap);
+	arch_set_thread_arg(target, arg);
 
 	/**
 	 * Passing the scheduling context of the current thread to thread of
@@ -147,7 +156,6 @@ static u64 thread_migrate_to_server(struct ipc_connection *conn, u64 arg)
 	return 0;
 }
 
-
 /**
  * Lab 4
  * The client thread calls sys_ipc_call to migrate to the server thread.
@@ -162,7 +170,8 @@ u64 sys_ipc_call(u32 conn_cap, ipc_msg_t *ipc_msg)
 	int r;
 
 	conn = obj_get(current_thread->process, conn_cap, TYPE_CONNECTION);
-	if (!conn) {
+	if (!conn)
+	{
 		r = -ECAPBILITY;
 		goto out_fail;
 	}
@@ -173,8 +182,9 @@ u64 sys_ipc_call(u32 conn_cap, ipc_msg_t *ipc_msg)
 	 * capbilities in server thread in the ipc_msg.
 	 */
 
+	ipc_send_cap(conn, ipc_msg);
 	r = copy_to_user((char *)&ipc_msg->server_conn_cap,
-			 (char *)&conn->server_conn_cap, sizeof(u64));
+					 (char *)&conn->server_conn_cap, sizeof(u64));
 	if (r < 0)
 		goto out_obj_put;
 
@@ -183,7 +193,12 @@ u64 sys_ipc_call(u32 conn_cap, ipc_msg_t *ipc_msg)
 	 * The arg is actually the 64-bit arg for ipc_dispatcher
 	 * Then what value should the arg be?
 	 * */
-	arg = LAB4_IPC_BLANK;
+	// ipc_msg_t *msg = ipc_msg;
+	// printk("ipc_msg: %p\n", ipc_msg);
+	// printk("if we take it as ipc_msg_t*, then\n");
+	// printk("slot num = %d, offset = %x, datalen = %d, data offset = %x, conncap = %d\n", msg->cap_slot_number, msg->cap_slots_offset, msg->data_len, msg->data_offset, msg->server_conn_cap);
+	int offset = conn->buf.server_user_addr - conn->buf.client_user_addr;
+	arg = (u64)((void *)ipc_msg + offset);
 	thread_migrate_to_server(conn, arg);
 
 	BUG("This function should never\n");

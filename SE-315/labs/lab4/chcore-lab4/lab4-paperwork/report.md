@@ -268,5 +268,11 @@ Now let's write a little code to implement that. Actually, all transferring meth
 
 #### Exercise 16
 
+This is basically a *hide'n'seek* game...
+
+Telling you, there's a variable (or a struct field) contains a value (or pointer) that you need, and you need to guess where you can get it.
+
+However, sometimes they're awfully named, or storing stale values... So there's no else way out except try and fail, until luckily finding out those maliciously hidden keys.
+
 #### Exercise 17
 
