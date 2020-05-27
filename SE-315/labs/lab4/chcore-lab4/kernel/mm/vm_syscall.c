@@ -106,9 +106,14 @@ int sys_create_pmos(u64 user_buf, u64 cnt)
         return -EAGAIN;
     }
     copy_from_user((char *)requests, (char *)user_buf, size);
+    // for (size_t i = 0; i < size; i++)
+    // {
+    //     printk("%d => %d\n", *((char *)user_buf + i), *((char *)requests + i));
+    // }
 
     for (i = 0; i < cnt; ++i)
     {
+        // printk("going to call create_pmo(size=%d, type=%d)\n", requests[i].size, requests[i].type);
         cap = sys_create_pmo(requests[i].size, requests[i].type);
         requests[i].ret_cap = cap;
     }
@@ -152,12 +157,20 @@ static int read_write_pmo(u64 pmo_cap, u64 offset, u64 user_buf,
     }
 
     if (type == WRITE_PMO)
+    {
         r = copy_from_user((char *)phys_to_virt(pmo->start) + offset,
                            (char *)user_buf, size);
+
+        // printk("copied data from %p to %p, %d bytes\n", phys_to_virt(pmo->start) + offset, user_buf, size);
+    }
     else if (type == READ_PMO)
+    {
         r = copy_to_user((char *)user_buf,
                          (char *)phys_to_virt(pmo->start) + offset,
                          size);
+
+        // printk("copied data from %p to %p, %d bytes\n", user_buf, phys_to_virt(pmo->start) + offset, size);
+    }
     else
         BUG("read write pmo invalid type\n");
 
@@ -187,7 +200,8 @@ int sys_read_pmo(u64 pmo_cap, u64 offset, u64 user_ptr, u64 len)
  */
 int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
 {
-    // printk("called sys_map_pmo!\n");
+
+    // printk("called sys_map_pmo. target cap: %d pmo_cap: %d addr: %p\n", target_process_cap, pmo_cap, addr);
     struct vmspace *vmspace;
     struct pmobject *pmo;
     struct process *target_process;
@@ -196,6 +210,7 @@ int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
     pmo = obj_get(current_process, pmo_cap, TYPE_PMO);
     if (!pmo)
     {
+        // printk("didn't get pmo!\n");
         r = -ECAPBILITY;
         goto out_fail;
     }
@@ -205,12 +220,15 @@ int sys_map_pmo(u64 target_process_cap, u64 pmo_cap, u64 addr, u64 perm)
                              TYPE_PROCESS);
     if (!target_process)
     {
+        // printk("didn't get target process!\n");
         r = -ECAPBILITY;
         goto out_obj_put_pmo;
     }
+
     vmspace = obj_get(target_process, VMSPACE_OBJ_ID, TYPE_VMSPACE);
     BUG_ON(vmspace == NULL);
 
+    // printk("called sys_map_pmo! requests map %p ~ %p, with size %x\n", addr, addr + pmo->size - 1, pmo->size);
     r = vmspace_map_range(vmspace, addr, pmo->size, perm, pmo);
     if (r != 0)
     {

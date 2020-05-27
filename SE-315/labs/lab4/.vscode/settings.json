@@ -10,6 +10,16 @@
         "hashtable": "c",
         "__mutex_base": "c",
         "memory": "c",
-        "mutex": "c"
+        "mutex": "c",
+        "__string": "c",
+        "cstring": "c",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "string": "cpp",
+        "utility": "cpp",
+        "vector": "cpp"
     }
 }

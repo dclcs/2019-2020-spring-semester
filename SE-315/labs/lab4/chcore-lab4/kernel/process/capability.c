@@ -18,19 +18,20 @@
 #include <common/printk.h>
 
 const obj_deinit_func obj_deinit_tbl[TYPE_NR] = {
-       [0 ... TYPE_NR - 1] = NULL,
-       [TYPE_THREAD] = thread_deinit,
+	[0 ... TYPE_NR - 1] = NULL,
+	[TYPE_THREAD] = thread_deinit,
 };
 
 /* local object operation methods */
 static void *get_opaque(struct process *process, int slot_id,
-			bool type_valid, int type)
+						bool type_valid, int type)
 {
 	struct slot_table *slot_table = &process->slot_table;
 	struct object_slot *slot;
 	void *obj;
 
-	if (!is_valid_slot_id(slot_table, slot_id)) {
+	if (!is_valid_slot_id(slot_table, slot_id))
+	{
 		obj = NULL;
 		goto out_unlock_table;
 	}
@@ -39,17 +40,20 @@ static void *get_opaque(struct process *process, int slot_id,
 	BUG_ON(slot->isvalid == false);
 	BUG_ON(slot->object == NULL);
 
-	if (!type_valid || slot->object->type == type) {
+	if (!type_valid || slot->object->type == type)
+	{
 		obj = slot->object->opaque;
-	} else {
+	}
+	else
+	{
 		obj = NULL;
 		goto out_unlock_slot;
 	}
 
 	atomic_fetch_add_64(&slot->object->refcount, 1);
 
-	out_unlock_slot:
-	out_unlock_table:
+out_unlock_slot:
+out_unlock_table:
 	return obj;
 }
 
@@ -122,14 +126,16 @@ void obj_free(void *obj)
 	object = container_of(obj, struct object, opaque);
 
 	/* fallback of obj_alloc */
-	if (object->refcount == 0) {
+	if (object->refcount == 0)
+	{
 		kfree(object);
 		return;
 	}
 
 	/* free all copied slots */
 	for_each_in_list_safe(slot_iter, slot_iter_tmp,
-			      copies, &object->copies_head) {
+						  copies, &object->copies_head)
+	{
 		u64 iter_slot_id = slot_iter->slot_id;
 		struct process *iter_process = slot_iter->process;
 
@@ -147,13 +153,15 @@ int cap_alloc(struct process *process, void *obj, u64 rights)
 	object = container_of(obj, struct object, opaque);
 
 	slot_id = alloc_slot_id(process);
-	if (slot_id < 0) {
+	if (slot_id < 0)
+	{
 		r = -ENOMEM;
 		goto out_unlock_table;
 	}
 
 	slot = kmalloc(sizeof(*slot));
-	if (!slot) {
+	if (!slot)
+	{
 		r = -ENOMEM;
 		goto out_free_slot_id;
 	}
@@ -185,7 +193,8 @@ int cap_free(struct process *process, int slot_id)
 	obj_deinit_func func;
 
 	slot = get_slot(process, slot_id);
-	if (!slot || slot->isvalid == false) {
+	if (!slot || slot->isvalid == false)
+	{
 		r = -ECAPBILITY;
 		goto out_unlock_table;
 	}
@@ -195,7 +204,8 @@ int cap_free(struct process *process, int slot_id)
 
 	object = slot->object;
 	old_refcount = atomic_fetch_sub_64(&object->refcount, 1);
-	if (old_refcount == 1) {
+	if (old_refcount == 1)
+	{
 		func = obj_deinit_tbl[object->type];
 		if (func)
 			func(object->opaque);
@@ -214,25 +224,28 @@ out_unlock_table:
 }
 
 int cap_copy(struct process *src_process, struct process *dest_process,
-	     int src_slot_id, bool new_rights_valid, u64 new_rights)
+			 int src_slot_id, bool new_rights_valid, u64 new_rights)
 {
 	struct object_slot *src_slot, *dest_slot;
 	int r, dest_slot_id;
 
 	src_slot = get_slot(src_process, src_slot_id);
-	if (!src_slot || src_slot->isvalid == false) {
+	if (!src_slot || src_slot->isvalid == false)
+	{
 		r = -ECAPBILITY;
 		goto out_unlock;
 	}
 
 	dest_slot_id = alloc_slot_id(dest_process);
-	if (dest_slot_id == -1) {
+	if (dest_slot_id == -1)
+	{
 		r = -ENOMEM;
 		goto out_unlock;
 	}
 
 	dest_slot = kmalloc(sizeof(*dest_slot));
-	if (!dest_slot) {
+	if (!dest_slot)
+	{
 		r = -ENOMEM;
 		goto out_free_slot_id;
 	}
@@ -265,12 +278,12 @@ int cap_copy_local(struct process *process, int src_slot_id, u64 new_rights)
 }
 
 int cap_move(struct process *src_process, struct process *dest_process,
-	     int src_slot_id, bool new_rights_valid, u64 new_rights)
+			 int src_slot_id, bool new_rights_valid, u64 new_rights)
 {
 	int r;
 
 	r = cap_copy(src_process, dest_process, src_slot_id,
-		     new_rights_valid, new_rights);
+				 new_rights_valid, new_rights);
 	if (r < 0)
 		return r;
 	r = cap_free(src_process, src_slot_id);
@@ -285,7 +298,8 @@ int cap_revoke(struct process *process, int slot_id)
 	int r = 0;
 
 	object = __object_get(process, slot_id);
-	if (!object) {
+	if (!object)
+	{
 		return -ECAPBILITY;
 	}
 	obj_free(object->opaque);
@@ -300,7 +314,7 @@ int sys_cap_copy_to(u64 dest_process_cap, u64 src_slot_id)
 	int r;
 
 	dest_process = obj_get(current_process, dest_process_cap,
-			       TYPE_PROCESS);
+						   TYPE_PROCESS);
 	if (!dest_process)
 		return -ECAPBILITY;
 	r = cap_copy(current_process, dest_process, src_slot_id, 0, 0);
@@ -314,7 +328,7 @@ int sys_cap_copy_from(u64 src_process_cap, u64 src_slot_id)
 	int r;
 
 	src_process = obj_get(current_process, src_process_cap,
-			      TYPE_PROCESS);
+						  TYPE_PROCESS);
 	if (!src_process)
 		return -ECAPBILITY;
 	r = cap_copy(src_process, current_process, src_slot_id, 0, 0);
@@ -323,7 +337,7 @@ int sys_cap_copy_from(u64 src_process_cap, u64 src_slot_id)
 }
 
 int sys_transfer_caps(u64 dest_group_cap, u64 src_caps_buf, int nr_caps,
-		     u64 dst_caps_buf)
+					  u64 dst_caps_buf)
 {
 	struct process *dest_process;
 	int i;
@@ -332,7 +346,7 @@ int sys_transfer_caps(u64 dest_group_cap, u64 src_caps_buf, int nr_caps,
 	size_t size;
 
 	dest_process = obj_get(current_process, dest_group_cap,
-			       TYPE_PROCESS);
+						   TYPE_PROCESS);
 	if (!dest_process)
 		return -ECAPBILITY;
 
@@ -343,9 +357,10 @@ int sys_transfer_caps(u64 dest_group_cap, u64 src_caps_buf, int nr_caps,
 	/* get args from user buffer */
 	copy_from_user((void *)src_caps, (void *)src_caps_buf, size);
 
-	for (i = 0; i < nr_caps; ++i) {
+	for (i = 0; i < nr_caps; ++i)
+	{
 		dst_caps[i] = cap_copy(current_process, dest_process,
-			     src_caps[i], 0, 0);
+							   src_caps[i], 0, 0);
 	}
 
 	/* write results to user buffer */
@@ -361,7 +376,7 @@ int sys_cap_move(u64 dest_process_cap, u64 src_slot_id)
 	int r;
 
 	dest_process = obj_get(current_process, dest_process_cap,
-			       TYPE_PROCESS);
+						   TYPE_PROCESS);
 	if (!dest_process)
 		return -ECAPBILITY;
 	r = cap_move(current_process, dest_process, src_slot_id, 0, 0);
@@ -377,19 +392,20 @@ int sys_get_all_caps(u64 process_cap)
 	int i;
 
 	process = obj_get(current_process, process_cap,
-			  TYPE_PROCESS);
+					  TYPE_PROCESS);
 	if (!process)
 		return -ECAPBILITY;
 	printk("thread %p cap:\n", current_thread);
 
 	slot_table = &process->slot_table;
-	for (i = 0; i < slot_table->slots_size; i++) {
+	for (i = 0; i < slot_table->slots_size; i++)
+	{
 		struct object_slot *slot = get_slot(process, i);
 		if (!slot)
 			continue;
 		BUG_ON(slot->isvalid != true);
 		printk("slot_id:%d type:%d\n", i,
-		       slot_table->slots[i]->object->type);
+			   slot_table->slots[i]->object->type);
 	}
 
 	obj_put(process);

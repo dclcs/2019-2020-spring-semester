@@ -250,3 +250,23 @@ This part has been considered when Exercise 7 being implemented. So, there's onl
 
 There's no much code to write. But notice that sometimes our user-application might provide an incorrect `thread_cap` slot number, and our kernel should handle that instead of raising a panic.
 
+### Part C: Spawn
+
+#### Exercise 14
+
+Just follow the detailed instructions.
+
+But we should notice that at the very beginning we requests a page to store `argc` and `argv`, so some memory addressing should be subtracted by `PAGE_SIZE` offset.
+
+#### Exercise 15
+
+After completing Exercise 14, no information can be exchanged between the parent and its spawned child.
+
+Now let's write a little code to implement that. Actually, all transferring method has been provided as `syscall`, so there's no much code to write.
+
+### Part D: Inter-Process Communicate (IPC)
+
+#### Exercise 16
+
+#### Exercise 17
+

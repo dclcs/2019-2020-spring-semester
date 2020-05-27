@@ -6,7 +6,8 @@
 #include <lib/syscall.h>
 
 /* main thread info */
-struct mt_info {
+struct mt_info
+{
 	u64 stack_base;
 	u64 stack_size;
 	u64 prio;
@@ -14,29 +15,29 @@ struct mt_info {
 
 /* An example to launch an (libc) application process */
 
-#define AT_NULL 0      /* end of vector */
-#define AT_IGNORE 1    /* entry should be ignored */
-#define AT_EXECFD 2    /* file descriptor of program */
-#define AT_PHDR 3      /* program headers for program */
-#define AT_PHENT 4     /* size of program header entry */
-#define AT_PHNUM 5     /* number of program headers */
-#define AT_PAGESZ 6    /* system page size */
-#define AT_BASE 7      /* base address of interpreter */
-#define AT_FLAGS 8     /* flags */
-#define AT_ENTRY 9     /* entry point of program */
+#define AT_NULL 0	   /* end of vector */
+#define AT_IGNORE 1	   /* entry should be ignored */
+#define AT_EXECFD 2	   /* file descriptor of program */
+#define AT_PHDR 3	   /* program headers for program */
+#define AT_PHENT 4	   /* size of program header entry */
+#define AT_PHNUM 5	   /* number of program headers */
+#define AT_PAGESZ 6	   /* system page size */
+#define AT_BASE 7	   /* base address of interpreter */
+#define AT_FLAGS 8	   /* flags */
+#define AT_ENTRY 9	   /* entry point of program */
 #define AT_NOTELF 10   /* program is not ELF */
-#define AT_UID 11      /* real uid */
-#define AT_EUID 12     /* effective uid */
-#define AT_GID 13      /* real gid */
-#define AT_EGID 14     /* effective gid */
+#define AT_UID 11	   /* real uid */
+#define AT_EUID 12	   /* effective uid */
+#define AT_GID 13	   /* real gid */
+#define AT_EGID 14	   /* effective gid */
 #define AT_PLATFORM 15 /* string identifying CPU for optimizations */
-#define AT_HWCAP 16    /* arch dependent hints at CPU capabilities */
+#define AT_HWCAP 16	   /* arch dependent hints at CPU capabilities */
 #define AT_CLKTCK 17   /* frequency at which times() increments */
 /* AT_* values 18 through 22 are reserved */
 #define AT_SECURE 23 /* secure mode boolean */
-#define AT_BASE_PLATFORM                                                       \
-	24	   /* string identifying real platform, may                  \
-		      * differ from AT_PLATFORM. */
+#define AT_BASE_PLATFORM                                      \
+	24				 /* string identifying real platform, may \
+					  * differ from AT_PLATFORM. */
 #define AT_RANDOM 25 /* address of 16 random bytes */
 #define AT_HWCAP2 26 /* extension of AT_HWCAP */
 
@@ -48,9 +49,9 @@ char init_env[PAGE_SIZE];
 const char PLAT[] = "aarch64";
 
 static void construct_init_env(char *env, u64 top_vaddr,
-			       struct process_metadata *meta, char *name,
-			       struct pmo_map_request *pmo_map_reqs,
-			       int nr_pmo_map_reqs, int caps[], int nr_caps)
+							   struct process_metadata *meta, char *name,
+							   struct pmo_map_request *pmo_map_reqs,
+							   int nr_pmo_map_reqs, int caps[], int nr_caps)
 {
 	int i, j;
 	char *name_str;
@@ -60,7 +61,8 @@ static void construct_init_env(char *env, u64 top_vaddr,
 	int argc = 1; /* at least 1 for binary name */
 
 	/* clear init_env */
-	for (i = 0; i < PAGE_SIZE; ++i) {
+	for (i = 0; i < PAGE_SIZE; ++i)
+	{
 		env[i] = 0;
 	}
 
@@ -68,7 +70,8 @@ static void construct_init_env(char *env, u64 top_vaddr,
 	/* the last 64 bytes */
 	name_str = env + PAGE_SIZE - 64;
 	i = 0;
-	while (name[i] != '\0') {
+	while (name[i] != '\0')
+	{
 		name_str[i] = name[i];
 		++i;
 	}
@@ -77,13 +80,15 @@ static void construct_init_env(char *env, u64 top_vaddr,
 	/* the second last 64 bytes */
 	plat_str = env + PAGE_SIZE - 2 * 64;
 	i = 0;
-	while (PLAT[i] != '\0') {
+	while (PLAT[i] != '\0')
+	{
 		plat_str[i] = PLAT[i];
 		++i;
 	}
 	// printf("plat_str: %s\n", plat_str);
 
 	buf = (u64 *)env;
+
 	/* argc */
 	*buf = argc;
 
@@ -99,17 +104,22 @@ static void construct_init_env(char *env, u64 top_vaddr,
 	 * info_page_vaddr = (u64)envp[0];
 	 * fs_server_cap = (u64)envp[1];
 	 */
-	if (nr_pmo_map_reqs == 0) {
+	if (nr_pmo_map_reqs == 0)
+	{
 		/* set info_page_vaddr to 0x0 */
 		*(buf + i) = (u64)0;
 		i = i + 1;
-	} else {
-		for (j = 0; j < nr_pmo_map_reqs; ++j) {
+	}
+	else
+	{
+		for (j = 0; j < nr_pmo_map_reqs; ++j)
+		{
 			*(buf + i + j) = (u64)pmo_map_reqs[j].addr;
 		}
 		i = i + j;
 	}
-	for (j = 0; j < nr_caps; ++j) {
+	for (j = 0; j < nr_caps; ++j)
+	{
 		/* e.g., fs_server_cap = (u64)envp[1]; */
 		*(buf + i + j) = (u64)caps[j];
 	}
@@ -192,11 +202,11 @@ static void construct_init_env(char *env, u64 top_vaddr,
  */
 #define LAB4_SPAWN_BLANK 0
 int launch_process_with_pmos_caps(struct user_elf *user_elf,
-				  int *child_process_cap,
-				  int *child_main_thread_cap,
-				  struct pmo_map_request *pmo_map_reqs,
-				  int nr_pmo_map_reqs, int caps[], int nr_caps,
-				  s32 aff)
+								  int *child_process_cap,
+								  int *child_main_thread_cap,
+								  struct pmo_map_request *pmo_map_reqs,
+								  int nr_pmo_map_reqs, int caps[], int nr_caps,
+								  s32 aff)
 {
 	int new_process_cap;
 	int main_thread_cap;
@@ -216,7 +226,6 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 	struct pmo_map_request pmo_map_requests[1];
 	int transfer_caps[MAX_NR_CAPS];
 	// Lab4 useless code, help avoid compile warning, you can delete it as you wish
-	transfer_caps[0] = 0; 
 
 	{
 		/**
@@ -224,9 +233,10 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 *  You do not need to modify code in this scope
 		 */
 		new_process_cap = usys_create_process();
-		if (new_process_cap < 0) {
+		if (new_process_cap < 0)
+		{
 			printf("%s: fail to create new_process_cap (ret: %d)\n",
-			       __func__, new_process_cap);
+				   __func__, new_process_cap);
 			goto fail;
 		}
 	}
@@ -237,14 +247,16 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 *  Map each segment in the elf binary to child process
 		 *  You do not need to modify code in this scope
 		 */
-		for (i = 0; i < 2; ++i) {
+		for (i = 0; i < 2; ++i)
+		{
 			p_vaddr = user_elf->user_elf_seg[i].p_vaddr;
 			ret = usys_map_pmo(new_process_cap,
-					   user_elf->user_elf_seg[i].elf_pmo,
-					   ROUND_DOWN(p_vaddr, PAGE_SIZE),
-					   user_elf->user_elf_seg[i].flags);
+							   user_elf->user_elf_seg[i].elf_pmo,
+							   ROUND_DOWN(p_vaddr, PAGE_SIZE),
+							   user_elf->user_elf_seg[i].flags);
 
-			if (ret < 0) {
+			if (ret < 0)
+			{
 				printf("usys_map_pmo ret %d\n", ret);
 				usys_exit(-1);
 			}
@@ -259,21 +271,24 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 * process.
 		 *  You do not need to modify code in this scope
 		 */
-		pmo_requests[0].size = LAB4_SPAWN_BLANK; 
-		pmo_requests[0].type = LAB4_SPAWN_BLANK;
+		pmo_requests[0].size = MAIN_THREAD_STACK_SIZE;
+		pmo_requests[0].type = PMO_DATA;
+		pmo_requests[0].ret_cap = 0;
 
 		ret = usys_create_pmos((void *)pmo_requests, 1);
-		if (ret != 0) {
+		if (ret != 0)
+		{
 			printf("%s: fail to create_pmos (ret: %d)\n", __func__,
-			       ret);
+				   ret);
 			goto fail;
 		}
 
 		/* get result caps */
 		main_stack_cap = pmo_requests[0].ret_cap;
-		if (main_stack_cap < 0) {
+		if (main_stack_cap < 0)
+		{
 			printf("%s: fail to create_pmos (ret: %d)\n", __func__,
-			       ret);
+				   ret);
 			goto fail;
 		}
 	}
@@ -284,6 +299,10 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 * Transfer the capbilities (nr_caps) of current process to the
 		 * capbilities of child process
 		 */
+		if (nr_caps > 0)
+		{
+			usys_transfer_caps(new_process_cap, caps, nr_caps, transfer_caps);
+		}
 	}
 
 	{
@@ -292,6 +311,11 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 * Use the given pmo_mao_reqs to map the vmspace in the child
 		 * process
 		 */
+		if (nr_pmo_map_reqs > 0)
+		{
+			// printf("going to call usys_map_pmos with cap: %d\n", new_process_cap);
+			usys_map_pmos(new_process_cap, (void *)pmo_map_reqs, nr_pmo_map_reqs);
+		}
 	}
 
 	{
@@ -314,13 +338,13 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 * stack_offset is the offset from main thread's stack base to
 		 * that address.
 		 */
-		stack_top = LAB4_SPAWN_BLANK; 
-		stack_offset = LAB4_SPAWN_BLANK;
+		stack_top = MAIN_THREAD_STACK_BASE + MAIN_THREAD_STACK_SIZE;
+		stack_offset = MAIN_THREAD_STACK_SIZE - PAGE_SIZE;
 
 		/* Construct the parameters on the top page of the stack */
 		construct_init_env(init_env, stack_top, &user_elf->elf_meta,
-				   user_elf->path, pmo_map_reqs,
-				   nr_pmo_map_reqs, transfer_caps, nr_caps);
+						   user_elf->path, pmo_map_reqs,
+						   nr_pmo_map_reqs, transfer_caps, nr_caps);
 	}
 
 	{
@@ -329,75 +353,91 @@ int launch_process_with_pmos_caps(struct user_elf *user_elf,
 		 * Update the main thread stack's pmo
 		 * You only need to write the modified page
 		 */
+
 		ret = usys_write_pmo(main_stack_cap, stack_offset, init_env,
-				     PAGE_SIZE);
-		if (ret != 0) {
+							 PAGE_SIZE);
+		if (ret != 0)
+		{
 			printf("%s: fail to write_pmo (ret: %d)\n", __func__,
-			       ret);
+				   ret);
 			goto fail;
 		}
 	}
-
+	// printf("write_pmo ok\n");
 	{
 		/**
 		 * Step 6
 		 *  map the the main thread stack's pmo in the new process.
 		 *  Both VM_READ and VM_WRITE permission should be set.
 		 */
-		pmo_map_requests[0].pmo_cap = LAB4_SPAWN_BLANK;
-		pmo_map_requests[0].addr = LAB4_SPAWN_BLANK;
-		pmo_map_requests[0].perm = LAB4_SPAWN_BLANK;
+		pmo_map_requests[0].pmo_cap = main_stack_cap;
+		pmo_map_requests[0].addr = MAIN_THREAD_STACK_BASE;
+		pmo_map_requests[0].perm = VM_READ | VM_WRITE;
 
 		ret =
-		    usys_map_pmos(new_process_cap, (void *)pmo_map_requests, 1);
+			usys_map_pmos(new_process_cap, (void *)pmo_map_requests, 1);
 
-		if (ret != 0) {
+		if (ret != 0)
+		{
 			printf("%s: fail to map_pmos (ret: %d)\n", __func__,
-			       ret);
+				   ret);
 			goto fail;
 		}
 	}
-
+	// printf("map_pmo ok\n");
 	{
 		/**
 		 * Step 7
 		 * create main thread in the new process.
 		 * Please fill the stack_va!
 		 */
-		stack_va = LAB4_SPAWN_BLANK;
+
+		stack_va = MAIN_THREAD_STACK_BASE + MAIN_THREAD_STACK_SIZE - PAGE_SIZE;
+		// printf("calling sys_create_thread, stack_va: %p, pc: %p\n", stack_va, pc);
 		main_thread_cap = usys_create_thread(
-		    new_process_cap, stack_va, pc,
-		    (u64)NULL, MAIN_THREAD_PRIO, aff);
-		if (main_thread_cap < 0) {
+			new_process_cap, stack_va, pc,
+			(u64)NULL, MAIN_THREAD_PRIO, aff);
+		if (main_thread_cap < 0)
+		{
 			printf("%s: fail to create thread (ret: %d)\n", __func__,
-			       ret);
+				   ret);
 			goto fail;
 		}
 	}
 
 	{
 		/* Step C: Output the child process & thread capabilities */
-	}
+		if (child_main_thread_cap != NULL)
+		{
+			*child_main_thread_cap = main_thread_cap;
+		}
 
+		if (child_process_cap != NULL)
+		{
+			*child_process_cap = new_process_cap;
+		}
+	}
+	// printf("create main thread ok\n");
 	return 0;
 fail:
 	return -EINVAL;
 }
 
 int spawn(char *path, int *new_process_cap, int *new_thread_cap,
-	  struct pmo_map_request *pmo_map_reqs, int nr_pmo_map_reqs, int caps[],
-	  int nr_caps, int aff)
+		  struct pmo_map_request *pmo_map_reqs, int nr_pmo_map_reqs, int caps[],
+		  int nr_caps, int aff)
 {
 	struct user_elf user_elf;
 	int ret;
 
 	ret = readelf_from_kernel_cpio(path, &user_elf);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		printf("[Client] Cannot create server.\n");
 		return ret;
 	}
 
 	return launch_process_with_pmos_caps(
-	    &user_elf, new_process_cap, new_thread_cap, pmo_map_reqs,
-	    nr_pmo_map_reqs, caps, nr_caps, aff);
+		&user_elf, new_process_cap, new_thread_cap, pmo_map_reqs,
+		nr_pmo_map_reqs, caps, nr_caps, aff);
 }

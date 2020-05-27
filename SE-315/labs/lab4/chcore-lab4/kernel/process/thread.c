@@ -109,6 +109,7 @@ int thread_create(struct process *process, u64 stack, u64 pc, u64 arg, u32 prio,
 	}
 	if ((ret = thread_init(thread, process, stack, pc, prio, type, aff)) != 0)
 		goto out_free_obj;
+
 	/* We should provide a separate syscall to set the affinity */
 	arch_set_thread_arg(thread, arg);
 	/* cap is thread_cap in the target process */
