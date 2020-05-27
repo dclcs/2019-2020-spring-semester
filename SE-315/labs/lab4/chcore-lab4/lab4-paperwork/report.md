@@ -276,8 +276,13 @@ However, sometimes they're awfully named, or storing stale values... So there's 
 
 #### Exercise 17
 
-It's hard to add features on a complicated, completed module.
+It's hard to add features on a complicated, completed module without making it ugly and unnatural.
 
-However, creating a degenerated version will be much simpler.
+However, creating a degenerated version will be much simpler and more graceful.
 
-`sys_ipc_reg_call` is a degenerated one.
+And see, `sys_ipc_reg_call` is a degenerated one.
+
+#### Bonus
+
+Left unfinished due to a critical computer malfunction.
+
