@@ -12,7 +12,6 @@ int child_thread_caps[THREAD_NUM];
 
 void *thread_routine(void *arg)
 {
-
 	u32 times = 0;
 	u64 thread_id = (u64)arg;
 	u64 next_thread_id = (thread_id + 1) % THREAD_NUM;
@@ -25,9 +24,9 @@ void *thread_routine(void *arg)
 		while (start_flags[thread_id] == 0)
 			;
 		start_flags[thread_id] = 0;
-		// printf("going on step 1 with %lu\n", (u64)arg);
+
 		usys_yield();
-		// printf("going on step 2 with %lu\n", (u64)arg);
+
 		aff = usys_get_affinity(child_thread_caps[thread_id]);
 
 		printf("Iteration %lu, thread %lu, cpu %u, aff %d\n", times,
@@ -37,9 +36,8 @@ void *thread_routine(void *arg)
 						  (thread_id + times) % 4);
 
 		start_flags[next_thread_id] = 1;
-		// printf("going on step 3 with %lu\n", (u64)arg);
+
 		usys_yield();
-		// printf("going on step 4 with %lu\n", (u64)arg);
 	}
 
 	/* usys_exit: just de-schedule itself without reclaiming the resource */
@@ -63,7 +61,6 @@ int main(int argc, char *argv[])
 		for (i = 0; i < 10000; i++)
 			;
 	}
-	// printf("i guess that's it\n");
 
 	start_flags[0] = 1;
 

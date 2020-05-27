@@ -1,6 +1,15 @@
 {
     "files.associations": {
         "ios": "c",
-        "iterator": "c"
+        "iterator": "c",
+        "__bit_reference": "c",
+        "algorithm": "c",
+        "bitset": "c",
+        "chrono": "c",
+        "unordered_map": "c",
+        "hashtable": "c",
+        "__mutex_base": "c",
+        "memory": "c",
+        "mutex": "c"
     }
 }

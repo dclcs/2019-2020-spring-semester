@@ -248,3 +248,5 @@ This part has been considered when Exercise 7 being implemented. So, there's onl
 
 #### Exercise 13
 
+There's no much code to write. But notice that sometimes our user-application might provide an incorrect `thread_cap` slot number, and our kernel should handle that instead of raising a panic.
+

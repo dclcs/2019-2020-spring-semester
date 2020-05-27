@@ -24,10 +24,25 @@
 #include <exception/irq.h>
 #include <sched/context.h>
 #include <exception/exception.h>
+#include <common/lock.h>
 
 /* in arch/sched/idle.S */
 void idle_thread_routine(void);
 
+/*
+ * rr_ready_queue
+ * Per-CPU ready queue for ready tasks.
+ * this struct list_head sucks, so let's just throw it away.
+ */
+
+// this is a dummy queue, don't use that one
+struct list_head rr_ready_queue[PLAT_CPU_NUM];
+
+static struct thread *priv_ready_queue[PLAT_CPU_NUM][MAX_PRIO];
+static u32 queue_pointer[PLAT_CPU_NUM];
+struct lock mutex_lock[PLAT_CPU_NUM];
+
+#if 0
 void printkk(const char *fmt)
 {
 	if (smp_get_cpu_id() == 0)
@@ -36,11 +51,175 @@ void printkk(const char *fmt)
 	}
 }
 
+static void print_queue()
+{
+	if (smp_get_cpu_id() != 0)
+	{
+		return;
+	}
+
+	printk("==============================\n");
+	for (size_t i = 0; i < PLAT_CPU_NUM; i++)
+	{
+		printk("#%d\t", i);
+		lock(&mutex_lock[i]);
+		for (u32 j = 0; j < queue_pointer[i]; j++)
+		{
+			print_thread(priv_ready_queue[i][j]);
+		}
+		unlock(&mutex_lock[i]);
+		printk("\n");
+	}
+	printk("==============================\n");
+}
+#else
+#define printkk(...)
+static void print_queue()
+{
+	// do nothing
+}
+#endif
+
+static bool queue_empty(u32 cpu_id)
+{
+	return queue_pointer[cpu_id] == 0;
+}
+
+static void set_dummy_queue(int empty, u32 cpu_id)
+{
+	lock(&mutex_lock[cpu_id]);
+	if (empty)
+	{
+		rr_ready_queue[cpu_id].next = rr_ready_queue[cpu_id].prev = &rr_ready_queue[cpu_id];
+		BUG_ON(!list_empty(&rr_ready_queue[cpu_id]));
+	}
+	else
+	{
+		rr_ready_queue[cpu_id].next = (struct list_head *)0xdead;
+		rr_ready_queue[cpu_id].prev = (struct list_head *)0xbeef;
+		BUG_ON(list_empty(&rr_ready_queue[cpu_id]));
+	}
+	unlock(&mutex_lock[cpu_id]);
+}
+
+static void refresh_dummy_queue()
+{
+	for (u32 i = 0; i < PLAT_CPU_NUM; i++)
+	{
+		set_dummy_queue(queue_empty(i), i);
+	}
+}
+
+static void init_queue(u32 cpu_count)
+{
+	print_queue();
+	for (u32 i = 0; i < cpu_count; i++)
+	{
+		lock(&mutex_lock[i]);
+		queue_pointer[i] = 0;
+		unlock(&mutex_lock[i]);
+	}
+	refresh_dummy_queue();
+}
+
+static void enqueue_last(struct thread *thread, u32 cpu_id)
+{
+	print_queue();
+	lock(&mutex_lock[cpu_id]);
+	priv_ready_queue[cpu_id][queue_pointer[cpu_id]] = thread;
+	++queue_pointer[cpu_id];
+	unlock(&mutex_lock[cpu_id]);
+	refresh_dummy_queue();
+}
+
 /*
- * rr_ready_queue
- * Per-CPU ready queue for ready tasks.
- */
-struct list_head rr_ready_queue[PLAT_CPU_NUM];
+static struct thread *dequeue_first(struct thread *thread, u32 cpu_id)
+{
+	print_queue();
+	BUG_ON(queue_pointer[cpu_id] == 0);
+
+	if (thread == NULL)
+	{
+		lock(&mutex_lock[cpu_id]);
+		// DQ the first one, by default
+		struct thread *result = priv_ready_queue[cpu_id][0];
+
+		for (u32 i = 1; i < queue_pointer[cpu_id]; i++)
+		{
+			priv_ready_queue[cpu_id][i - 1] = priv_ready_queue[cpu_id][i];
+		}
+		--queue_pointer[cpu_id];
+		unlock(&mutex_lock[cpu_id]);
+		refresh_dummy_queue();
+		return result;
+	}
+	else
+	{
+		lock(&mutex_lock[cpu_id]);
+		struct thread *new_queue[MAX_PRIO];
+		int new_pointer = 0;
+
+		int found = false;
+		struct thread *result = NULL;
+
+		for (u32 i = 0; i < queue_pointer[cpu_id]; i++)
+		{
+			if (priv_ready_queue[cpu_id][i] != thread)
+			{
+				new_queue[new_pointer] = priv_ready_queue[cpu_id][i];
+				++new_pointer;
+			}
+			else if (found)
+			{
+				new_queue[new_pointer] = priv_ready_queue[cpu_id][i];
+				++new_pointer;
+			}
+			else
+			{
+				found = true;
+				result = priv_ready_queue[cpu_id][i];
+			}
+		}
+
+		for (u32 j = 0; j < new_pointer; j++)
+		{
+			priv_ready_queue[cpu_id][j] = new_queue[j];
+		}
+		queue_pointer[cpu_id] = new_pointer;
+
+		unlock(&mutex_lock[cpu_id]);
+		refresh_dummy_queue();
+		return result;
+	}
+}
+*/
+
+static void dequeue_any(struct thread *thread, u32 cpu_id)
+{
+	print_queue();
+	lock(&mutex_lock[cpu_id]);
+	struct thread *new_queue[MAX_PRIO];
+	int new_pointer = 0;
+
+	for (u32 i = 0; i < queue_pointer[cpu_id]; i++)
+	{
+		if (priv_ready_queue[cpu_id][i] != thread)
+		{
+			new_queue[new_pointer] = priv_ready_queue[cpu_id][i];
+			++new_pointer;
+		}
+	}
+
+	for (u32 j = 0; j < new_pointer; j++)
+	{
+		priv_ready_queue[cpu_id][j] = new_queue[j];
+	}
+	queue_pointer[cpu_id] = new_pointer;
+	unlock(&mutex_lock[cpu_id]);
+	refresh_dummy_queue();
+}
+
+// struct list_head rr_ready_queue[PLAT_CPU_NUM];
 /*
  * RR policy also has idle threads.
  * When no active user threads in ready queue,
@@ -62,12 +241,14 @@ int rr_sched_dequeue(struct thread *thread);
  */
 int rr_sched_enqueue(struct thread *thread)
 {
+	// printkk("attempt to enqueue this: \n\t");
+	// print_thread(thread);
 	if (!thread || !thread->thread_ctx)
 	{
 		return -1;
 	}
 
-	thread->node.thread = thread;
+	// thread->node.thread = thread;
 
 	u32 affinity = thread->thread_ctx->affinity;
 	if (thread->thread_ctx->type == TYPE_IDLE)
@@ -78,6 +259,7 @@ int rr_sched_enqueue(struct thread *thread)
 	else if (thread->thread_ctx->state == TS_READY)
 	{
 		// it's already an enqueued thread!
+		printkk("going to return -3! bad state\n");
 		return -3;
 	}
 
@@ -85,7 +267,9 @@ int rr_sched_enqueue(struct thread *thread)
 	{
 		// printk("NO AFF\n");
 		u32 cpu_id = smp_get_cpu_id();
-		list_add(&thread->node, &rr_ready_queue[cpu_id]);
+
+		enqueue_last(thread, cpu_id);
+		// list_add(&thread->node, &rr_ready_queue[cpu_id]);
 		// printk("perform list_add.\n");
 		// print_thread(thread);
 		thread->thread_ctx->cpuid = cpu_id;
@@ -93,7 +277,8 @@ int rr_sched_enqueue(struct thread *thread)
 	else if (affinity < PLAT_CPU_NUM)
 	{
 		// printk("HAVE AFF %d\n", affinity);
-		list_add(&thread->node, &rr_ready_queue[affinity]);
+		enqueue_last(thread, affinity);
+		// list_add(&thread->node, &rr_ready_queue[affinity]);
 		// printk("perform list_add.\n");
 		// print_thread(thread);
 		thread->thread_ctx->cpuid = affinity;
@@ -101,6 +286,7 @@ int rr_sched_enqueue(struct thread *thread)
 	else
 	{
 		// printk("BUG: bad affinity given to rr_sched_enqueue!\n");
+		printkk("going to return -4! bad affinity\n");
 		return -4;
 	}
 	thread->thread_ctx->state = TS_READY;
@@ -132,21 +318,22 @@ int rr_sched_dequeue(struct thread *thread)
 	thread->thread_ctx->state = TS_INTER;
 
 	u32 cpu_id = thread->thread_ctx->cpuid;
-	struct list_head *head = &rr_ready_queue[cpu_id];
-	struct list_head *node = head;
+	dequeue_any(thread, cpu_id);
+	// struct list_head *head = &rr_ready_queue[cpu_id];
+	// struct list_head *node = head;
 
-	do
-	{
-		struct list_head *prev = node->prev;
-		if (node->thread == thread)
-		{
-			// printk("going to delete %p\n", node);
-			list_del(node);
-			break;
-		}
-		// printk("in while loop, node = %p, prev = %p, head = %p\n", node, prev, head);
-		node = prev;
-	} while (node && head != node);
+	// do
+	// {
+	// 	struct list_head *prev = node->prev;
+	// 	if (node->thread == thread)
+	// 	{
+	// 		// printk("going to delete %p\n", node);
+	// 		list_del(node);
+	// 		break;
+	// 	}
+	// 	// printk("in while loop, node = %p, prev = %p, head = %p\n", node, prev, head);
+	// 	node = prev;
+	// } while (node && head != node);
 	return 0;
 }
 
@@ -165,22 +352,18 @@ struct thread *rr_sched_choose_thread(void)
 {
 	// printkk("called rr_sched_choose_thread\n");
 	u32 cpu_id = smp_get_cpu_id();
-	if (list_empty(&rr_ready_queue[cpu_id]))
+
+	if (queue_empty(cpu_id))
 	{
+		// if (list_empty(&rr_ready_queue[cpu_id])) {
 		// printkk("list is empty!\n");
 		return &idle_threads[cpu_id];
 	}
 	// printkk("list isn't empty!\n");
 
-	struct list_head *head = &rr_ready_queue[cpu_id];
-	struct list_head *node = head;
-	// printk("node = %p\n", node);
-	// printk(" === traverse begin === \n");
-
-	do
+	for (u32 i = 0; i < queue_pointer[cpu_id]; i++)
 	{
-		// printkk("one cycle\n");
-		struct thread *target = node->thread;
+		struct thread *target = priv_ready_queue[cpu_id][i];
 		if (target && target->thread_ctx && target->thread_ctx->cpuid == cpu_id && target->thread_ctx->state == TS_READY && target->thread_ctx->type != TYPE_IDLE)
 		{
 			// print_thread(target);
@@ -188,8 +371,8 @@ struct thread *rr_sched_choose_thread(void)
 			return target;
 		}
 		// printk("this cycle done in vain\n");
-		node = node->prev;
-	} while (node && head->thread != node->thread);
+		// node = node->prev;
+	}
 
 	// printk(" === traverse over === \n");
 	return &idle_threads[cpu_id];
@@ -245,9 +428,15 @@ int rr_sched_init(void)
 	for (i = 0; i < PLAT_CPU_NUM; i++)
 	{
 		current_threads[i] = NULL;
-		init_list_head(&rr_ready_queue[i]);
-		rr_ready_queue[i].thread = NULL;
+		// init_list_head(&rr_ready_queue[i]);
+		// rr_ready_queue[i].thread = NULL;
+		lock_init(&mutex_lock[i]);
 	}
+
+	init_queue(PLAT_CPU_NUM);
+	refresh_dummy_queue();
+
+	print_queue();
 
 	/* Initialize one idle thread for each core and insert into the RQ */
 	for (i = 0; i < PLAT_CPU_NUM; i++)
@@ -261,7 +450,7 @@ int rr_sched_init(void)
 		arch_idle_ctx_init(idle_threads[i].thread_ctx,
 						   idle_thread_routine);
 		/* Idle thread is kernel thread which do not have vmspace */
-		idle_threads[i].node.thread = &idle_threads[i];
+		// idle_threads[i].node.thread = &idle_threads[i];
 		idle_threads[i].vmspace = NULL;
 	}
 	kdebug("Scheduler initialized. Create %d idle threads.\n", i);
