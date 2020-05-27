@@ -276,3 +276,8 @@ However, sometimes they're awfully named, or storing stale values... So there's 
 
 #### Exercise 17
 
+It's hard to add features on a complicated, completed module.
+
+However, creating a degenerated version will be much simpler.
+
+`sys_ipc_reg_call` is a degenerated one.

@@ -214,5 +214,20 @@ out_fail:
  * */
 u64 sys_ipc_reg_call(u32 conn_cap, u64 arg0)
 {
-	return (u64)-1;
+	struct ipc_connection *conn = NULL;
+	int r;
+
+	conn = obj_get(current_thread->process, conn_cap, TYPE_CONNECTION);
+	if (!conn)
+	{
+		r = -ECAPBILITY;
+		goto out_fail;
+	}
+
+	thread_migrate_to_server(conn, arg0);
+
+	BUG("This function should never\n");
+
+out_fail:
+	return r;
 }
