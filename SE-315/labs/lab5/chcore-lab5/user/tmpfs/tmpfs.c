@@ -17,19 +17,22 @@ static inline u64 hash_chars(const char *str, ssize_t len)
 	u64 hash = 0;
 	int i;
 
-	if (len < 0) {
-		while (*str) {
+	if (len < 0)
+	{
+		while (*str)
+		{
 			hash = (hash * seed) + *str;
 			str++;
 		}
-	} else {
+	}
+	else
+	{
 		for (i = 0; i < len; ++i)
 			hash = (hash * seed) + str[i];
 	}
 
 	return hash;
 }
-
 
 /* BKDR hash */
 static inline u64 hash_string(struct string *s)
@@ -106,7 +109,8 @@ new_dent(struct inode *inode, const char *name, size_t len)
 	if (!dent)
 		return ERR_PTR(-ENOMEM);
 	err = init_string(&dent->name, name, len);
-	if (err) {
+	if (err)
+	{
 		free(dent);
 		return ERR_PTR(err);
 	}
@@ -116,7 +120,7 @@ new_dent(struct inode *inode, const char *name, size_t len)
 }
 
 // this function create a file (directory if `mkdir` == true, otherwise regular
-// file) and its size is `len`. You should create an inode and corresponding 
+// file) and its size is `len`. You should create an inode and corresponding
 // dentry, then add dentey to `dir`'s htable by `htable_add`.
 // Assume that no separator ('/') in `name`.
 static int tfs_mknod(struct inode *dir, const char *name, size_t len, int mkdir)
@@ -124,29 +128,45 @@ static int tfs_mknod(struct inode *dir, const char *name, size_t len, int mkdir)
 	struct inode *inode;
 	struct dentry *dent;
 
+	size_t name_len = strlen(name);
+
 	BUG_ON(!name);
 
-	if (len == 0) {
+	if (len == 0)
+	{
 		WARN("mknod with len of 0");
 		return -ENOENT;
 	}
 
-  // TODO(Lab5): write your code here
+	struct inode *node;
 
+	if (mkdir)
+	{
+		node = new_dir();
+	}
+	else
+	{
+		node = new_reg();
+	}
+	struct dentry *entry = malloc(sizeof(struct dentry));
+	entry->inode = inode;
+	init_string(&entry->name, name, strlen);
+	init_hlist_node(&entry->node);
+	htable_add(&dir->dentries, (u32)entry->name.hash, &entry->node);
 	return 0;
 }
 
 int tfs_mkdir(struct inode *dir, const char *name, size_t len)
 {
-	return tfs_mknod(dir, name, len, 1 /* mkdir */);
+	return tfs_mknod(dir, name, len, 1 /* make directiory */);
 }
 
 int tfs_creat(struct inode *dir, const char *name, size_t len)
 {
-	return tfs_mknod(dir, name, len, 0 /* mkdir */);
+	return tfs_mknod(dir, name, len, 0 /* make regular file */);
 }
 
-// look up a file called `name` under the inode `dir` 
+// look up a file called `name` under the inode `dir`
 // and return the dentry of this file
 static struct dentry *tfs_lookup(struct inode *dir, const char *name, size_t len)
 {
@@ -156,9 +176,10 @@ static struct dentry *tfs_lookup(struct inode *dir, const char *name, size_t len
 
 	head = htable_get_bucket(&dir->dentries, (u32)hash);
 
-	for_each_in_hlist(dent, node, head) {
+	for_each_in_hlist(dent, node, head)
+	{
 		if (dent->name.len == len &&
-		    0 == strcmp(dent->name.str, name))
+			0 == strcmp(dent->name.str, name))
 			return dent;
 	}
 	return NULL;
@@ -167,7 +188,7 @@ static struct dentry *tfs_lookup(struct inode *dir, const char *name, size_t len
 // Walk the file system structure to locate a file with the pathname stored in `*name`
 // and saves parent dir to `*dirat` and the filename to `*name`.
 // If `mkdir_p` is true, you need to create intermediate directories when it missing.
-// If the pathname `*name` starts with '/', then lookup starts from `tmpfs_root`, 
+// If the pathname `*name` starts with '/', then lookup starts from `tmpfs_root`,
 // else from `*dirat`.
 // Note that when `*name` ends with '/', the inode of last component will be
 // saved in `*dirat` regardless of its type (e.g., even when it's FS_REG) and
@@ -183,12 +204,15 @@ int tfs_namex(struct inode **dirat, const char **name, int mkdir_p)
 	struct dentry *dent;
 	int err;
 
-	if (**name == '/') {
+	if (**name == '/')
+	{
 		*dirat = tmpfs_root;
 		// make sure `name` starts with actual name
 		while (**name && **name == '/')
 			++(*name);
-	} else {
+	}
+	else
+	{
 		BUG_ON(*dirat == NULL);
 		BUG_ON((*dirat)->type != FS_DIR);
 	}
@@ -198,10 +222,100 @@ int tfs_namex(struct inode **dirat, const char **name, int mkdir_p)
 		return -EINVAL;
 
 	// TODO(Lab5): each loop begins with an actual name
-  // `tfs_lookup` and `tfs_mkdir` are very useful
-  // </lab5>
+	// `tfs_lookup` and `tfs_mkdir` are very useful
+	// </lab5>
+
+	struct string temp_string;
+
+	while (true)
+	{
+		size_t name_len = 0;
+
+		bool is_folder = false;
+		while (**name && **name != '/')
+		{
+			++name_len;
+			++*name;
+		}
+
+		if (**name)
+		{
+			// skip separator'/'
+			++*name;
+			is_folder = true;
+		}
+		else
+		{
+			is_folder = false;
+		}
+
+		bool is_tail = !*(*name + 1);
+
+		init_string(&temp_string, *name - name_len, name_len);
+
+		if (is_tail && is_folder)
+		{
+			// this is the last one & it ends with /
+			*dirat = dent;
+			return 0;
+		}
+		else if (is_tail /* && !is_folder <= redundant */)
+		{
+			*dirat = dent;
+			if (tfs_lookup(dent->inode, temp_string.str, temp_string.len))
+			{
+
+				memcpy(*name, temp_string.str, temp_string.len);
+				return 0;
+			}
+			else
+			{
+				printf("no tail file (%s) found\n", temp_string.str);
+				return -ENODATA;
+			}
+		}
+
+		if (dent->inode->type == FS_DIR)
+		{
+			struct dentry *temp = tfs_lookup(dent->inode, temp_string.str, temp_string.len);
+			if (!temp)
+			{
+
+				if (mkdir_p)
+				{
+					err = tfs_mkdir(dent, temp_string.str, temp_string.len);
+					if (err)
+					{
+						return err;
+					}
+				}
+				else
+				{
+					printf("expected a intermediate dir (%s), but no found and mkdir_p isn't true\n", temp_string.str);
+					return -ENOENT;
+				}
+			}
+			if (dent->inode->type != FS_DIR)
+			{
+				printf("expected a intermediate dir, but it (%s) isn't\n", temp_string.str);
+				return -ENOTDIR;
+			}
+
+			dent = temp;
+		}
+		else if (dent->inode->type == FS_REG)
+		{
+			printf("found a FS_REG (%s) in middle\n", temp_string.str);
+			return -ENOTDIR;
+		}
+		else
+		{
+			return -EINVAL;
+		}
+	}
 
 	/* we will never reach here? */
+	/* maybe. */
 	return 0;
 }
 
@@ -213,16 +327,19 @@ int tfs_remove(struct inode *dir, const char *name, size_t len)
 
 	BUG_ON(!name);
 
-	if (len == 0) {
+	if (len == 0)
+	{
 		WARN("mknod with len of 0");
 		return -ENOENT;
 	}
 
 	head = htable_get_bucket(&dir->dentries, (u32)hash);
 
-	for_each_in_hlist(dent, node, head) {
+	for_each_in_hlist(dent, node, head)
+	{
 		if (dent->name.len == len &&
-		    0 == strcmp(dent->name.str, name)) {
+			0 == strcmp(dent->name.str, name))
+		{
 			target = dent;
 			break;
 		}
@@ -234,7 +351,8 @@ int tfs_remove(struct inode *dir, const char *name, size_t len)
 	BUG_ON(!target->inode);
 
 	// FIXME(TCZ): remove only when file is closed by all processes
-	if (target->inode->type == FS_REG) {
+	if (target->inode->type == FS_REG)
+	{
 		// free radix tree
 		radix_free(&target->inode->data);
 		// free inode
@@ -243,7 +361,9 @@ int tfs_remove(struct inode *dir, const char *name, size_t len)
 		htable_del(&target->node);
 		// free dentry
 		free(target);
-	} else if (target->inode->type == FS_DIR) {
+	}
+	else if (target->inode->type == FS_DIR)
+	{
 		if (!htable_empty(&target->inode->dentries))
 			return -ENOTEMPTY;
 
@@ -255,7 +375,9 @@ int tfs_remove(struct inode *dir, const char *name, size_t len)
 		htable_del(&target->node);
 		// free dentry
 		free(target);
-	} else {
+	}
+	else
+	{
 		BUG("inode type that shall not exist");
 	}
 
@@ -265,7 +387,6 @@ int tfs_remove(struct inode *dir, const char *name, size_t len)
 int init_tmpfs(void)
 {
 	tmpfs_root = new_dir();
-
 	return 0;
 }
 
@@ -274,38 +395,102 @@ int init_tmpfs(void)
 // `radix_get`, `radix_add` are used in this function
 // You can use memory functions defined in libc
 ssize_t tfs_file_write(struct inode *inode, off_t offset, const char *data,
-		       size_t size)
+					   size_t size)
 {
+
 	BUG_ON(inode->type != FS_REG);
 	BUG_ON(offset > inode->size);
 
 	u64 page_no, page_off;
-	u64 cur_off = offset;
-	size_t to_write;
+	size_t to_write_bytes, written_bytes;
 	void *page;
 
-  // TODO(Lab5): write your code here
-	
-  return cur_off - offset;
+	page_no = offset / PAGE_SIZE;
+	page_off = offset % PAGE_SIZE;
+
+	to_write_bytes = size;
+	written_bytes = 0;
+
+	while (written_bytes < to_write_bytes)
+	{
+		page = radix_get(&inode->data, page_no);
+		size_t current_page_bytes = PAGE_SIZE - page_off;
+		size_t remain_bytes = to_write_bytes - written_bytes;
+
+		if (current_page_bytes < remain_bytes)
+		{
+			memcpy(page + page_off, data + written_bytes, current_page_bytes);
+
+			written_bytes += current_page_bytes;
+
+			++page_no;
+			page_off = 0;
+		}
+		else
+		{
+			memcpy(page + page_off, data + written_bytes, remain_bytes);
+			written_bytes += remain_bytes;
+		}
+
+		page = radix_add(&inode->data, page_no, page);
+	}
+
+	if (offset + written_bytes > inode->size)
+	{
+		inode->size = offset + written_bytes;
+	}
+
+	return written_bytes;
 }
 
 // read memory from `inode` at `offset` in to `buf` for length is `size`, do not
 // exceed the file size
 // `radix_get` is used in this function
 // You can use memory functions defined in libc
-ssize_t tfs_file_read(struct inode *inode, off_t offset, char *buff, size_t size)
+ssize_t tfs_file_read(struct inode *inode, off_t offset, char *buf, size_t size)
 {
 	BUG_ON(inode->type != FS_REG);
 	BUG_ON(offset > inode->size);
 
 	u64 page_no, page_off;
-	u64 cur_off = offset;
-	size_t to_read;
-	void *page;
-  
-  // TODO(Lab5): write your code here
+	size_t to_read_bytes, read_bytes;
 
-	return cur_off - offset;
+	page_no = offset / PAGE_SIZE;
+	page_off = offset % PAGE_SIZE;
+
+	void *page;
+
+	to_read_bytes = size;
+	if (to_read_bytes + offset > inode->size)
+	{
+		to_read_bytes = inode->size - offset;
+	}
+
+	// to_read_bytes is confirmed without overflow
+	read_bytes = 0;
+
+	while (read_bytes < to_read_bytes)
+	{
+		page = radix_get(&inode->data, page_no);
+		size_t current_page_bytes = PAGE_SIZE - page_off;
+		size_t remain_bytes = to_read_bytes - read_bytes;
+
+		if (current_page_bytes < remain_bytes)
+		{
+			memcpy(buf + read_bytes, page + page_off, current_page_bytes);
+			read_bytes += current_page_bytes;
+
+			++page_no;
+			page_off = 0;
+		}
+		else
+		{
+			memcpy(buf + read_bytes, page + page_off, remain_bytes);
+			read_bytes += remain_bytes;
+		}
+	}
+
+	return read_bytes;
 }
 
 // load the cpio archive into tmpfs with the begin address as `start` in memory
@@ -326,24 +511,24 @@ int tfs_load_image(const char *start)
 	cpio_init_g_files();
 	cpio_extract(start, "/");
 
-	for(f = g_files.head.next; f; f = f->next) {
-    // TODO(Lab5): your code is here
-	
-  }
+	for (f = g_files.head.next; f; f = f->next)
+	{
+		// TODO(Lab5): your code is here
+	}
 
 	return 0;
 }
 
 static int dirent_filler(void **dirpp, void *end, char *name, off_t off,
-			 unsigned char type, ino_t ino)
+						 unsigned char type, ino_t ino)
 {
 	struct dirent *dirp = *(struct dirent **)dirpp;
 	void *p = dirp;
 	unsigned short len = strlen(name) + 1 +
-		sizeof(dirp->d_ino) +
-		sizeof(dirp->d_off) +
-		sizeof(dirp->d_reclen) +
-		sizeof(dirp->d_type);
+						 sizeof(dirp->d_ino) +
+						 sizeof(dirp->d_off) +
+						 sizeof(dirp->d_reclen) +
+						 sizeof(dirp->d_type);
 	p += len;
 	if (p > end)
 		return -EAGAIN;
@@ -366,20 +551,22 @@ int tfs_scan(struct inode *dir, unsigned int start, void *buf, void *end)
 	unsigned char type;
 	struct dentry *iter;
 
-	for_each_in_htable(iter, b, node, &dir->dentries) {
-		if (cnt >= start) {
+	for_each_in_htable(iter, b, node, &dir->dentries)
+	{
+		if (cnt >= start)
+		{
 			type = iter->inode->type;
 			ino = iter->inode->size;
 			ret = dirent_filler(&p, end, iter->name.str,
-					    cnt, type, ino);
-			if (ret <= 0) {
+								cnt, type, ino);
+			if (ret <= 0)
+			{
 				return cnt - start;
 			}
 		}
 		cnt++;
 	}
 	return cnt - start;
-
 }
 
 /* path[0] must be '/' */
@@ -390,7 +577,7 @@ struct inode *tfs_open_path(const char *path)
 	struct dentry *dent;
 	int err;
 
-	if (*path == '/' && !*(path+1))
+	if (*path == '/' && !*(path + 1))
 		return tmpfs_root;
 
 	err = tfs_namex(&dirat, &leaf, 0);
@@ -398,5 +585,5 @@ struct inode *tfs_open_path(const char *path)
 		return NULL;
 
 	dent = tfs_lookup(dirat, leaf, strlen(leaf));
-	return dent?dent->inode:NULL;
+	return dent ? dent->inode : NULL;
 }
