@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/chos/boot/boot.h
+image.h
+/chos/boot/image.h
+
+/chos/boot/image.h
+
+/chos/boot/init_c.c
+print/printf.h
+/chos/boot/print/printf.h
+print/uart.h
+/chos/boot/print/uart.h
+boot.h
+/chos/boot/boot.h
+image.h
+/chos/boot/image.h
+
+/chos/boot/mmu.c
+print/printf.h
+/chos/boot/print/printf.h
+boot.h
+/chos/boot/boot.h
+
+/chos/boot/print/printf.c
+printf.h
+/chos/boot/print/printf.h
+uart.h
+/chos/boot/print/uart.h
+
+/chos/boot/print/printf.h
+
+/chos/boot/print/uart.c
+uart.h
+/chos/boot/print/uart.h
+
+/chos/boot/print/uart.h
+

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/chos/boot/print/macro.S
+common/asm.h
+-
+
+/chos/boot/start.S
+common/asm.h
+-
+../lib/registers.h
+/chos/lib/registers.h
+
+/chos/boot/tools.S
+common/asm.h
+-
+../lib/registers.h
+/chos/lib/registers.h
+
+/chos/lib/registers.h
+common/macro.h
+-
+
+kernel/common/asm.h
+
+kernel/common/macro.h
+
