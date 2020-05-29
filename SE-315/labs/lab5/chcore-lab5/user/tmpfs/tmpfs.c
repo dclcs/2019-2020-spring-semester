@@ -6,7 +6,7 @@
 #include <string.h>
 #include <syscall.h>
 
-#if 1
+#if 0
 #define fsdebug(...) printf(__VA_ARGS__)
 #else
 #define fsdebug(...)

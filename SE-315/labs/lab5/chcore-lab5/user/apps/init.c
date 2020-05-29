@@ -15,7 +15,7 @@
 #define SERVER_READY_FLAG(vaddr) (*(int*)(vaddr))
 #define SERVER_EXIT_FLAG(vaddr) (*(int*)((u64)vaddr + 4))
 
-#if 1
+#if 0
 #define shdebug(...) printf(__VA_ARGS__)
 #else
 #define shdebug(...)
