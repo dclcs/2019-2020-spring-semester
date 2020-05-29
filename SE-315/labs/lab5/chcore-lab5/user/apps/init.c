@@ -32,6 +32,8 @@ int fs_server_cap;
 
 extern char getch();
 
+char current_path[BUFLEN] = "/";
+
 // read a command from stdin leading by `prompt`
 // put the commond in `buf` and return `buf`
 // What you typed should be displayed on the screen
@@ -61,8 +63,6 @@ char* readline(const char* prompt)
             --complement_time;
             complement[complement_time] = '\0';
         } else if (c == 13) {
-            memset(real_buf, 0, BUFLEN);
-            complement_time = 0;
             break;
         } else {
             complement[complement_time++] = c;

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <syscall.h>
 
-#if 0
+#if 1
 #define fsdebug(...) printf(__VA_ARGS__)
 #else
 #define fsdebug(...)
@@ -638,26 +638,17 @@ int tfs_scan(struct inode* dir, unsigned int start, void* buf, void* end)
 
 int tfs_scan_instant(struct inode* dir, unsigned int start)
 {
-    fsdebug("<tfs_scan_instant> dir: %p start: %d buf: %p end: %p\n", dir, start);
+    fsdebug("<tfs_scan_instant> dir: %p start: %d\n", dir, start);
     s64 cnt = 0;
     int b;
-    int ret;
-    ino_t ino;
-    unsigned char type;
+
     struct dentry* iter;
 
     for_each_in_htable(iter, b, node, &dir->dentries)
     {
-        fsdebug("traversing htable. current list head: %p iter: %p node: %p, iter->node.next: %p pprev: %p, *pprev: %p\n", &dir->dentries.buckets[b], iter, iter->node, iter->node.next, iter->node.pprev, *(iter->node.pprev));
-
         if (cnt >= start) {
-            type = iter->inode->type;
-            ino = iter->inode->size;
 
             printf("%s\n", iter->name.str);
-            if (ret <= 0) {
-                return cnt - start;
-            }
         }
         cnt++;
     }

@@ -47,7 +47,7 @@ int main()
     test_readline();
     test_echo();
 
-    // builtin_cmd("ls");
+    builtin_cmd("ls");
     builtin_cmd("ls tar");
     builtin_cmd("cat tar/cat_test.txt");
     test_readline();

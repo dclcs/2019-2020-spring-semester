@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
     while (1) {
         printf("\n");
         buf = readline("$ ");
+        // printf("obtained command %s\n", buf);
         if (buf == NULL)
             usys_exit(0);
         if (buf[0] == 0)
