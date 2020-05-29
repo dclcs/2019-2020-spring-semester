@@ -220,10 +220,6 @@ int tfs_namex(struct inode** dirat, const char** name, int mkdir_p)
     if (!**name)
         return -EINVAL;
 
-    // TODO(Lab5): each loop begins with an actual name
-    // `tfs_lookup` and `tfs_mkdir` are very useful
-    // </lab5>
-
     struct string temp_string;
 
     while (true) {
