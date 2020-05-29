@@ -55,6 +55,8 @@ ssize_t tfs_file_write(struct inode* inode, off_t offset, const char* data,
     size_t size);
 
 int tfs_scan(struct inode* dir, unsigned int start, void* buf, void* end);
+int tfs_scan_instant(struct inode* dir, unsigned int start);
+
 struct inode* tfs_open_path(const char* path);
 
 int tfs_load_image(const char* start);

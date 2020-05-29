@@ -1,42 +1,38 @@
 #include "init.h"
 
-#include <print.h>
 #include <launcher.h>
+#include <print.h>
 #include <syscall.h>
-
 
 // get a character from standard input
 char getch()
 {
-	char c;
-  // TODO(Lab5): your code here
-
-  return c;
+    return (char)usys_getc();
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-	char *buf;
-	int ret = 0;
+    char* buf;
+    int ret = 0;
 
-	printf("init loads cpio image.\n");
-	usys_fs_load_cpio(CPIO_BIN);
+    printf("init loads cpio image.\n");
+    usys_fs_load_cpio(CPIO_BIN);
 
-	boot_fs();
+    boot_fs();
 
-	while (1) {
-		printf("\n");
-		buf = readline("$ ");
-		if (buf == NULL)
-			usys_exit(0);
-		if (buf[0] == 0)
-			continue;
-		if (builtin_cmd(buf))
-			continue;
-		if ((ret = run_cmd(buf)) < 0) {
-			printf("Cannot run %s, ERROR %d\n", buf, ret);
-		}
-	}
+    while (1) {
+        printf("\n");
+        buf = readline("$ ");
+        if (buf == NULL)
+            usys_exit(0);
+        if (buf[0] == 0)
+            continue;
+        if (builtin_cmd(buf))
+            continue;
+        if ((ret = run_cmd(buf)) < 0) {
+            printf("Cannot run %s, ERROR %d\n", buf, ret);
+        }
+    }
 
-	return 0;
+    return 0;
 }

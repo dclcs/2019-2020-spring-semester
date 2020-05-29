@@ -45,3 +45,19 @@ For those `fs_server` functions, things are much easier. They're basically a wra
 
 > Notice that in the testing script, it didn't use any kind of IPC function calls. That means we could possibly pass `fs_test` even if we didn't implement `fs_dispatch`. Weird.
 
+### Part B: The Shell
+
+Finally! Our baby OS will be able to hear and speak soon!
+
+#### Exercise 5
+
+This `readline` function is much simpler than the GNU `readline` library. We just need to handle input char by `usys_getc`. 
+
+If it's a normal character, put it in buffer and echo it. 
+
+if it's a backspace (`\b`) and the buffer isn't empty, pop out the last input char.
+
+If it's a newline (`\n`), we should break the loop.
+
+#### Exercise 6
+

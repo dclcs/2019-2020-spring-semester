@@ -55,7 +55,7 @@ u32 sys_get_cpu_id(void)
  * Update the syscall table as you like to redirect syscalls
  * to functions accordingly
  */
-const void *syscall_table[NR_SYSCALL] = {
+const void* syscall_table[NR_SYSCALL] = {
     [0 ... NR_SYSCALL - 1] = sys_debug,
     /* lab3 syscalls finished */
     [SYS_exit] = sys_exit,
@@ -89,4 +89,5 @@ const void *syscall_table[NR_SYSCALL] = {
     [SYS_transfer_caps] = sys_transfer_caps,
     /* TMP FS */
     [SYS_fs_load_cpio] = sys_fs_load_cpio,
-    [SYS_debug] = sys_debug};
+    [SYS_debug] = sys_debug
+};

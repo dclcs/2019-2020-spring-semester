@@ -193,15 +193,35 @@ static int fs_server_close(int fd)
  * */
 int fs_server_scan(const char* path, unsigned int start, void* buf, unsigned int count)
 {
+    svdebug("<fs_server_scan>, path: %s, start: %d, buf: %p, count: %d\n", path, start, buf, count);
     struct inode* inode;
 
     BUG_ON(!path);
     BUG_ON(*path != '/');
 
     inode = tfs_open_path(path);
+    svdebug("<fs_server_scan> gotta inode: %p by tfs_open_path\n", inode);
     if (inode) {
         if (inode->type == FS_DIR)
             return tfs_scan(inode, start, buf, buf + count);
+        return -ENOTDIR;
+    }
+    return -ENOENT;
+}
+
+int fs_server_scan_instant(const char* path, unsigned int start)
+{
+    svdebug("<fs_server_scan_instant>, path: %s, start: %d\n", path, start);
+    struct inode* inode;
+
+    BUG_ON(!path);
+    BUG_ON(*path != '/');
+
+    inode = tfs_open_path(path);
+    svdebug("<fs_server_scan> gotta inode: %p by tfs_open_path\n", inode);
+    if (inode) {
+        if (inode->type == FS_DIR)
+            return tfs_scan_instant(inode, start);
         return -ENOTDIR;
     }
     return -ENOENT;

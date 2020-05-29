@@ -150,7 +150,7 @@ Everything below the dotted line is simply the mechanics of getting a read reque
 
 The file system server code can be found in `user/tmpfs/tmpfs_main.c`. It loops in the `main` function, endlessly receiving a request over IPC, dispatching that request to the appropriate handler function by `fs_server_dispatch`, and sending the result back via IPC. In the read example, `fs_server_dispatch` will dispatch to `fs_server_read`, which is defined in `user/tmpfs/tmpfs_server.{h,c}` and takes care of the IPC details specific to read requests such as unpacking the request structure and finally call `tfs_file_read` to actually perform the file read.
 
-> **Exercise 4**. Here is a table to help you understand the dispatch rules of `fs_server_dispatch`. Implement `fs_server_dispatch` defined in `user/tmpfs/tmpfs_main.c` and all of `fs_server_xxx` functions defined in `user/tmpfs/tmpfs_server.c` as the following table to deal with different ipc requests. Remember how ChCore deal with shared memory pages. 
+> **Exercise 4**. Here is a table to help you understand the dispatch rules of `fs_server_dispatch`. Implement `fs_server_dispatch` defined in `user/tmpfs/tmpfs_main.c` and all of `fs_server_xxx` functions defined in `user/tmpfs/tmpfs_server.c` as the following table to deal with different ipc requests. Remember how ChCore deal with shared memory pages.
 >
 > | Req ID          | Function             | Meaning                     |
 > | --------------- | -------------------- | --------------------------- |

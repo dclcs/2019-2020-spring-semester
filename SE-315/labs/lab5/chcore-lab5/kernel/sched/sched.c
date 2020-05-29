@@ -24,10 +24,10 @@
 #include <sched/context.h>
 #include <sched/sched.h>
 
-struct thread *current_threads[PLAT_CPU_NUM];
+struct thread* current_threads[PLAT_CPU_NUM];
 
 /* Chosen Scheduling Policies */
-struct sched_ops *cur_sched_ops;
+struct sched_ops* cur_sched_ops;
 
 char thread_type[][TYPE_STR_LEN] = {
     "IDLE  ",
@@ -35,7 +35,8 @@ char thread_type[][TYPE_STR_LEN] = {
     "USER  ",
     "SHADOW",
     "KERNEL",
-    "TESTS "};
+    "TESTS "
+};
 
 char thread_state[][STATE_STR_LEN] = {
     "TS_INIT      ",
@@ -44,13 +45,14 @@ char thread_state[][STATE_STR_LEN] = {
     "TS_RUNNING   ",
     "TS_EXIT      ",
     "TS_WAITING   ",
-    "TS_EXITING   "};
+    "TS_EXITING   "
+};
 
-void arch_idle_ctx_init(struct thread_ctx *idle_ctx, void (*func)(void))
+void arch_idle_ctx_init(struct thread_ctx* idle_ctx, void (*func)(void))
 {
     /* Initialize to run the function `idle_thread_routine` */
     int i = 0;
-    arch_exec_cont_t *ec = &(idle_ctx->ec);
+    arch_exec_cont_t* ec = &(idle_ctx->ec);
 
     /* X0-X30 all zero */
     for (i = 0; i < REG_NUM; i++)
@@ -61,24 +63,23 @@ void arch_idle_ctx_init(struct thread_ctx *idle_ctx, void (*func)(void))
     ec->reg[ELR_EL1] = (u64)func;
 }
 
-void print_thread(struct thread *thread)
+void print_thread(struct thread* thread)
 {
-    if (!thread)
-    {
+    if (!thread) {
         printk("Thread NULL <All NULL>\n");
         return;
     }
     printk("Thread %p\tType: %s\tState: %s\tCPU %d\tAFF %d\tBudget %d\tPrio: %d\t\n",
-           thread,
-           thread_type[thread->thread_ctx->type],
-           thread_state[thread->thread_ctx->state],
-           thread->thread_ctx->cpuid,
-           thread->thread_ctx->affinity,
-           thread->thread_ctx->sc->budget,
-           thread->thread_ctx->prio);
+        thread,
+        thread_type[thread->thread_ctx->type],
+        thread_state[thread->thread_ctx->state],
+        thread->thread_ctx->cpuid,
+        thread->thread_ctx->affinity,
+        thread->thread_ctx->sc->budget,
+        thread->thread_ctx->prio);
 }
 
-int sched_is_running(struct thread *target)
+int sched_is_running(struct thread* target)
 {
     BUG_ON(!target);
     BUG_ON(!target->thread_ctx);
@@ -92,7 +93,7 @@ int sched_is_running(struct thread *target)
  * Switch Thread to the specified one.
  * Set the correct thread state to running and the current_thread
  */
-int switch_to_thread(struct thread *target)
+int switch_to_thread(struct thread* target)
 {
     BUG_ON(!target);
     BUG_ON(!target->thread_ctx);
@@ -116,16 +117,15 @@ u64 switch_context(void)
 	 * tmac: what if IRQ is not disabled? But directly resumes the execution
 	 * after interrupts.
 	 */
-    struct thread *target_thread;
-    struct thread_ctx *target_ctx;
+    struct thread* target_thread;
+    struct thread_ctx* target_ctx;
 
     target_thread = current_thread;
     BUG_ON(!target_thread);
     BUG_ON(!target_thread->thread_ctx);
 
     /* These 3 types of thread do not have vmspace */
-    if (target_thread->thread_ctx->type != TYPE_IDLE && target_thread->thread_ctx->type != TYPE_KERNEL && target_thread->thread_ctx->type != TYPE_TESTS)
-    {
+    if (target_thread->thread_ctx->type != TYPE_IDLE && target_thread->thread_ctx->type != TYPE_KERNEL && target_thread->thread_ctx->type != TYPE_TESTS) {
 
         BUG_ON(!target_thread->vmspace);
         /*
@@ -166,7 +166,7 @@ void sys_yield(void)
     eret_to_thread(switch_context());
 }
 
-int sched_init(struct sched_ops *sched_ops)
+int sched_init(struct sched_ops* sched_ops)
 {
     BUG_ON(sched_ops == NULL);
 

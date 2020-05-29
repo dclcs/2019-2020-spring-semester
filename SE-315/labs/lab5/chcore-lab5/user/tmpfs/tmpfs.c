@@ -143,7 +143,7 @@ static struct dentry* tfs_lookup(struct inode* dir, const char* name, size_t len
 
 // this function create a file (directory if `mkdir` == true, otherwise regular
 // file) and its size is `len`. You should create an inode and corresponding
-// dentry, then add dentey to `dir`'s htable by `htable_add`.
+// dentry, then add dentry to `dir`'s htable by `htable_add`.
 // Assume that no separator ('/') in `name`.
 static int tfs_mknod(struct inode* dir, const char* name, size_t len, int mkdir)
 {
@@ -162,18 +162,19 @@ static int tfs_mknod(struct inode* dir, const char* name, size_t len, int mkdir)
         return -ENOENT;
     }
 
-    struct inode* node;
+    struct inode* inode;
 
     if (mkdir) {
-        node = new_dir();
+        inode = new_dir();
     } else {
-        node = new_reg();
+        inode = new_reg();
     }
-    struct dentry* entry = new_dent(node, name, len);
+    struct dentry* entry = new_dent(inode, name, len);
     init_hlist_node(&entry->node);
+    fsdebug("gotta dentry: %p\n", entry);
     fsdebug("when create, hashed chars = %u\n", (u32)hash_chars(name, len));
     htable_add(&dir->dentries, (u32)hash_chars(name, len), &entry->node);
-    fsdebug("<tfs_mknod> quit successfully\n");
+    fsdebug("<tfs_mknod> created node. node: %p next: %p pprev: %p\n", entry->node, entry->node.next, entry->node.pprev);
     return 0;
 }
 
@@ -533,6 +534,10 @@ int tfs_load_image(const char* start)
 
     for (f = g_files.head.next; f; f = f->next) {
         fsdebug("going to handle entry %s, data: %p size: %d\n", f->name, f->data, f->header.c_filesize);
+        if (f->name[0] == '.' && f->name[1] == '\0') {
+            // do not create `.`
+            continue;
+        }
 
         struct inode *parent = tmpfs_root, *created = tmpfs_root;
         char* name = f->name;
@@ -583,6 +588,7 @@ int tfs_load_image(const char* start)
 static int dirent_filler(void** dirpp, void* end, char* name, off_t off,
     unsigned char type, ino_t ino)
 {
+    fsdebug("<dirent_filler> dirpp: %p end: %p name: %s\n", dirpp, end, name);
     struct dirent* dirp = *(struct dirent**)dirpp;
     void* p = dirp;
     unsigned short len = strlen(name) + 1 + sizeof(dirp->d_ino) + sizeof(dirp->d_off) + sizeof(dirp->d_reclen) + sizeof(dirp->d_type);
@@ -593,13 +599,17 @@ static int dirent_filler(void** dirpp, void* end, char* name, off_t off,
     dirp->d_off = off;
     dirp->d_reclen = len;
     dirp->d_type = type;
+
     strcpy(dirp->d_name, name);
     *dirpp = p;
+
+    fsdebug("<dirent_filler> written bytes in %p, and completed successfully with %d\n", dirp->d_name, len);
     return len;
 }
 
 int tfs_scan(struct inode* dir, unsigned int start, void* buf, void* end)
 {
+    fsdebug("<tfs_scan> dir: %p start: %d buf: %p end: %p\n", dir, start, buf, end);
     s64 cnt = 0;
     int b;
     int ret;
@@ -610,11 +620,41 @@ int tfs_scan(struct inode* dir, unsigned int start, void* buf, void* end)
 
     for_each_in_htable(iter, b, node, &dir->dentries)
     {
+        fsdebug("traversing htable. current list head: %p iter: %p node: %p, iter->node.next: %p pprev: %p, *pprev: %p\n", &dir->dentries.buckets[b], iter, iter->node, iter->node.next, iter->node.pprev, *(iter->node.pprev));
+
         if (cnt >= start) {
             type = iter->inode->type;
             ino = iter->inode->size;
             ret = dirent_filler(&p, end, iter->name.str,
                 cnt, type, ino);
+            if (ret <= 0) {
+                return cnt - start;
+            }
+        }
+        cnt++;
+    }
+    return cnt - start;
+}
+
+int tfs_scan_instant(struct inode* dir, unsigned int start)
+{
+    fsdebug("<tfs_scan_instant> dir: %p start: %d buf: %p end: %p\n", dir, start);
+    s64 cnt = 0;
+    int b;
+    int ret;
+    ino_t ino;
+    unsigned char type;
+    struct dentry* iter;
+
+    for_each_in_htable(iter, b, node, &dir->dentries)
+    {
+        fsdebug("traversing htable. current list head: %p iter: %p node: %p, iter->node.next: %p pprev: %p, *pprev: %p\n", &dir->dentries.buckets[b], iter, iter->node, iter->node.next, iter->node.pprev, *(iter->node.pprev));
+
+        if (cnt >= start) {
+            type = iter->inode->type;
+            ino = iter->inode->size;
+
+            printf("%s\n", iter->name.str);
             if (ret <= 0) {
                 return cnt - start;
             }
