@@ -15,7 +15,7 @@ ipc_msg_t* ipc_create_msg(ipc_struct_t* icb, u64 data_len, u64 cap_slot_number)
 
     ipc_msg->data_offset = sizeof(*ipc_msg);
     ipc_msg->cap_slots_offset = ipc_msg->data_offset + data_len;
-    printf("going to memset %p ~ %p\n", ipc_get_msg_data(ipc_msg), ipc_get_msg_data(ipc_msg) + data_len);
+    // printf("going to memset %p ~ %p\n", ipc_get_msg_data(ipc_msg), ipc_get_msg_data(ipc_msg) + data_len);
     memset(ipc_get_msg_data(ipc_msg), 0, data_len);
     for (i = 0; i < cap_slot_number; i++)
         ipc_set_msg_cap(ipc_msg, i, -1);

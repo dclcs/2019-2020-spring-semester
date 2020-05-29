@@ -7,13 +7,13 @@
 
 static void fs_dispatch(ipc_msg_t* ipc_msg)
 {
-    printf("invoked fs_dispatch. ipc_msg: %p\n", ipc_msg);
+    // printf("invoked fs_dispatch. ipc_msg: %p\n", ipc_msg);
     int ret = 0;
 
     if (ipc_msg->data_len >= 4) {
         struct fs_request* fr = (struct fs_request*)
             ipc_get_msg_data(ipc_msg);
-        printf("provided buff: %p\n", fr->buff);
+        // printf("provided buff: %p\n", fr->buff);
         switch (fr->req) {
         case FS_REQ_SCAN:
             ret = fs_server_scan_instant(fr->path, fr->count);
@@ -50,7 +50,7 @@ static void fs_dispatch(ipc_msg_t* ipc_msg)
         usys_exit(-1);
     }
 
-    printf("handled done. ret = %d\n", ret);
+    // printf("handled done. ret = %d\n", ret);
 
     usys_ipc_return(ret);
 }
