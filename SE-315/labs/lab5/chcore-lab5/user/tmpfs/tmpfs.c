@@ -120,6 +120,27 @@ new_dent(struct inode* inode, const char* name, size_t len)
     return dent;
 }
 
+// look up a file called `name` under the inode `dir`
+// and return the dentry of this file
+static struct dentry* tfs_lookup(struct inode* dir, const char* name, size_t len)
+{
+    // fsdebug("<tfs_lookup> parent dir: %p name: %s len: %d\n", dir, name, len);
+    u64 hash = hash_chars(name, len);
+    struct dentry* dent;
+    struct hlist_head* head;
+
+    head = htable_get_bucket(&dir->dentries, (u32)hash);
+    // fsdebug("head = %p, when lookup, hashed chars = %u\n", head, (u32)hash);
+    for_each_in_hlist(dent, node, head)
+    {
+        // fsdebug("\tjudging %s and %s. dent->name.len = %d, len = %d\n", dent->name.str, name, dent->name.len, len);
+        if (dent->name.len == len && 0 == strcmp(dent->name.str, name))
+            return dent;
+    }
+    // fsdebug("tfs_lookup quit without anything\n");
+    return NULL;
+}
+
 // this function create a file (directory if `mkdir` == true, otherwise regular
 // file) and its size is `len`. You should create an inode and corresponding
 // dentry, then add dentey to `dir`'s htable by `htable_add`.
@@ -166,27 +187,6 @@ int tfs_creat(struct inode* dir, const char* name, size_t len)
     return tfs_mknod(dir, name, len, 0 /* make regular file */);
 }
 
-// look up a file called `name` under the inode `dir`
-// and return the dentry of this file
-static struct dentry* tfs_lookup(struct inode* dir, const char* name, size_t len)
-{
-    // fsdebug("<tfs_lookup> parent dir: %p name: %s len: %d\n", dir, name, len);
-    u64 hash = hash_chars(name, len);
-    struct dentry* dent;
-    struct hlist_head* head;
-
-    head = htable_get_bucket(&dir->dentries, (u32)hash);
-    // fsdebug("head = %p, when lookup, hashed chars = %u\n", head, (u32)hash);
-    for_each_in_hlist(dent, node, head)
-    {
-        // fsdebug("\tjudging %s and %s. dent->name.len = %d, len = %d\n", dent->name.str, name, dent->name.len, len);
-        if (dent->name.len == len && 0 == strcmp(dent->name.str, name))
-            return dent;
-    }
-    // fsdebug("tfs_lookup quit without anything\n");
-    return NULL;
-}
-
 // Walk the file system structure to locate a file with the pathname stored in `*name`
 // and saves parent dir to `*dirat` and the filename to `*name`.
 // If `mkdir_p` is true, you need to create intermediate directories when it missing.
@@ -228,22 +228,45 @@ int tfs_namex(struct inode** dirat, const char** name, int mkdir_p)
 
     while (true) {
 
-        size_t name_len = 0;
+        size_t name_len;
 
-        bool is_folder = false;
+        bool is_trailing = false;
 
         fsdebug("\n\n");
 
         buff = malloc(MAX_FILENAME_LEN + 1);
 
-        while (**name && **name != '/') {
-            BUG_ON(name_len > MAX_FILENAME_LEN);
-            fsdebug("%u'%c' ", name_len, **name);
-            buff[name_len] = **name;
-            ++name_len;
-            ++*name;
+        while (true) {
+            name_len = 0;
+            while (**name && **name != '/') {
+                BUG_ON(name_len > MAX_FILENAME_LEN);
+                fsdebug("%u'%c' ", name_len, **name);
+                buff[name_len] = **name;
+                ++name_len;
+                ++*name;
+            }
+
+            if (**name == '/') {
+                // skip separator'/'
+                ++*name;
+                is_trailing = true;
+            } else {
+                is_trailing = false;
+            }
+
+            // filter self-pointing `.`
+            if (name_len == 1 && buff[0] == '.') {
+                continue;
+            } else {
+                break;
+            }
+
+            if (name_len != 0) {
+                buff[name_len] = '\0';
+            } else {
+                return 0;
+            }
         }
-        buff[name_len] = '\0';
 
         fsdebug("\n\n");
         fsdebug("going to init_string with %s, len = %u\n", buff, name_len);
@@ -253,32 +276,32 @@ int tfs_namex(struct inode** dirat, const char** name, int mkdir_p)
 
         hash_string(&temp_string);
 
-        if (**name == '/') {
-            // skip separator'/'
-            ++*name;
-            is_folder = true;
-        } else {
-            is_folder = false;
-        }
-
         bool is_tail = !**name;
 
-        fsdebug("parsed file name: (%s) is tail: %d, is folder: %d\n", temp_string.str, is_tail, is_folder);
+        fsdebug("parsed file name: (%s) is tail: %d, is trailing: %d\n", temp_string.str, is_tail, is_trailing);
 
-        if (is_tail && is_folder) {
-            // this is the last one & it ends with /
-            fsdebug("this is a folder tail.\n");
+        struct dentry* tail = tfs_lookup(*dirat, temp_string.str, temp_string.len);
+
+        if (is_tail) {
             *name = temp_string.str;
-            return 0;
-        } else if (is_tail /* && !is_folder <= redundant condition */) {
-            *name = temp_string.str;
-            if (tfs_lookup(*dirat, temp_string.str, temp_string.len)) {
-                fsdebug("already found this file. now *dirat = %p\n", *dirat);
-                return 0;
+            if (tail) {
+                if (is_trailing) {
+                    // this is the last one & it ends with /
+                    *dirat = tail->inode;
+                    *name = NULL;
+                    fsdebug("this is the last one & it ends with /. set *dirat as %p\n", tail->inode);
+                } else if (tail->inode->type == FS_DIR) {
+                    // this is the last folder though it doesn't ends with /
+                    fsdebug("this is the last folder though it doesn't ends with /. set *dirat as %p\n", tail->inode);
+                } else {
+                    // this is the last file and it doesn't ends with /
+                    // so we don't have to do anything special
+                    fsdebug("this is the last file and it doesn't ends with /.\n");
+                }
             } else {
-                fsdebug("no tail file (%s) found\n", temp_string.str);
-                return 0;
+                fsdebug("i wish i could do something, but didn't get anything from tfs_lookup\n");
             }
+            return 0;
         }
 
         if ((*dirat)->type == FS_DIR) {
@@ -321,6 +344,7 @@ int tfs_namex(struct inode** dirat, const char** name, int mkdir_p)
 
 int tfs_remove(struct inode* dir, const char* name, size_t len)
 {
+    fsdebug("<tfs_remove> parent inode: %p *name: %s len: %u\n", dir, name, len);
     u64 hash = hash_chars(name, len);
     struct dentry *dent, *target = NULL;
     struct hlist_head* head;
@@ -328,7 +352,7 @@ int tfs_remove(struct inode* dir, const char* name, size_t len)
     BUG_ON(!name);
 
     if (len == 0) {
-        WARN("mknod with len of 0");
+        WARN("remove with len of 0");
         return -ENOENT;
     }
 
@@ -453,6 +477,9 @@ ssize_t tfs_file_read(struct inode* inode, off_t offset, char* buf, size_t size)
 
     void* page;
 
+    char buff[PAGE_SIZE];
+    memset(buff, 0, PAGE_SIZE);
+
     to_read_bytes = size;
     if (to_read_bytes + offset > inode->size) {
         to_read_bytes = inode->size - offset;
@@ -463,6 +490,10 @@ ssize_t tfs_file_read(struct inode* inode, off_t offset, char* buf, size_t size)
 
     while (read_bytes < to_read_bytes) {
         page = radix_get(&inode->data, page_no);
+        if (!page) {
+            // provide paddings for unmapped pages
+            page = (void*)buff;
+        }
         size_t current_page_bytes = PAGE_SIZE - page_off;
         size_t remain_bytes = to_read_bytes - read_bytes;
 
@@ -600,6 +631,7 @@ int tfs_scan(struct inode* dir, unsigned int start, void* buf, void* end)
 /* path[0] must be '/' */
 struct inode* tfs_open_path(const char* path)
 {
+    fsdebug("<fs_open_path> called with %s.\n", path);
     struct inode* dirat = NULL;
     const char* leaf = path;
     struct dentry* dent;
@@ -609,9 +641,11 @@ struct inode* tfs_open_path(const char* path)
         return tmpfs_root;
 
     err = tfs_namex(&dirat, &leaf, 0);
+    fsdebug("<fs_open_path> located its parent %p and name %s.\n", dirat, leaf);
     if (err)
         return NULL;
 
     dent = tfs_lookup(dirat, leaf, strlen(leaf));
+    fsdebug("<fs_open_path> located its entry %p.\n", dent);
     return dent ? dent->inode : NULL;
 }

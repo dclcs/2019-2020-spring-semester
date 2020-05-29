@@ -31,9 +31,17 @@ Now, with its name and parent `inode`, we can call our `tfs_mknode` to create th
 
 > Actually, the function gets called here is `tfs_creat`, which is merely a thin wrapper of `tfs_mknode`.
 
-Now, our `tmpfs` can already pass `fs_server_init` and `fs_scan` in `make grade`, though these requests haven't been sent to `tmpfs`. This just indicates that `tfs_load_image` function is working basically normally.
+Now, our `tmpfs` can already pass `fs_server_init` and `fs_scan` in `make grade`, though these requests haven't been sent to `tmpfs`. This just indicates that `tfs_load_image` function is working basically normally without crash in the initialization phase.
 
 #### Exercise 4
 
 Currently, we can't pass `fs_read_write` since these requests haven't been properly handled in our `tmpfs_server`. Now let's fix this problem.
+
+First, we can make function calls in our `fs_dispatch` handler defined in `tmpfs_main.c`. All parameters can be found in `fs_request` data structure, so it's simple to fill in them all.
+
+> One weird thing I can't figure out is I can't find a field for `scan`'s `start` parameter. And the `flags` field in `fs_request` isn't used, either.
+
+For those `fs_server` functions, things are much easier. They're basically a wrapper function of those defined in `tmpfs.c`. No much coding is needed here.
+
+> Notice that in the testing script, it didn't use any kind of IPC function calls. That means we could possibly pass `fs_test` even if we didn't implement `fs_dispatch`. Weird.
 
