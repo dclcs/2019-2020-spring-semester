@@ -31,3 +31,9 @@ Now, with its name and parent `inode`, we can call our `tfs_mknode` to create th
 
 > Actually, the function gets called here is `tfs_creat`, which is merely a thin wrapper of `tfs_mknode`.
 
+Now, our `tmpfs` can already pass `fs_server_init` and `fs_scan` in `make grade`, though these requests haven't been sent to `tmpfs`. This just indicates that `tfs_load_image` function is working basically normally.
+
+#### Exercise 4
+
+Currently, we can't pass `fs_read_write` since these requests haven't been properly handled in our `tmpfs_server`. Now let's fix this problem.
+

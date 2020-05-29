@@ -43,6 +43,8 @@ struct inode {
 
 int init_tmpfs(void);
 
+static struct dentry* tfs_lookup(struct inode* dir, const char* name, size_t len);
+
 int tfs_creat(struct inode* dir, const char* name, size_t len);
 int tfs_mkdir(struct inode* dir, const char* name, size_t len);
 
