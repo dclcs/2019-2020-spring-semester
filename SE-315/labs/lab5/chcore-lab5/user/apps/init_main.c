@@ -2,7 +2,10 @@
 
 #include <launcher.h>
 #include <print.h>
+#include <string.h>
 #include <syscall.h>
+
+extern char current_path[BUFLEN];
 
 // get a character from standard input
 char getch()
@@ -20,9 +23,13 @@ int main(int argc, char* argv[])
 
     boot_fs();
 
+    char prefix_buffer[BUFLEN];
+    char delimeter[] = "$ ";
+
     while (1) {
-        printf("\n");
-        buf = readline("$ ");
+        strcpy(prefix_buffer, current_path);
+        strcat(prefix_buffer, delimeter);
+        buf = readline(prefix_buffer);
         // printf("obtained command %s\n", buf);
         if (buf == NULL)
             usys_exit(0);

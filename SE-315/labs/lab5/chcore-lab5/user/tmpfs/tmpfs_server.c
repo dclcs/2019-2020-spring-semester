@@ -209,9 +209,17 @@ int fs_server_scan(const char* path, unsigned int start, void* buf, unsigned int
     return -ENOENT;
 }
 
-int fs_server_scan_instant(const char* path, unsigned int start)
+int fs_server_scan_instant(const char* raw_path, unsigned int start)
 {
+    char* path = malloc(MAX_FILENAME_LEN);
+    strcpy(path, raw_path);
     svdebug("<fs_server_scan_instant>, path: %s, start: %d\n", path, start);
+    int tail_ptr = strlen(path) - 1;
+    while (tail_ptr > 0 && path[tail_ptr] == '/') {
+        path[tail_ptr] = '\0';
+        --tail_ptr;
+    }
+
     struct inode* inode;
 
     BUG_ON(!path);
