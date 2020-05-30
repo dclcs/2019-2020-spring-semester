@@ -30,7 +30,10 @@ enum FS_REQ {
     FS_REQ_READ,
     FS_REQ_WRITE,
 
-    FS_REQ_GET_SIZE
+    FS_REQ_GET_SIZE,
+
+    FS_REQ_LS,
+    FS_REQ_CAT
 };
 
 #define FS_REQ_PATH_LEN (256)

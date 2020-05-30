@@ -16,7 +16,7 @@ static void fs_dispatch(ipc_msg_t* ipc_msg)
         // printf("provided buff: %p\n", fr->buff);
         switch (fr->req) {
         case FS_REQ_SCAN:
-            ret = fs_server_scan_instant(fr->path, fr->count);
+            ret = fs_server_scan(fr->path, 0, fr->count, fr->count);
             break;
         case FS_REQ_MKDIR:
             ret = fs_server_mkdir(fr->path, fr->mode);
@@ -38,6 +38,12 @@ static void fs_dispatch(ipc_msg_t* ipc_msg)
             break;
         case FS_REQ_GET_SIZE:
             ret = fs_server_get_size(fr->path);
+            break;
+        case FS_REQ_LS:
+            ret = fs_server_ls(fr->path, fr->count);
+            break;
+        case FS_REQ_CAT:
+            ret = fs_server_cat(fr->path);
             break;
         default:
             error("%s: %d Not impelemented yet\n", __func__,

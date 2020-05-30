@@ -75,8 +75,8 @@ void parse_path(const char* input, char* output)
 // What you typed should be displayed on the screen
 char* readline(const char* prompt)
 {
-    char real_buf[BUFLEN];
-    memset(real_buf, 0, BUFLEN);
+    char real_buf[BUFLEN] = "";
+    // memset(real_buf, 0, BUFLEN);
     char* buf = real_buf + strlen(prompt);
     memcpy(real_buf, prompt, strlen(prompt));
     int i = 0, j = 0;
@@ -136,16 +136,16 @@ int builtin_cmd(char* cmdline)
     shdebug("parsed builtin_cmd: %s\n", cmdline);
     if (JUDGE_CMD(cmdline, "ls ") == 0) {
         ipc_msg_t* msg = ipc_create_msg(&ipc_struct, sizeof(struct fs_request), tmpfs_scan_pmo_cap);
-        struct fs_request* fr = (struct fs_request*)malloc(PAGE_SIZE);
+        struct fs_request* fr = (struct fs_request*)malloc(sizeof(struct fs_request));
 
         parse_path(cmdline + 3, fr->path);
 
-        fr->req = FS_REQ_SCAN;
+        fr->req = FS_REQ_LS;
 
         int ret, start = 0;
 
         fr->count = start;
-        shdebug("final path: %s. buf: %p count: %d\ntmpfs_ipc_struct: %p\n", fr->path, fr->buff, fr->count, tmpfs_ipc_struct);
+        shdebug("final path: %s\n", fr->path);
         shdebug("msg: %p fr: %p\n", msg, fr);
 
         ipc_set_msg_data(msg, (char*)fr, 0, sizeof(struct fs_request));
@@ -158,9 +158,9 @@ int builtin_cmd(char* cmdline)
             printf("ls: get 1 entry in %s\n", fr->path);
         } else if (ret > 0) {
             printf("ls: get %d entries in %s\n", ret, fr->path);
-        } else if (ret == -15) {
+        } else if (ret == -ENOENT) {
             printf("ls: %s doesn't exist\n", fr->path);
-        } else if (ret == -18) {
+        } else if (ret == -ENOTDIR) {
             printf("ls: %s is not a dir\n", fr->path);
         } else {
             printf("ls: %s unknown error %d\n", fr->path, ret);
@@ -169,11 +169,11 @@ int builtin_cmd(char* cmdline)
     }
     if (JUDGE_CMD_STRICT(cmdline, "ls") == 0) {
         ipc_msg_t* msg = ipc_create_msg(&ipc_struct, sizeof(struct fs_request), tmpfs_scan_pmo_cap);
-        struct fs_request* fr = (struct fs_request*)malloc(PAGE_SIZE);
+        struct fs_request* fr = (struct fs_request*)malloc(sizeof(struct fs_request));
 
         strcpy(fr->path, current_path);
 
-        fr->req = FS_REQ_SCAN;
+        fr->req = FS_REQ_LS;
 
         int ret, start = 0;
 
@@ -191,9 +191,9 @@ int builtin_cmd(char* cmdline)
             printf("ls: get 1 entry in %s\n", fr->path);
         } else if (ret > 0) {
             printf("ls: get %d entries in %s\n", ret, fr->path);
-        } else if (ret == -15) {
+        } else if (ret == -ENOENT) {
             printf("ls: %s doesn't exist\n", fr->path);
-        } else if (ret == -18) {
+        } else if (ret == -ENOTDIR) {
             printf("ls: %s is not a dir\n", fr->path);
         } else {
             printf("ls: %s unknown error %d\n", fr->path, ret);
@@ -205,6 +205,30 @@ int builtin_cmd(char* cmdline)
         return true;
     }
     if (JUDGE_CMD(cmdline, "cat ") == 0) {
+        ipc_msg_t* msg = ipc_create_msg(&ipc_struct, sizeof(struct fs_request), tmpfs_scan_pmo_cap);
+        struct fs_request* fr = (struct fs_request*)malloc(sizeof(struct fs_request));
+
+        parse_path(cmdline + 4, fr->path);
+        fr->req = FS_REQ_CAT;
+
+        int ret;
+
+        shdebug("final path: %s. tmpfs_ipc_struct: %p\n", fr->path, tmpfs_ipc_struct);
+        shdebug("msg: %p fr: %p\n", msg, fr);
+
+        ipc_set_msg_data(msg, (char*)fr, 0, sizeof(struct fs_request));
+
+        ret = ipc_call(tmpfs_ipc_struct, msg);
+        printf("\n");
+        if (ret >= 0) {
+            printf("cat: read %d bytes from %s\n", ret, fr->path);
+        } else if (ret == -ENOENT) {
+            printf("cat: %s doesn't exist\n", fr->path);
+        } else if (ret == -ENODATA) {
+            printf("cat: %s is not a regular file\n", fr->path);
+        } else {
+            printf("cat: %s unknown error %d\n", fr->path, ret);
+        }
         return true;
     }
     if (JUDGE_CMD(cmdline, "cd ") == 0) {
@@ -235,9 +259,9 @@ int builtin_cmd(char* cmdline)
                 fr->path[path_len + 1] = '\0';
             }
             strcpy(current_path, fr->path);
-        } else if (ret == -15) {
+        } else if (ret == -ENOENT) {
             printf("cd: %s doesn't exist\n", fr->path);
-        } else if (ret == -18) {
+        } else if (ret == -ENOTDIR) {
             printf("cd: %s is not a dir\n", fr->path);
         } else {
             printf("cd: %s unknown error %d\n", fr->path, ret);

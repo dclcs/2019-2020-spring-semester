@@ -146,7 +146,7 @@ int fs_server_write(const char* path, off_t offset, const void* buf, size_t coun
     BUG_ON(!path);
     BUG_ON(*path != '/');
 
-    node = node = tfs_open_path(path);
+    node = tfs_open_path(path);
     if (!node) {
         err = -ENOENT;
         goto err_ret;
@@ -209,11 +209,11 @@ int fs_server_scan(const char* path, unsigned int start, void* buf, unsigned int
     return -ENOENT;
 }
 
-int fs_server_scan_instant(const char* raw_path, unsigned int start)
+int fs_server_ls(const char* raw_path, unsigned int start)
 {
     char* path = malloc(MAX_FILENAME_LEN);
     strcpy(path, raw_path);
-    svdebug("<fs_server_scan_instant>, path: %s, start: %d\n", path, start);
+    svdebug("<fs_server_ls>, path: %s, start: %d\n", path, start);
     int tail_ptr = strlen(path) - 1;
     while (tail_ptr > 0 && path[tail_ptr] == '/') {
         path[tail_ptr] = '\0';
@@ -226,11 +226,50 @@ int fs_server_scan_instant(const char* raw_path, unsigned int start)
     BUG_ON(*path != '/');
 
     inode = tfs_open_path(path);
-    svdebug("<fs_server_scan> gotta inode: %p by tfs_open_path\n", inode);
+    svdebug("<fs_server_ls> gotta inode: %p by tfs_open_path\n", inode);
     if (inode) {
         if (inode->type == FS_DIR)
             return tfs_scan_instant(inode, start);
         return -ENOTDIR;
     }
     return -ENOENT;
+}
+
+int fs_server_cat(const char* raw_path)
+{
+    char* path = malloc(MAX_FILENAME_LEN);
+    strcpy(path, raw_path);
+    int tail_ptr = strlen(path) - 1;
+    svdebug("tail len: %d\n", tail_ptr);
+    while (tail_ptr > 0 && path[tail_ptr] == '/') {
+        path[tail_ptr] = '\0';
+        svdebug("overwrite path[%d], @ %p\n", tail_ptr, &path[tail_ptr]);
+        --tail_ptr;
+    }
+    svdebug("[fs_server_cat]: %s\n", path);
+
+    int err = 0;
+
+    BUG_ON(!path);
+    BUG_ON(*path != '/');
+
+    struct inode* node = tfs_open_path(path);
+    if (!node) {
+        err = -ENOENT;
+        goto err_ret;
+    }
+    if (node->type != FS_REG) {
+        err = -ENODATA;
+        goto err_ret;
+    }
+    svdebug("located node->type = %p\n", node->type);
+    size_t file_size = node->size;
+    svdebug("node->size = %d\n", node->size);
+error_point:
+    svdebug("tfs_cat_file @ %p\n", (void*)tfs_cat_file);
+    err = (int)(tfs_cat_file(node));
+
+    svdebug("it never arrives here\n");
+err_ret:
+    return err;
 }

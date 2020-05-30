@@ -20,4 +20,6 @@ ssize_t fs_server_get_size(const char* path);
 
 int fs_server_scan(const char* path, unsigned int start, void* buf, unsigned int count);
 
-int fs_server_scan_instant(const char* path, unsigned int start);
+int fs_server_ls(const char* path, unsigned int start);
+
+int fs_server_cat(const char* raw_path);

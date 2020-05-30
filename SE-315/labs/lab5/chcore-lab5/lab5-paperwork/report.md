@@ -67,3 +67,20 @@ Writing a simple (and malfunctional) `readline` is simple.
 
 However, if we want to create a usable shell, we might need to handle some corner cases (for example, can I use `backspace` to overwrite? How should we handle Up/Down/Left/Right keys? How can we cope with the `tab` auto-complete?).
 
+After some thoughts, we shall implement these features:
+
+* using `backspace` to modify the command
+* using `tab` to auto-complete
+* `pwd` display before `$` délimiter
+
+And these features won't be implemented:
+
+* Left & Right to move the cursor
+* Up & Down to select previous commands
+
+##### `ls`
+
+Since we have implemented `scan` functions (actually, that's impemented by TA), we don't have much code to write here. Just call them to get `dentries` array, and print them out.
+
+`cat`
+

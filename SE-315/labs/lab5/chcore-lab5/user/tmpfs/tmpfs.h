@@ -60,3 +60,7 @@ int tfs_scan_instant(struct inode* dir, unsigned int start);
 struct inode* tfs_open_path(const char* path);
 
 int tfs_load_image(const char* start);
+
+ssize_t dummy_test(struct inode* inode);
+
+ssize_t tfs_cat_file(struct inode* inode);

@@ -424,12 +424,10 @@ ssize_t tfs_file_write(struct inode* inode, off_t offset, const char* data,
     to_write_bytes = size;
     written_bytes = 0;
 
-    char buf[PAGE_SIZE];
-
     while (written_bytes < to_write_bytes) {
         page = radix_get(&inode->data, page_no);
         if (!page) {
-            page = buf;
+            page = malloc(PAGE_SIZE);
         }
         size_t current_page_bytes = PAGE_SIZE - page_off;
         size_t remain_bytes = to_write_bytes - written_bytes;
@@ -446,7 +444,7 @@ ssize_t tfs_file_write(struct inode* inode, off_t offset, const char* data,
             written_bytes += remain_bytes;
         }
 
-        page = radix_add(&inode->data, page_no, page);
+        radix_add(&inode->data, page_no, page);
     }
 
     if (offset + written_bytes > inode->size) {
@@ -462,6 +460,7 @@ ssize_t tfs_file_write(struct inode* inode, off_t offset, const char* data,
 // You can use memory functions defined in libc
 ssize_t tfs_file_read(struct inode* inode, off_t offset, char* buf, size_t size)
 {
+    fsdebug("<tfs_file_read> entered\n");
     BUG_ON(inode->type != FS_REG);
     BUG_ON(offset > inode->size);
     fsdebug("<tfs_file_read> inode: %p offset: %d buf: %p size: %d\n", inode, offset, buf, size);
@@ -474,7 +473,7 @@ ssize_t tfs_file_read(struct inode* inode, off_t offset, char* buf, size_t size)
 
     void* page;
 
-    char buff[PAGE_SIZE];
+    char* buff = malloc(PAGE_SIZE);
     memset(buff, 0, PAGE_SIZE);
 
     to_read_bytes = size;
@@ -506,6 +505,67 @@ ssize_t tfs_file_read(struct inode* inode, off_t offset, char* buf, size_t size)
         }
     }
 
+    free(buff);
+    return read_bytes;
+}
+
+ssize_t tfs_cat_file(struct inode* inode)
+{
+    fsdebug("<tfs_cat_file> inode: %p\n", inode);
+    BUG_ON(inode->type != FS_REG);
+    size_t offset = 0, size = inode->size;
+
+    u64 page_no, page_off;
+    size_t to_read_bytes, read_bytes;
+
+    page_no = offset / PAGE_SIZE;
+    page_off = offset % PAGE_SIZE;
+
+    void* page;
+
+    char* buff = malloc(PAGE_SIZE);
+    char* result_buf = malloc(PAGE_SIZE);
+
+    memset(buff, 0, PAGE_SIZE);
+    to_read_bytes = size;
+    if (to_read_bytes + offset > inode->size) {
+        to_read_bytes = inode->size - offset;
+    }
+
+    // to_read_bytes is confirmed without overflow
+    read_bytes = 0;
+
+    while (read_bytes < to_read_bytes) {
+        page = radix_get(&inode->data, page_no);
+        if (!page) {
+            // provide paddings for unmapped pages
+            page = (void*)buff;
+        }
+        size_t current_page_bytes = PAGE_SIZE - page_off;
+        size_t remain_bytes = to_read_bytes - read_bytes;
+
+        if (current_page_bytes < remain_bytes) {
+            memcpy(result_buf, page + page_off, current_page_bytes);
+            read_bytes += current_page_bytes;
+
+            for (size_t i = 0; i < current_page_bytes; i++) {
+                usys_putc(result_buf[i]);
+            }
+
+            ++page_no;
+            page_off = 0;
+        } else {
+            memcpy(result_buf, page + page_off, remain_bytes);
+            read_bytes += remain_bytes;
+
+            for (size_t i = 0; i < remain_bytes; i++) {
+                usys_putc(result_buf[i]);
+            }
+        }
+    }
+
+    free(buff);
+    free(result_buf);
     return read_bytes;
 }
 
