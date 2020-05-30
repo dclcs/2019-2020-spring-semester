@@ -29,6 +29,8 @@ struct thread* current_threads[PLAT_CPU_NUM];
 /* Chosen Scheduling Policies */
 struct sched_ops* cur_sched_ops;
 
+extern void print_queue();
+
 char thread_type[][TYPE_STR_LEN] = {
     "IDLE  ",
     "ROOT  ",
@@ -66,7 +68,7 @@ void arch_idle_ctx_init(struct thread_ctx* idle_ctx, void (*func)(void))
 void print_thread(struct thread* thread)
 {
     if (!thread) {
-        printk("Thread NULL <All NULL>\n");
+        // printk("Thread NULL <All NULL>\n");
         return;
     }
     printk("Thread %p\tType: %s\tState: %s\tCPU %d\tAFF %d\tBudget %d\tPrio: %d\t\n",
@@ -173,4 +175,9 @@ int sched_init(struct sched_ops* sched_ops)
     cur_sched_ops = sched_ops;
     cur_sched_ops->sched_init();
     return 0;
+}
+
+void print_top()
+{
+    print_queue();
 }

@@ -82,5 +82,25 @@ And these features won't be implemented:
 
 Since we have implemented `scan` functions (actually, that's impemented by TA), we don't have much code to write here. Just call them to get `dentries` array, and print them out.
 
-`cat`
+##### `cd`
+
+To implement `cd`, we need to place a buffer in shell to record our `$pwd`. However, before we put path into it, we should validate it, checking if it exists and is a `FS_DIR`. So we reuse `ls` code. If a path can be `ls`ed, then it should be `cd`ed safely, too.
+
+##### `cat`
+
+We have implemented `fs_file_read` function, so we can implement `cat` easily based on that.
+
+However, we should not allocate whole memory chunks that could contain all file contents, which will cause our lame buddy system's crash. Instead, we should allocate a fixed memory (like, `PAGE_SIZE`) and recursively fills in this memory until we get a `$EOF`.
+
+##### `top`
+
+We can't access scheduling info in user mode, so a new `syscall` needs to be added into our `ChCore`.
+
+We can reuse debugging function `print_thread` in Lab 4, since they have identical printing formats.
+
+Currently we can't get corresponding score in `top` phase since we haven't implement Exercise 7, so `top` can't get those new threads.
+
+After all those above, our lame shell could finally work (to some extent).
+
+
 

@@ -50,34 +50,23 @@ void printkk(const char *fmt)
 	}
 }
 
-static void print_queue()
-{
-	if (smp_get_cpu_id() != 0)
-	{
-		return;
-	}
-
-	printk("==============================\n");
-	for (size_t i = 0; i < PLAT_CPU_NUM; i++)
-	{
-		printk("#%d\t", i);
-		lock(&mutex_lock[i]);
-		for (u32 j = 0; j < queue_pointer[i]; j++)
-		{
-			print_thread(priv_ready_queue[i][j]);
-		}
-		unlock(&mutex_lock[i]);
-		printk("\n");
-	}
-	printk("==============================\n");
-}
 #else
 #define printkk(...)
-static void print_queue()
-{
-    // do nothing
-}
+
 #endif
+
+void print_queue()
+{
+
+    for (size_t i = 0; i < PLAT_CPU_NUM; i++) {
+        printk("===== CPU %d =====\n", i);
+        lock(&mutex_lock[i]);
+        for (u32 j = 0; j < queue_pointer[i]; j++) {
+            print_thread(priv_ready_queue[i][j]);
+        }
+        unlock(&mutex_lock[i]);
+    }
+}
 
 static bool queue_empty(u32 cpu_id)
 {
@@ -107,7 +96,7 @@ static void refresh_dummy_queue()
 
 static void init_queue(u32 cpu_count)
 {
-    print_queue();
+    // print_queue();
     for (u32 i = 0; i < cpu_count; i++) {
         lock(&mutex_lock[i]);
         queue_pointer[i] = 0;
@@ -118,7 +107,7 @@ static void init_queue(u32 cpu_count)
 
 static void enqueue_last(struct thread* thread, u32 cpu_id)
 {
-    print_queue();
+    // print_queue();
     lock(&mutex_lock[cpu_id]);
     priv_ready_queue[cpu_id][queue_pointer[cpu_id]] = thread;
     ++queue_pointer[cpu_id];
@@ -190,7 +179,7 @@ static struct thread *dequeue_first(struct thread *thread, u32 cpu_id)
 
 static void dequeue_any(struct thread* thread, u32 cpu_id)
 {
-    print_queue();
+    // print_queue();
     lock(&mutex_lock[cpu_id]);
     struct thread* new_queue[MAX_PRIO];
     int new_pointer = 0;
@@ -410,7 +399,7 @@ int rr_sched_init(void)
     init_queue(PLAT_CPU_NUM);
     refresh_dummy_queue();
 
-    print_queue();
+    // print_queue();
 
     /* Initialize one idle thread for each core and insert into the RQ */
     for (i = 0; i < PLAT_CPU_NUM; i++) {

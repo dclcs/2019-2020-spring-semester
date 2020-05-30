@@ -19,6 +19,7 @@
 #include <common/types.h>
 #include <common/uaccess.h>
 #include <common/uart.h>
+#include <sched/sched.h>
 
 void sys_debug(long arg)
 {
@@ -39,6 +40,12 @@ void sys_putc(char ch)
 u32 sys_getc(void)
 {
     return uart_recv();
+}
+
+void sys_top(void)
+{
+    printk("Current CPU %d\n", smp_get_cpu_id());
+    print_top();
 }
 
 /* 
@@ -89,5 +96,6 @@ const void* syscall_table[NR_SYSCALL] = {
     [SYS_transfer_caps] = sys_transfer_caps,
     /* TMP FS */
     [SYS_fs_load_cpio] = sys_fs_load_cpio,
-    [SYS_debug] = sys_debug
+    [SYS_debug] = sys_debug,
+    [SYS_top] = sys_top
 };

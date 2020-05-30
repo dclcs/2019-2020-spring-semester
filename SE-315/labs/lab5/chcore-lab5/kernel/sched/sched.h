@@ -151,3 +151,5 @@ static inline void sched_handle_timer_irq()
 {
     cur_sched_ops->sched_handle_timer_irq(false);
 }
+
+void print_top();

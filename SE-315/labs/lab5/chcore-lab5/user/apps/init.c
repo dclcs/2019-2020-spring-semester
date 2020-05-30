@@ -268,8 +268,8 @@ int builtin_cmd(char* cmdline)
         }
         return true;
     }
-    if (JUDGE_CMD(cmdline, "top") == 0) {
-
+    if (JUDGE_CMD_STRICT(cmdline, "top") == 0) {
+        usys_top();
         return true;
     }
     return false;

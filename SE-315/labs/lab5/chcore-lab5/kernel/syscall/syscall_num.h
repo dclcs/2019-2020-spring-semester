@@ -76,6 +76,9 @@ void sys_ipc_return(void);
 // #define SYS_arch_prctl                          200
 #define SYS_handle_brk 201
 
+/* Lab 5 specific */
+#define SYS_top 202
+
 /* TEMP */
 #define SYS_fs_load_cpio 253
 #define SYS_debug 255
