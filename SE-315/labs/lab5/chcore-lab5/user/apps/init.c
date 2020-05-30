@@ -70,6 +70,14 @@ void parse_path(const char* input, char* output)
     shdebug("output path: (%s)@%p\n", output, output);
 }
 
+#define SHELL_BACKSPACE 127
+#define SHELL_ENTER 13
+#define SHELL_ESCAPE 27
+#define SHELL_UP 65
+#define SHELL_DOWN 66
+#define SHELL_RIGHT 67
+#define SHELL_LEFT 68
+
 // read a command from stdin leading by `prompt`
 // put the commond in `buf` and return `buf`
 // What you typed should be displayed on the screen
@@ -94,12 +102,22 @@ char* readline(const char* prompt)
         if (c < 0)
             return NULL;
         // printf("\n===chr id: %d\n", (int)c);
-        if (c == 127 && complement_time > 0) {
+        if (c == SHELL_BACKSPACE && complement_time > 0) {
             // printf("\n------\n");
             --complement_time;
             complement[complement_time] = '\0';
-        } else if (c == 13) {
+        } else if (c == SHELL_ENTER) {
             break;
+        } else if (c == SHELL_UP) {
+            complement[complement_time++] = 'A';
+        } else if (c == SHELL_DOWN) {
+            complement[complement_time++] = 'B';
+        } else if (c == SHELL_LEFT) {
+            complement[complement_time++] = 'D';
+        } else if (c == SHELL_RIGHT) {
+            complement[complement_time++] = 'C';
+        } else if (c == SHELL_ESCAPE) {
+            complement[complement_time++] = '^';
         } else {
             complement[complement_time++] = c;
         }
