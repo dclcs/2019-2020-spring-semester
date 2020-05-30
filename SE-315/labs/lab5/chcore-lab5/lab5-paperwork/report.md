@@ -104,9 +104,21 @@ After all those above, our lame shell could finally work (to some extent).
 
 #### Exercise 7
 
+##### Auto-completion
+
 Let's implement the auto-complete feature.
 
-First, we should get a incomplete string as input. Then, we should split them as prefix path and incomplete filename. Then, we can use the method similar to `ls` to traverse all entries, and then decide which one to return.
+First, we should get a incomplete string as input. Then, we should split them as prefix path and incomplete filename. Then, we can use the method similar to `ls` to get all entries, and then decide which one to return.
 
+There's one feature isn't specifically decalred in the document, but is mentioned during the Lab instruction class. We should allow user to continuously tap `Tab` key to traverse all files that matches the input. Here we can use the `fr->count` field to indicate which entry we'd like to take.
 
+Here, since we use the split technique to implement auto-complete, we can also auto-complete deep folders' files, like:
+
+```shell
+/$ tar/cat_
+<Press Tab>
+/$ tar/cat_test.txt
+```
+
+Here, we can't specifically decide if a file is executable (since we didn't implement `mode` feature), so we will just ignore that limitation.
 
