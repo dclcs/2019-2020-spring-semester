@@ -63,7 +63,7 @@ If it's a newline (`\n`), we should break the loop.
 
 ##### `readline`
 
-Writing a simple (and malfunctional) `readline` is simple.
+Writing a simple (and naïve) `readline` is simple.
 
 However, if we want to create a usable shell, we might need to handle some corner cases (for example, can I use `backspace` to overwrite? How should we handle Up/Down/Left/Right keys? How can we cope with the `tab` auto-complete?).
 
