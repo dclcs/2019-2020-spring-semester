@@ -16,3 +16,9 @@ int builtin_cmd(char* cmdline);
 // run other command, such as execute an executable file
 // return true if run sccessfully
 int run_cmd(char* cmdline);
+
+void auto_complete(char* inc_path, char* completion, int start);
+
+void parse_path(const char* input, char* output);
+
+int split_path(char* inc_path, char* buf);

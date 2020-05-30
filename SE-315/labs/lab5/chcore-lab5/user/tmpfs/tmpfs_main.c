@@ -5,16 +5,18 @@
 #define server_ready_flag_offset 0x0
 #define server_exit_flag_offset 0x4
 
-static void fs_dispatch(ipc_msg_t* ipc_msg)
+static void fs_dispatch(ipc_msg_t *ipc_msg)
 {
     // printf("invoked fs_dispatch. ipc_msg: %p\n", ipc_msg);
     int ret = 0;
 
-    if (ipc_msg->data_len >= 4) {
-        struct fs_request* fr = (struct fs_request*)
+    if (ipc_msg->data_len >= 4)
+    {
+        struct fs_request *fr = (struct fs_request *)
             ipc_get_msg_data(ipc_msg);
         // printf("provided buff: %p\n", fr->buff);
-        switch (fr->req) {
+        switch (fr->req)
+        {
         case FS_REQ_SCAN:
             ret = fs_server_scan(fr->path, 0, fr->count, fr->count);
             break;
@@ -45,13 +47,18 @@ static void fs_dispatch(ipc_msg_t* ipc_msg)
         case FS_REQ_CAT:
             ret = fs_server_cat(fr->path);
             break;
+        case FS_REQ_COMP:
+            ret = fs_server_comp(fr->path, fr->path + 128, fr->count);
+            break;
         default:
             error("%s: %d Not impelemented yet\n", __func__,
-                ((int*)ipc_get_msg_data(ipc_msg))[0]);
+                  ((int *)ipc_get_msg_data(ipc_msg))[0]);
             usys_exit(-1);
             break;
         }
-    } else {
+    }
+    else
+    {
         printf("TMPFS: no operation num\n");
         usys_exit(-1);
     }
@@ -61,29 +68,31 @@ static void fs_dispatch(ipc_msg_t* ipc_msg)
     usys_ipc_return(ret);
 }
 
-int main(int argc, char* argv[], char* envp[])
+int main(int argc, char *argv[], char *envp[])
 {
-    void* info_page_addr = (void*)(long)TMPFS_INFO_VADDR;
+    void *info_page_addr = (void *)(long)TMPFS_INFO_VADDR;
     // void *info_page_addr = (void *) (envp[0]);
-    int* server_ready_flag;
-    int* server_exit_flag;
+    int *server_ready_flag;
+    int *server_exit_flag;
 
     printf("info_page_addr: 0x%lx\n", info_page_addr);
 
-    if (info_page_addr == NULL) {
+    if (info_page_addr == NULL)
+    {
         error("[tmpfs] no info received. Bye!\n");
         usys_exit(-1);
     }
 
     fs_server_init(CPIO_BIN);
     info("register server value = %u\n",
-        ipc_register_server(fs_dispatch));
+         ipc_register_server(fs_dispatch));
 
     server_ready_flag = info_page_addr + server_ready_flag_offset;
     *server_ready_flag = 1;
 
     server_exit_flag = info_page_addr + server_exit_flag_offset;
-    while (*server_exit_flag != 1) {
+    while (*server_exit_flag != 1)
+    {
         usys_yield();
     }
 

@@ -23,3 +23,5 @@ int fs_server_scan(const char* path, unsigned int start, void* buf, unsigned int
 int fs_server_ls(const char* path, unsigned int start);
 
 int fs_server_cat(const char* raw_path);
+
+int fs_server_comp(const char* raw_path, char* inc_name, int start);

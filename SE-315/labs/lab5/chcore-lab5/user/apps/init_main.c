@@ -13,9 +13,9 @@ char getch()
     return (char)usys_getc();
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    char* buf;
+    char *buf;
     int ret = 0;
 
     printf("init loads cpio image.\n");
@@ -26,7 +26,8 @@ int main(int argc, char* argv[])
     char prefix_buffer[BUFLEN];
     char delimeter[] = "$ ";
 
-    while (1) {
+    while (1)
+    {
         strcpy(prefix_buffer, current_path);
         strcat(prefix_buffer, delimeter);
         buf = readline(prefix_buffer);
@@ -37,7 +38,8 @@ int main(int argc, char* argv[])
             continue;
         if (builtin_cmd(buf))
             continue;
-        if ((ret = run_cmd(buf)) < 0) {
+        if ((ret = run_cmd(buf)) < 0)
+        {
             printf("Cannot run %s, ERROR %d\n", buf, ret);
         }
     }

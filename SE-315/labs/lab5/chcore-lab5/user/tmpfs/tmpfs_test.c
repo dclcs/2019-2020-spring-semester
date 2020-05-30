@@ -5,10 +5,14 @@
 #include <syscall.h>
 
 #define TEST_FUNC(name)               \
-    do {                              \
-        if (name() == 0) {            \
+    do                                \
+    {                                 \
+        if (name() == 0)              \
+        {                             \
             printf(#name " pass!\n"); \
-        } else {                      \
+        }                             \
+        else                          \
+        {                             \
             printf(#name " fail!\n"); \
         }                             \
     } while (0)
@@ -21,19 +25,21 @@ static int test_fs_server_init()
 static int test_scan()
 {
     int count = 4096;
-    char* buf = malloc(count);
-    char* str = malloc(256);
+    char *buf = malloc(count);
+    char *str = malloc(256);
     int start;
     int ret;
-    void* vp;
-    struct dirent* p;
+    void *vp;
+    struct dirent *p;
     int i;
     start = 0;
-    do {
+    do
+    {
         ret = fs_server_scan("/tar", start, buf, count);
         vp = buf;
         start += ret;
-        for (i = 0; i < ret; i++) {
+        for (i = 0; i < ret; i++)
+        {
             p = vp;
             strcpy(str, p->d_name);
             printf("%s\n", str);
@@ -42,12 +48,14 @@ static int test_scan()
     } while (ret != 0);
     printf("/tar has %d files\n", start);
     start = 0;
-    do {
+    do
+    {
         ret = fs_server_scan("/tar/test", start, buf, count);
         vp = buf;
         start += ret;
         // printf("/tar/test ret = %d\n", ret);
-        for (i = 0; i < ret; i++) {
+        for (i = 0; i < ret; i++)
+        {
             p = vp;
             strcpy(str, p->d_name);
             printf("%s\n", str);
@@ -87,16 +95,18 @@ static int test_unlink()
 
 static int test_write_read()
 {
-    char* buf[2];
+    char *buf[2];
     buf[0] = malloc(FILE_LEN);
     buf[1] = malloc(FILE_LEN);
     int ret = fs_server_write("/file", 0, buf[0], FILE_LEN);
-    if (ret != FILE_LEN) {
+    if (ret != FILE_LEN)
+    {
         printf("write ret=%x len=%x\n", ret, FILE_LEN);
         return -1;
     }
     ret = fs_server_read("/file", 0, buf[1], FILE_LEN);
-    if (ret != FILE_LEN) {
+    if (ret != FILE_LEN)
+    {
         printf("read ret=%x len=%x\n", ret, FILE_LEN);
         return -1;
     }
@@ -147,8 +157,8 @@ int main()
     TEST_FUNC(test_creat);
     TEST_FUNC(test_write_read);
     TEST_FUNC(test_deepfile);
-    TEST_FUNC(test_rmdir);
-    TEST_FUNC(test_unlink);
+    // TEST_FUNC(test_rmdir);
+    // TEST_FUNC(test_unlink);
 
     return 0;
 }

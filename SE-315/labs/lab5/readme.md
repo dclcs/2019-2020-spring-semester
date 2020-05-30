@@ -213,7 +213,7 @@ The `$` is a prompt, and you can type a command after the prompt. However, since
 
 > **Exercise 6**. Implement `bultin_cmd()` defined in `user/apps/init.c` to support built-in commands in shell, e.g., `ls`, `ls [directory]`, `cd [directory]`, `echo [string]`, `cat [filename]`. 
 
-> **Exercise 7**. Implement the function `readelf_from_fs` defined in `user/lib/liblauncher.c` and `run_cmd` defined in `user/apps/init.c` to support running a executable file by type it name. You should also implement the auto-complement by `tab` (**following the order of the files in the cpio archive**). We add function declaration of `launch_process_with_pmos_caps` in `user/lib/proc.h`
+> **Exercise 7**. Implement the function `readelf_from_fs` defined in `user/lib/liblauncher.c` and `run_cmd` defined in `user/apps/init.c` to support running a executable file by type it name. You should also implement the auto-complement by `tab` (**following the order of the files in the cpio archive**). We add function declaration of `launch_process_with_pmos_caps` in `user/lib/proc.h`.
 
 > **Exercise 8**. Implement `top` to show information of threads. The format of top is like the following: (you can also add another information on the tail of each line):
 >

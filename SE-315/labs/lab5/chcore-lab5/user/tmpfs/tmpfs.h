@@ -61,6 +61,8 @@ struct inode* tfs_open_path(const char* path);
 
 int tfs_load_image(const char* start);
 
-ssize_t dummy_test(struct inode* inode);
+// ssize_t dummy_test(struct inode* inode);
 
 ssize_t tfs_cat_file(struct inode* inode);
+
+int tfs_scan_auto_complete(struct inode* dir, char* inc_name, int start);

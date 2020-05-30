@@ -6,10 +6,14 @@
 #include <syscall.h>
 
 #define TEST_FUNC(name)               \
-    do {                              \
-        if (name() == 0) {            \
+    do                                \
+    {                                 \
+        if (name() == 0)              \
+        {                             \
             printf(#name " pass!\n"); \
-        } else {                      \
+        }                             \
+        else                          \
+        {                             \
             printf(#name " fail!\n"); \
         }                             \
     } while (0)
@@ -20,8 +24,9 @@
 char getch()
 {
     static int i = 0;
-    char* cmd1 = "echo ls tt yy \nyie\t\t\nsp\t\n";
-    if (i == strlen(cmd1)) {
+    char *cmd1 = "echo ls tt yy \nyie\t\t\nsp\t\n";
+    if (i == strlen(cmd1))
+    {
         return -1;
     }
     return cmd1[i++];

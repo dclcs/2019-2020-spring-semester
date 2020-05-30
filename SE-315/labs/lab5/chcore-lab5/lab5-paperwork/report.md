@@ -102,5 +102,11 @@ Currently we can't get corresponding score in `top` phase since we haven't imple
 
 After all those above, our lame shell could finally work (to some extent).
 
+#### Exercise 7
+
+Let's implement the auto-complete feature.
+
+First, we should get a incomplete string as input. Then, we should split them as prefix path and incomplete filename. Then, we can use the method similar to `ls` to traverse all entries, and then decide which one to return.
+
 
 
