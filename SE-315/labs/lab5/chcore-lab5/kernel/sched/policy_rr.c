@@ -41,6 +41,8 @@ static struct thread *priv_ready_queue[PLAT_CPU_NUM][MAX_PRIO];
 static u32 queue_pointer[PLAT_CPU_NUM];
 struct lock mutex_lock[PLAT_CPU_NUM];
 
+struct thread idle_threads[PLAT_CPU_NUM];
+
 #if 0
 void printkk(const char *fmt)
 {
@@ -60,12 +62,19 @@ void print_queue()
     for (size_t i = 0; i < PLAT_CPU_NUM; i++)
     {
         printk("===== CPU %d =====\n", i);
-        // lock(&mutex_lock[i]);
-        for (u32 j = 0; j < queue_pointer[i]; j++)
+
+        lock(&mutex_lock[i]);
+
+        if (queue_pointer[i] != 0)
         {
-            print_thread(priv_ready_queue[i][j]);
+            for (u32 j = 0; j < queue_pointer[i]; j++)
+            {
+                print_thread(priv_ready_queue[i][j]);
+            }
         }
-        // unlock(&mutex_lock[i]);
+
+        print_thread(&idle_threads[i]);
+        unlock(&mutex_lock[i]);
     }
 }
 
@@ -215,7 +224,6 @@ static void dequeue_any(struct thread *thread, u32 cpu_id)
  * we will choose the idle thread to execute.
  * Idle thread will **NOT** be in the RQ.
  */
-struct thread idle_threads[PLAT_CPU_NUM];
 
 int rr_sched_enqueue(struct thread *thread);
 int rr_sched_dequeue(struct thread *thread);
@@ -262,6 +270,7 @@ int rr_sched_enqueue(struct thread *thread)
         // printk("perform list_add.\n");
         // print_thread(thread);
         thread->thread_ctx->cpuid = cpu_id;
+        thread->thread_ctx->affinity = cpu_id;
     }
     else if (affinity < PLAT_CPU_NUM)
     {
