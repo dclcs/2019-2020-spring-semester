@@ -34,7 +34,8 @@ enum FS_REQ {
 
     FS_REQ_LS,
     FS_REQ_CAT,
-    FS_REQ_COMP
+    FS_REQ_COMP,
+    FS_REQ_LOAD_BINARY
 };
 
 #define FS_REQ_PATH_LEN (256)

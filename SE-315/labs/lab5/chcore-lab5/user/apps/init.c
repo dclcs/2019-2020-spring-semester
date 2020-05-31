@@ -341,7 +341,7 @@ void auto_complete(char *inc_path, char *completion, int start)
 
     ret = ipc_call(tmpfs_ipc_struct, msg);
 
-    struct fs_request *ret_fr = ipc_get_msg_data(msg);
+    struct fs_request *ret_fr = (struct fs_request *)ipc_get_msg_data(msg);
     if (ret == 0)
     {
         shdebug("prefix: %s auto completed: %s\n", ret_fr->path, ret_fr->path + 128);
@@ -590,7 +590,35 @@ int builtin_cmd(char *cmdline)
 // return true if run sccessfully
 int run_cmd(char *cmdline)
 {
-    return 0;
+
+    shdebug("called run_cmd: %s\n", cmdline);
+    while (*cmdline == ' ')
+    {
+        // skip prefix spaces
+        ++cmdline;
+    }
+
+    // remove suffix spaces
+    int tail_node = strlen(cmdline);
+    while (tail_node > 0 && cmdline[tail_node - 1] == ' ')
+    {
+        cmdline[tail_node - 1] = '\0';
+        --tail_node;
+    }
+
+    shdebug("parsed run_cmd: %s\n", cmdline);
+
+    int tmpfs_read_pmo_cap;
+
+    tmpfs_read_pmo_cap = usys_create_pmo(PAGE_SIZE, PMO_DATA);
+
+    ipc_msg_t *msg = ipc_create_msg(tmpfs_ipc_struct, sizeof(struct fs_request), tmpfs_read_pmo_cap);
+    struct fs_request *fr = ipc_get_msg_data(msg);
+    fr->req = FS_REQ_LOAD_BINARY;
+    parse_path(cmdline, fr->path);
+
+    ipc_set_msg_data(msg, (char *)fr, 0, sizeof(struct fs_request));
+    return ipc_call(tmpfs_ipc_struct, msg);
 }
 
 static int

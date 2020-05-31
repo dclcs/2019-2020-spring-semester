@@ -122,3 +122,5 @@ Here, since we use the split technique to implement auto-complete, we can also a
 
 Here, we can't specifically decide if a file is executable (since we didn't implement `mode` feature), so we will just ignore that limitation.
 
+#### Exercise 7
+

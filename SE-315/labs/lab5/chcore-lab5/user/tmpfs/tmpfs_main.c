@@ -38,6 +38,9 @@ static void fs_dispatch(ipc_msg_t *ipc_msg)
         case FS_REQ_READ:
             ret = fs_server_read(fr->path, fr->offset, fr->buff, fr->count);
             break;
+        case FS_REQ_LOAD_BINARY:
+            ret = fs_server_load_binary(fr->path);
+            break;
         case FS_REQ_GET_SIZE:
             ret = fs_server_get_size(fr->path);
             break;

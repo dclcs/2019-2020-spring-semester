@@ -1,6 +1,9 @@
 #include "tmpfs_server.h"
 
-#include <syscall.h>
+#include <lib/syscall.h>
+#include <lib/elf.h>
+#include <lib/spawn.h>
+#include <lib/launcher.h>
 
 #if 0
 #define svdebug(...) printf(__VA_ARGS__)
@@ -282,11 +285,10 @@ int fs_server_cat(const char *raw_path)
     svdebug("located node->type = %p\n", node->type);
     size_t file_size = node->size;
     svdebug("node->size = %d\n", node->size);
-error_point:
+
     svdebug("tfs_cat_file @ %p\n", (void *)tfs_cat_file);
     err = (int)(tfs_cat_file(node));
 
-    svdebug("it never arrives here\n");
 err_ret:
     return err;
 }
@@ -321,4 +323,77 @@ int fs_server_comp(const char *raw_path, char *inc_name, int start)
         return -ENOTDIR;
     }
     return -ENOENT;
+}
+
+int fs_server_load_binary(const char *raw_path)
+{
+    char *path = malloc(MAX_FILENAME_LEN);
+    strcpy(path, raw_path);
+    int tail_ptr = strlen(path) - 1;
+    svdebug("tail len: %d\n", tail_ptr);
+    while (tail_ptr > 0 && path[tail_ptr] == '/')
+    {
+        path[tail_ptr] = '\0';
+        svdebug("overwrite path[%d], @ %p\n", tail_ptr, &path[tail_ptr]);
+        --tail_ptr;
+    }
+    svdebug("[fs_server_load_binary]: %s\n", path);
+
+    int err = 0;
+
+    BUG_ON(!path);
+    BUG_ON(*path != '/');
+
+    bool load_from_fs = false;
+
+    if (load_from_fs)
+    {
+
+        struct inode *node = tfs_open_path(path);
+        if (!node)
+        {
+            err = -ENOENT;
+            goto err_ret;
+        }
+        if (node->type != FS_REG)
+        {
+            err = -ENODATA;
+            goto err_ret;
+        }
+        svdebug("located node->type = %p\n", node->type);
+        size_t file_size = node->size;
+        svdebug("node->size = %d\n", node->size);
+
+        char *buffer = malloc(file_size);
+        svdebug("malloc buffer ok. file_size: %d\n", file_size);
+        err = tfs_file_read(node, 0, buffer, file_size);
+        svdebug("tfs_file_read returned. err: %d\n", err);
+        if (err < 0)
+        {
+            goto err_ret;
+        }
+
+        // for (size_t i = 0; i < file_size; i++)
+        // {
+        //     svdebug("%c", buffer[i]);
+        // }
+        // svdebug("\n");
+
+        struct user_elf *elf = malloc(sizeof(struct user_elf));
+        err = parse_elf_from_binary(buffer, elf);
+        svdebug("parse_elf_from_binary returned. err: %d\n", err);
+        if (err < 0)
+        {
+            goto err_ret;
+        }
+
+        err = launch_process_with_pmos_caps(elf, NULL, NULL, NULL, 0, NULL, 0, -1);
+        svdebug("launch_process_with_pmos_caps returned. err: %d\n", err);
+    }
+    else
+    {
+        err = spawn(path, NULL, NULL, NULL, 0, NULL, 0, -1);
+    }
+err_ret:
+    return err;
 }

@@ -55,6 +55,7 @@ static struct radix_node* new_radix_node(void)
 
 static int radix_add(struct radix* radix, u64 key, void* value)
 {
+    // printf("<radix_add>, radix: %p, page: %u\n", radix, key);
     struct radix_node* node;
     struct radix_node* new;
     u16 index[RADIX_LEVELS];
@@ -96,6 +97,7 @@ static int radix_add(struct radix* radix, u64 key, void* value)
 
 static void* radix_get(struct radix* radix, u64 key)
 {
+    // printf("<radix_get>, radix: %p, page: %u\n", radix, key);
     struct radix_node* node;
     u16 index[RADIX_LEVELS];
     int i;

@@ -470,11 +470,11 @@ ssize_t tfs_file_write(struct inode *inode, off_t offset, const char *data,
     size_t to_write_bytes, written_bytes;
     void *page;
 
-    page_no = offset / PAGE_SIZE;
-    page_off = offset % PAGE_SIZE;
-
     to_write_bytes = size;
     written_bytes = 0;
+
+    page_no = offset / PAGE_SIZE;
+    page_off = offset % PAGE_SIZE;
 
     while (written_bytes < to_write_bytes)
     {
@@ -489,9 +489,8 @@ ssize_t tfs_file_write(struct inode *inode, off_t offset, const char *data,
         if (current_page_bytes < remain_bytes)
         {
             memcpy(page + page_off, data + written_bytes, current_page_bytes);
-
             written_bytes += current_page_bytes;
-
+            radix_add(&inode->data, page_no, page);
             ++page_no;
             page_off = 0;
         }
@@ -499,9 +498,8 @@ ssize_t tfs_file_write(struct inode *inode, off_t offset, const char *data,
         {
             memcpy(page + page_off, data + written_bytes, remain_bytes);
             written_bytes += remain_bytes;
+            radix_add(&inode->data, page_no, page);
         }
-
-        radix_add(&inode->data, page_no, page);
     }
 
     if (offset + written_bytes > inode->size)
@@ -558,7 +556,10 @@ ssize_t tfs_file_read(struct inode *inode, off_t offset, char *buf, size_t size)
         {
             memcpy(buf + read_bytes, page + page_off, current_page_bytes);
             read_bytes += current_page_bytes;
-
+            // for (size_t i = 0; i < current_page_bytes; i++)
+            // {
+            // printf("%c", ((char *)page)[page_off + i]);
+            // }
             ++page_no;
             page_off = 0;
         }
@@ -566,8 +567,16 @@ ssize_t tfs_file_read(struct inode *inode, off_t offset, char *buf, size_t size)
         {
             memcpy(buf + read_bytes, page + page_off, remain_bytes);
             read_bytes += remain_bytes;
+
+            // for (size_t i = 0; i < remain_bytes; i++)
+            // {
+            //     printf("%c", ((char *)page)[page_off + i]);
+            // }
+            break;
         }
     }
+
+    // printf("\n\n");
 
     free(buff);
     return read_bytes;
