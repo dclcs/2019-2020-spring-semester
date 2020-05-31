@@ -7,6 +7,7 @@
 #include <lib/print.h>
 #include <lib/string.h>
 #include <lib/fs_defs.h>
+#include <lib/malloc.h>
 
 #if 0
 #define lcdebug(...) printf(__VA_ARGS__)

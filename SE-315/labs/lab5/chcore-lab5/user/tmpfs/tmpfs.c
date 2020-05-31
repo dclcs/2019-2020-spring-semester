@@ -214,7 +214,7 @@ int tfs_namex(struct inode **dirat, const char **name, int mkdir_p)
     fsdebug("<tfs_namex> dirat: %p name: %p *name: %s mkdir_p: %d\n", *dirat, name, *name, mkdir_p);
 
     char *buff;
-    int i;
+
     int err;
 
     if (**name == '/')
@@ -657,21 +657,12 @@ int tfs_load_image(const char *start)
 {
     fsdebug("<tfs_load_image> entered\n");
     struct cpio_file *f;
-    struct inode *dirat;
-    struct dentry *dent;
-    const char *leaf;
-    size_t len;
     int err;
-    ssize_t write_count;
 
     BUG_ON(start == NULL);
 
     cpio_init_g_files();
     cpio_extract(start, "/");
-
-    fsdebug("going to get initial dirat\n");
-    char root_path[] = "/";
-    dirat = tmpfs_root;
 
     for (f = g_files.head.next; f; f = f->next)
     {
@@ -683,7 +674,7 @@ int tfs_load_image(const char *start)
         }
 
         struct inode *parent = tmpfs_root, *created = tmpfs_root;
-        char *name = f->name;
+        const char *name = f->name;
 
         err = tfs_namex(&parent, &name, true);
         fsdebug("parent folder found. parent: %p ret: %d\n", parent, err);
@@ -725,8 +716,8 @@ int tfs_load_image(const char *start)
 
             struct dentry *result = tfs_lookup(created, name, name_len);
             fsdebug("new file located. result: %p result->inode: %p\n", result, result->inode);
-            size_t written_bytes = tfs_file_write(result->inode, 0, f->data, f->header.c_filesize);
-            fsdebug("written %u bytes\n", written_bytes);
+            tfs_file_write(result->inode, 0, f->data, f->header.c_filesize);
+            fsdebug("written done\n");
 
             fsdebug("\n");
         }

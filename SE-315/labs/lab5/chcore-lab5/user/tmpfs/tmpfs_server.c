@@ -1,5 +1,5 @@
 #include "tmpfs_server.h"
-
+#include "radix.h"
 #include <lib/syscall.h>
 #include <lib/elf.h>
 #include <lib/spawn.h>
@@ -14,8 +14,17 @@
 // int fs_stat(const char *pathname, struct stat *statbuf);
 // int fs_getdents(int fd, struct dirent *dirp, size_t count);
 
+static int the_answer_to_life_the_universe_and_everything = 42;
+
 int fs_server_init(u64 cpio_start)
 {
+
+    if (!the_answer_to_life_the_universe_and_everything)
+    {
+        // which is surely impossible, and will get optimized into nothing with -O3
+        // but that will surely silent those annoying `unused` warnings
+        __tmpfs_silent_warning();
+    }
     init_tmpfs();
     usys_fs_load_cpio(cpio_start);
     return tfs_load_image((char *)cpio_start);
@@ -25,7 +34,7 @@ int fs_server_mkdir(const char *path, mode_t mode)
 {
     svdebug("[fs_server_mkdir]: %s\n", path);
     struct inode *dirat = NULL;
-    char *leaf = path;
+    const char *leaf = path;
     int err;
 
     BUG_ON(!path);
@@ -47,7 +56,7 @@ int fs_server_creat(const char *path, mode_t mode)
 {
     svdebug("[fs_server_creat]: %s\n", path);
     struct inode *dirat = NULL;
-    char *leaf = path;
+    const char *leaf = path;
     int err;
 
     BUG_ON(!path);
@@ -69,7 +78,7 @@ int fs_server_unlink(const char *path)
 {
     svdebug("[fs_server_unlink]: %s\n", path);
     struct inode *dirat = NULL;
-    char *leaf = path;
+    const char *leaf = path;
     int err;
 
     BUG_ON(!path);
@@ -80,7 +89,8 @@ int fs_server_unlink(const char *path)
     {
         goto err_ret;
     }
-    tfs_remove(dirat, leaf, strlen(leaf));
+
+    err = tfs_remove(dirat, leaf, strlen(leaf));
 err_ret:
     return err;
 }
@@ -89,7 +99,7 @@ int fs_server_rmdir(const char *path)
 {
     svdebug("[rmdir]: %s\n", path);
     struct inode *dirat = NULL, *node = NULL;
-    char *leaf = path;
+    const char *leaf = path;
     int err;
 
     BUG_ON(!path);
@@ -283,10 +293,9 @@ int fs_server_cat(const char *raw_path)
         goto err_ret;
     }
     svdebug("located node->type = %p\n", node->type);
-    size_t file_size = node->size;
     svdebug("node->size = %d\n", node->size);
-
     svdebug("tfs_cat_file @ %p\n", (void *)tfs_cat_file);
+
     err = (int)(tfs_cat_file(node));
 
 err_ret:
@@ -396,4 +405,12 @@ int fs_server_load_binary(const char *raw_path)
     }
 err_ret:
     return err;
+}
+
+int __tmpfs_silent_warning()
+{
+    BUG("seriously, don't call this function\n");
+
+    fs_server_open(NULL, 0, 0);
+    fs_server_close(0);
 }

@@ -224,5 +224,5 @@ int usys_transfer_caps(u64 process, int *src_caps, int nr, int *dst_caps)
 
 void usys_top()
 {
-    return syscall(SYS_top, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    syscall(SYS_top, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }

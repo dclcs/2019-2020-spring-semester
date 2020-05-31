@@ -18,7 +18,7 @@ static void fs_dispatch(ipc_msg_t *ipc_msg)
         switch (fr->req)
         {
         case FS_REQ_SCAN:
-            ret = fs_server_scan(fr->path, 0, fr->count, fr->count);
+            ret = fs_server_scan(fr->path, 0, fr->buff, fr->count);
             break;
         case FS_REQ_MKDIR:
             ret = fs_server_mkdir(fr->path, fr->mode);

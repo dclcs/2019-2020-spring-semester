@@ -125,6 +125,7 @@ int split_path(char *inc_path, char *buf)
 
     free(temp_out);
     shdebug("split_path done. prefix path: (%s), inc_filename: (%s)\n", buf, buf + 128);
+    return 0;
 }
 
 #define SHELL_BEEP 7
@@ -157,9 +158,9 @@ char *readline(const char *prompt)
     // memset(real_buf, 0, BUFLEN);
     char *buf = real_buf + strlen(prompt);
     memcpy(real_buf, prompt, strlen(prompt));
-    int i = 0, j = 0;
+
     signed char c = 0;
-    int ret = 0;
+
     char complement[BUFLEN];
     int complement_time = 0;
 
@@ -613,7 +614,7 @@ int run_cmd(char *cmdline)
     tmpfs_read_pmo_cap = usys_create_pmo(PAGE_SIZE, PMO_DATA);
 
     ipc_msg_t *msg = ipc_create_msg(tmpfs_ipc_struct, sizeof(struct fs_request), tmpfs_read_pmo_cap);
-    struct fs_request *fr = ipc_get_msg_data(msg);
+    struct fs_request *fr = (struct fs_request *)ipc_get_msg_data(msg);
     fr->req = FS_REQ_LOAD_BINARY;
     parse_path(cmdline, fr->path);
 

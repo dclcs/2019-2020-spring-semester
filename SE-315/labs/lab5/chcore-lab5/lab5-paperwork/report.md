@@ -122,5 +122,21 @@ Here, since we use the split technique to implement auto-complete, we can also a
 
 Here, we can't specifically decide if a file is executable (since we didn't implement `mode` feature), so we will just ignore that limitation.
 
-#### Exercise 7
+##### Run Executable
+
+In this part, we just need to use our `fs_server_read` function to load file binary data in our file system, and use `parse_elf` function series to parse them as `struct user_elf` objects. Then, we can use `launch_process` to activate this new program.
+
+#### Exercise 8
+
+`top` command has been implemented in Exercise 5. But notice that we should also print `idle_thread` to match the requirements defined in the testing script.
+
+### Part C: Extra
+
+In our previous implementations, there are lots of warnings in our code. They're mainly related some unused functions & variables, and implicit pointer casting warnings.
+
+Since we're going to finish this lab, we'd better clean them out and turn on the `-Werror` switch in `Makefile`. Notice that there's some warnings in the testing scripts, two unused functions and four trimming unsigned integers. Since we're not allowed to change testing scripts when implementing this lab, these warnings won't be fixed here.
+
+> I think that's all.
+
+
 
