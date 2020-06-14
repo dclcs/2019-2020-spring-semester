@@ -1,0 +1,7 @@
+# Homework 7: Virtualization
+
+1. Assume there are 20 virtual machines running on a physical machine and 20 processes in each virtual machine. If we are using the shadow page table for memory virtualization, how many shadow page tables are needed? If we are using the stage-2 page table for memory virtualization, how many stage-2 page tables are needed?
+2. In many cases, the stage-2 page table performs better than the shadow page table. However, in some cases, the shadow page table can outperform the stage-2 page table. Please give an example of such cases and explain why.
+3. IOMMU is a wildly used technology in IO virtualization. What is the design purpose of IOMMU? In AArch64, IOMMU is implemented by SMMU. What address (HPA, HVA, GPA, GVA) are stored in SMMU? What kind(s) of translation (transforming what kind of address into what kind of address) can SMMU do?
+4. Please sort container, AWS Firecracker, gVisor, and traditional virtual machine according to their security level and give your reason.
+5. Assume we are going to implement container support (both CGroup and namespaces) in ChCore in Lab6. (*Don't worry, there won't be such a lab in this semester*). What modification should be done? Are there any performance or programmability advantages to implement such supports in ChCore compared to Linux due to ChCore's architecture?
