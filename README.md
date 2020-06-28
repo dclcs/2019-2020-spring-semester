@@ -7,13 +7,16 @@
 
 | `☐ => ☑`? | [due]       | [course] | [desc]           |
 | ------- | ----------- | -------- | ---------------- |
-| `☐`   | 06/14 23:59 | ST | 性能测试 |
+| `☐`   | 07/05 23:59 | ST | Performance |
+| `☐`   | 07/04 10:00 | GP | Final Presentation |
+| `☐`   | 07/01 10:00 | HCI | Final Presentation |
+| `☐`   | 06/29 12:20 | OS | Final Exam |
 | `☑`   | 06/21 23:59 | OS | Homework #8 |
 | `☑`   | 06/15 23:59 | OS | Homework #7 |
 | `☑`   | 06/14 23:59 | ST | Web GUI |
 | `☑`   | 06/10 23:59 | OS | Lab #5 |
 | `☑`   | 06/08 23:59 | OS | Homework #6 |
-| `☑`   | 06/02 23:59 | GP | 开题答辩 |
+| `☑`   | 06/02 23:59 | GP | Opening Presentation |
 | `☑`   | 05/27 23:59 | OS | Lab #4 |
 | `☑`   | 05/17 23:59 | ST | White Box |
 | `☑`   | 05/15 23:59 | GP | Cardboard VR |
@@ -33,7 +36,7 @@
 | `☑`   | 03/16 23:59 | GP | Assignment #3 |
 | `☑`   | 03/16 23:59 | GP | Assignment #2 |
 | `☑`   | 03/12 23:59 | HCI | Assignment #1 |
-| `☑`   | 03/10 23:59 | ST | 课题准备 |
+| `☑`   | 03/10 23:59 | ST | Preparations |
 | `☑`   | 03/10 12:55 | GP | Assignment #1 |
 | `☑`   | 03/10 12:55 | GP | Assignment #0 |
 
