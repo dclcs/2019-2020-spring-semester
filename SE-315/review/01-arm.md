@@ -168,6 +168,7 @@ ChCore 的 Bootloader 做的事情基本不能再少了：
 	* 然後，开启 MMU（即告诉 CPU 已经可以用页表翻译机制了）
 
 * 跳转到 Kernel 的 `main` 函数
+	
 	* 正式进入 ChCore
 
 ### 硬件模拟
