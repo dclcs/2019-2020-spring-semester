@@ -9,7 +9,7 @@
 | ------- | ----------- | -------- | ---------------- |
 | `☐`   | 07/05 23:59 | ST | Performance |
 | `☐`   | 07/04 10:00 | GP | Final Presentation |
-| `☐`   | 07/01 10:00 | HCI | Final Presentation |
+| `☑`   | 07/01 10:00 | HCI | Final Presentation |
 | `☑`   | 06/29 12:20 | OS | Final Exam |
 | `☑`   | 06/21 23:59 | OS | Homework #8 |
 | `☑`   | 06/15 23:59 | OS | Homework #7 |
